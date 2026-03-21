@@ -1,0 +1,51 @@
+<!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="profile-image-edit">
+        <img
+          src="<%= user?.profileImage || '/images/user-dp.jpg' %>"
+          class="avatar-img"
+          alt="avatar"
+        />
+        <p class="name">
+          <%= user
+            ? `${user.firstName || ""} ${user.lastName || ""}`.trim() || "User"
+            : "User"
+          %>
+        </p>
+      </div>
+
+      <ul class="menu">
+        <li class="<%= activePage === 'profile' ? 'active' : '' %>">
+          <a href="/profile">My Profile</a>
+        </li>
+
+        <li class="<%= activePage === 'addresses' ? 'active' : '' %>">
+          <a href="/addresses">My Address</a>
+        </li>
+
+        <li class="<%= activePage === 'orders' ? 'active' : '' %>">
+          <a href="/orders">My Order</a>
+        </li>
+
+        <li class="<%= activePage === 'wishlist' ? 'active' : '' %>">
+          <a href="/wishlist">My Wishlist</a>
+        </li>
+
+        <li class="<%= activePage === 'wallet' ? 'active' : '' %>">
+          <a href="/wallet">My Wallet</a>
+        </li>
+
+        <li class="<%= activePage === 'coupons' ? 'active' : '' %>">
+          <a href="/coupons">My Coupon</a>
+        </li>
+
+        <li class="<%= activePage === 'change-password' ? 'active' : '' %>">
+          <a href="/profile/change-password">Change Password</a>
+        </li>
+
+        <li>
+          <a href="#" id="sidebarLogout">Log out</a>
+        </li>
+      </ul>
+
+    </aside>

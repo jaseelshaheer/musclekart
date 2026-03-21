@@ -1,0 +1,64 @@
+<!-- CHANGE EMAIL MODAL -->
+<div id="emailModal" class="modal hidden">
+  <div class="modal-card">
+
+    <div class="modal-header">
+      <h3>Change Email</h3>
+      <p>Enter your new email address</p>
+    </div>
+
+    <div class="modal-body">
+      <input
+        type="email"
+        id="newEmail"
+        placeholder="example@email.com"
+        class="modal-input"
+      />
+      <small class="field-error" id="emailError"></small>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-cncel" onclick="closeEmailModal()">Cancel</button>
+      <button class="btn-submt" onclick="requestEmailChange()">Send OTP</button>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- VERIFY EMAIL OTP MODAL -->
+<div id="otpModal" class="modal hidden">
+  <div class="modal-card">
+
+    <div class="modal-header">
+      <h3>Verify Email</h3>
+      <p>Enter the OTP sent to your new email</p>
+    </div>
+
+    <div class="modal-body">
+      <input
+        type="text"
+        id="emailOtp"
+        placeholder="Enter 6-digit OTP"
+        class="modal-input"
+        maxlength="6"
+      />
+      <small id="emailOtpError" class="field-error"></small>
+
+      <div class="otp-timer-row">
+        <small>Resend in <span id="emailOtpTimer">30</span>s</small>
+        <button id="resendEmailOtpBtn" class="link-btn" disabled>
+          Resend OTP
+        </button>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeOtpModal()">Cancel</button>
+      <button id="verifyEmailBtn" class="btn-primary">
+        Verify & Update
+      </button>
+    </div>
+
+  </div>
+</div>

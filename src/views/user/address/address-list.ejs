@@ -1,0 +1,26 @@
+<section class="account-page">
+  <div class="account-layout">
+
+    <!-- SIDEBAR -->
+    <%- include("../profile/_sidebar") %>
+
+    <!-- CONTENT -->
+    <main class="content">
+      <div class="profile-box">
+
+        <div class="profile-header">
+          <h2>My Addresses</h2>
+          <a href="/addresses/new" class="primary-btn">Add New Address</a>
+        </div>
+
+        <!-- JS WILL RENDER HERE -->
+        <div id="addressList" class="address-list"></div>
+
+      </div>
+    </main>
+
+  </div>
+</section>
+
+<script src="/js/address-list.js"></script>
+

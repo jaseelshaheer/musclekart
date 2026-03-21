@@ -1,0 +1,50 @@
+<header class="site-header">
+  <div class="header-container">
+
+    <!-- Logo -->
+    <a href="/home" class="logo">
+      MuscleKart
+    </a>
+
+    <!-- Search -->
+    <form class="search-box" action="/shop" method="GET">
+      <input type="text" name="search" placeholder="What are you looking for?" />
+    </form>
+
+    <!-- Navigation -->
+    <nav class="nav-links">
+      <a href="/home">Home</a>
+      <a href="/shop">Shop</a>
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+    </nav>
+
+    <!-- Right Actions -->
+    <div class="header-actions">
+
+      <!-- GUEST -->
+      <div class="auth guest-only auth-block">
+        <a href="/login" class="btn-outline">Sign in</a>
+        <a href="/signup" class="btn-primary">Sign up</a>
+      </div>
+
+      <!-- LOGGED-IN USER -->
+      <div class="auth user-only user-align auth-block">
+        <a href="/wishlist" class="icon-btn">🤍</a>
+        <a href="/cart" class="icon-btn">🛒</a>
+
+        <div class="profile-dropdown">
+          <button class="profile-btn">👤</button>
+          <div class="dropdown-menu">
+            <a href="/profile">My Profile</a>
+            <a href="/user/orders">My Orders</a>
+            <a href="/user/wallet">My Wallet</a>
+            <button id="logoutBtn">Logout</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</header>

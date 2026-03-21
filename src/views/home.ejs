@@ -1,0 +1,102 @@
+
+<section class="home">
+
+  <!-- HERO SECTION -->
+  <section class="hero-section">
+    <div class="hero-content">
+      <h1>Fuel Your Fitness Journey</h1>
+      <p>
+        Premium supplements, trusted brands, and best deals
+        delivered to your door.
+      </p>
+      <a href="/shop" class="hero-btn">Shop Now</a>
+    </div>
+
+    <div class="hero-image">
+      <img src="/images/bnrMTech.jpg" alt="MuscleKart Banner">
+    </div>
+  </section>
+
+</section>
+
+
+
+  <!-- DEALS SECTION -->
+  <section class="deals-section">
+
+    <div class="section-header">
+      <h2>Today’s Deals</h2>
+      <a href="/shop">View all</a>
+    </div>
+
+    <div class="product-grid">
+      <% for (let i = 0; i < 12; i++) { %>
+        <div class="product-card">
+          <img src="/images/productON.jpg" alt="Product">
+          <h3>Whey Protein</h3>
+          <p>₹7,299</p>
+          <button>Add to Cart</button>
+        </div>
+      <% } %>
+    </div>
+
+</section>
+
+
+  <!-- CATEGORIES SECTION -->
+  <section class="categories-section">
+
+    <div class="section-header">
+      <h2>Shop by Category</h2>
+    </div>
+
+    <div class="categories-grid">
+
+      <% const categories = [
+        "Proteins",
+        "Creatine",
+        "Pre Workout",
+        "Mass Gainers",
+        "Vitamins",
+        "Accessories"
+      ]; %>
+
+      <% categories.forEach(category => { %>
+        <a href="/shop" class="category-card">
+          <div class="category-icon">
+            <!-- <img src="" alt="<%= category %>"> -->
+          </div>
+          <p><%= category %></p>
+        </a>
+      <% }) %>
+
+    </div>
+
+</section>
+
+
+
+
+<section class="page">
+
+  <!-- HERO / BANNER -->
+  <section class="hero">
+    <img src="/images/bnrMTech.jpg" alt="Hero Banner">
+  </section>
+
+
+</section>
+
+
+<script>
+  const params = new URLSearchParams(window.location.search);
+  const token = params.get("token");
+
+  if (token) {
+    localStorage.setItem("token", token);
+
+    // remove token from URL
+    window.history.replaceState({}, document.title, "/home");
+  }
+</script>
+

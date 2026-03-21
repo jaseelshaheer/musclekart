@@ -1,0 +1,280 @@
+<div class="admin-layout">
+
+  <%- include("../partials/admin-sidebar") %>
+
+  <main class="admin-main">
+
+    <!-- PAGE HEADER -->
+
+    <div class="admin-page-header">
+
+      <div>
+        <h1 id="pageTitle"><%= mode === "edit" ? "Edit Product" : "Add Product" %></h1>
+        <p class="breadcrumb">
+          Dashboard / Products / <%= mode === "edit" ? "Edit" : "Add" %>
+        </p>
+      </div>
+
+      <div style="display:flex; gap:12px; align-items:center;">
+        <button id="cancelProductBtn" class="btn-header-cancel" type="button">
+          Cancel
+        </button>
+
+        <button id="saveProductBtn" class="btn-primary" type="button">
+          <%= mode === "edit" ? "Update Product" : "Save Product" %>
+        </button>
+      </div>
+
+    </div>
+
+
+
+
+
+    <div class="admin-card">
+
+      <!-- PRODUCT FORM -->
+
+      <form id="productForm">
+
+        <input type="hidden" id="productId" value="<%= productId || '' %>">
+
+
+        <div class="product-grid">
+
+          <div class="form-group">
+            <label>Product Name</label>
+            <input type="text" id="productName" class="form-control" maxlength="120">
+            <small class="field-error" id="productNameError"></small>
+            <small class="char-count" id="productNameCount">0 / 120</small>
+          </div>
+
+
+          <div class="form-group">
+            <label>Category</label>
+            <select id="categorySelect" class="form-control"></select>
+            <small class="field-error" id="categoryError"></small>
+          </div>
+
+
+          <div class="form-group">
+            <label>Brand</label>
+            <select id="brandSelect" class="form-control"></select>
+            <small class="field-error" id="brandError"></small>
+          </div>
+
+
+          <div class="form-group full">
+            <label>Description</label>
+            <textarea id="description" class="form-control" maxlength="1000"></textarea>
+            <small class="char-count" id="descriptionCount">0 / 1000</small>
+          </div>
+
+          <div class="form-group full">
+            <label>Specifications</label>
+            <textarea id="specifications" class="form-control" maxlength="2000"></textarea>
+            <small class="char-count" id="specificationsCount">0 / 2000</small>
+          </div>
+
+        </div>
+
+      </form>
+
+
+      <!-- VARIANT SECTION -->
+      
+      <hr class="variant-divider">
+      
+      <div class="variant-header">
+        <div>
+          <h3>Variants</h3>
+          <small class="field-error" id="variantsError"></small>
+        </div>
+
+        <button id="addVariantBtn" class="btn-primary" type="button">
+          + Add Variant
+        </button>
+      </div>
+
+      
+      
+      <!-- VARIANT FORM -->
+      
+      <div id="variantFormWrapper" class="variant-form hidden">
+      
+        <!-- ATTRIBUTES -->
+      
+        <div class="form-group">
+      
+          <label>Attributes</label>
+      
+          <div id="attributesContainer" class="attribute-container">
+      
+            <div class="attribute-row">
+      
+              <input type="text" class="attr-type form-control small" maxlength="30" placeholder="Attribute (ex: Flavour)">
+      
+              <input type="text" class="attr-value form-control small" maxlength="50" placeholder="Value (ex: Chocolate)">
+      
+              <button type="button" class="attr-remove">Remove</button>
+      
+            </div>
+      
+          </div>
+
+          <small class="field-error" id="variantAttributesError"></small>
+      
+          <button type="button" id="addAttributeBtn" class="btn-outline small-btn">
+            + Add Attribute
+          </button>
+      
+        </div>
+      
+      
+        <!-- PRICE + STOCK -->
+      
+        <div class="variant-grid">
+      
+          <div class="form-group">
+            <label>Price</label>
+            <input type="number" id="variantPrice" class="form-control small">
+            <small class="field-error" id="variantPriceError"></small>
+          </div>
+
+      
+          <div class="form-group">
+            <label>Stock</label>
+            <input type="number" id="variantStock" class="form-control small">
+            <small class="field-error" id="variantStockError"></small>
+          </div>
+
+      
+        </div>
+      
+      
+        <!-- IMAGE SECTION -->
+      
+        <div class="image-section">
+      
+          <!-- MAIN IMAGE -->
+      
+          <div class="image-block">
+      
+            <label>Main Image</label>
+      
+            <input type="file" id="variantMainImage" hidden>
+      
+            <div id="mainImageUpload" class="image-upload-box">
+              Upload
+            </div>
+      
+            <div id="mainImagePreviewWrapper" class="gallery-item hidden">
+              <img id="mainImagePreview">
+              <span id="removeMainImage" class="gallery-delete">✕</span>
+            </div>
+      
+          </div>
+
+          <small class="field-error" id="variantMainImageError"></small>
+
+      
+      
+          <!-- GALLERY -->
+      
+          <div class="image-block">
+      
+            <label>Gallery</label>
+      
+            <input type="file" id="variantImages" multiple hidden>
+      
+            <!-- <div id="galleryUpload" class="image-upload-box">
+              Upload
+            </div> -->
+      
+            <div id="galleryPreview" class="gallery-grid"></div>
+      
+          </div>
+          <small class="field-error" id="variantGalleryError"></small>
+
+      
+        </div>
+      
+      
+        <!-- ACTION BUTTONS -->
+      
+        <div class="variant-actions">
+      
+          <button id="saveVariantBtn" class="btn-primary" type="button">
+            Save
+          </button>
+      
+          <button id="cancelVariantBtn" class="btn-cncel" type="button">
+            Cancel
+          </button>
+      
+        </div>
+      
+      </div>
+
+      
+      
+      
+      <!-- VARIANT TABLE -->
+      
+      <div class="variant-table-wrapper">
+      
+        <table class="admin-table">
+      
+          <thead>
+            <tr>
+              <th> </th>
+              <th>Attributes</th>
+              <th>Price</th>
+              <th>Stock</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+      
+          <tbody id="variantTable"></tbody>
+      
+        </table>
+      
+      </div>
+
+
+    </div>
+
+  </main>
+
+</div>
+
+<div id="cropModal" class="modal hidden">
+
+  <div class="modal-card" style="max-width:600px">
+
+    <h3>Crop Image</h3>
+
+    <div style="margin-top:10px">
+
+      <img id="cropImage" style="max-width:100%">
+
+    </div>
+
+    <div style="margin-top:15px">
+
+      <button id="cropConfirmBtn" class="btn-primary">
+        Crop
+      </button>
+
+      <button id="cropCancelBtn" class="btn-cncel">
+        Cancel
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<script src="/js/product-form.js"></script>

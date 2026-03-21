@@ -1,0 +1,142 @@
+<div class="admin-layout">
+
+  <%- include("../partials/admin-sidebar") %>
+
+  <main class="admin-main">
+
+    <!-- PAGE HEADER -->
+    <div class="admin-page-header">
+
+      <div>
+        <h1>Categories</h1>
+        <p class="breadcrumb">Dashboard / Categories</p>
+      </div>
+
+      <div class="search-wrapper">
+        <input
+          type="text"
+          id="searchInput"
+          placeholder="Search category..."
+        />
+        <button id="clearSearch">✕</button>
+      </div>
+
+    </div>
+
+
+
+    <!-- TABLE CARD -->
+
+    <div class="admin-card">
+
+      <div style="margin-bottom:16px;">
+        <button id="addCategoryBtn" class="btn-primary">
+          + Add Category
+        </button>
+      </div>
+
+
+      <table class="admin-table">
+
+        <thead>
+          <tr>
+            <th>SNO</th>
+            <th>Category</th>
+            <th>Description</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+
+        <tbody id="categoryTable">
+          <!-- JS will inject rows -->
+        </tbody>
+
+      </table>
+
+    <!-- <div id="confirmModal" class="modal hidden">
+        <div class="modal-card">
+            <h3 id="confirmText"></h3>
+
+            <div class="modal-actions">
+            <button id="confirmYes" class="btn-unblock">Yes</button>
+            <button id="confirmNo" class="btn-block">Cancel</button>
+            </div>
+        </div>
+    </div> -->
+
+      <!-- PAGINATION -->
+
+      <div class="admin-pagination">
+        <button id="prevBtn">Previous</button>
+        <span id="pageInfo"></span>
+        <button id="nextBtn">Next</button>
+      </div>
+
+    </div>
+
+  </main>
+
+</div>
+
+
+
+<!-- CATEGORY MODAL -->
+
+<div id="categoryModal" class="modal hidden">
+
+  <div class="modal-card">
+
+    <h3 id="modalTitle">Add Category</h3>
+
+    <form id="categoryForm">
+
+      <input type="hidden" id="categoryId">
+
+      <div class="modal-body">
+
+        <input
+          type="text"
+          id="categoryName"
+          class="modal-input"
+          placeholder="Category Name"
+          maxlength="50"
+        >
+
+        <small class="field-error" id="categoryNameError"></small>
+        <small class="char-count" id="categoryNameCount">0 / 50</small>
+
+        <br><br>
+
+        <textarea
+          id="categoryDescription"
+          class="modal-input"
+          placeholder="Description"
+          maxlength="200"
+        ></textarea>
+
+        <small class="char-count" id="categoryDescriptionCount">0 / 200</small>
+
+      </div>
+
+      <div class="modal-actions">
+
+        <button type="button" id="closeModalBtn" class="btn-cncel">
+          Cancel
+        </button>
+
+        <button type="submit" class="btn-submt">
+          Save
+        </button>
+
+      </div>
+
+    </form>
+
+  </div>
+
+</div>
+
+
+<script src="/js/confirm.js"></script>
+<script src="/js/category-management.js"></script>

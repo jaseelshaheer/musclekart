@@ -1,0 +1,56 @@
+<main class="auth-page">
+  <div class="auth-container">
+
+    <!-- LEFT IMAGE -->
+    <div class="auth-image">
+      <img src="/images/otp.jpg" alt="Verify OTP">
+    </div>
+
+    <!-- RIGHT FORM -->
+    <div class="auth-form">
+      <h2>Verify OTP</h2>
+      <p class="auth-subtitle">
+        Enter the 6-digit code sent to your email
+      </p>
+
+      <form id="otpForm">
+        <input type="hidden" id="otpEmail" />
+        <!-- OTP INPUTS -->
+        <div class="otp-inputs">
+          
+          <% for (let i = 0; i < 6; i++) { %>
+            <input type="text" maxlength="1" class="otp-box" />
+          <% } %>
+        </div>
+
+        <!-- TIMER -->
+        <p class="otp-timer">
+          Resend OTP in <span id="otpTimer">30</span>s
+        </p>
+
+        <!-- RESEND -->
+        <button
+          type="button"
+          id="resendBtn"
+          class="resend-btn"
+          disabled
+        >
+          Resend OTP
+        </button>
+
+        <!-- ERROR -->
+        <p class="otp-error" id="otpError"></p>
+
+        <!-- VERIFY -->
+        <button type="submit" class="primary-btn">
+          Verify OTP
+        </button>
+
+      </form>
+    </div>
+
+  </div>
+</main>
+
+<script src="/js/verify-otp.js"></script>
+

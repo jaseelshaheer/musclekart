@@ -1,0 +1,70 @@
+<div class="admin-layout">
+
+  <%- include("../partials/admin-sidebar") %>
+
+  <main class="admin-main">
+
+    <!-- PAGE HEADER -->
+    <div class="admin-page-header">
+      <div>
+        <h1>Customer List</h1>
+        <p class="breadcrumb">Dashboard / Customers</p>
+      </div>
+
+      <div class="search-wrapper">
+        <input
+          type="text"
+          id="searchInput"
+          placeholder="Search user..."
+        />
+        <button id="clearSearch">✕</button>
+      </div>
+
+    </div>
+
+    <!-- TABLE CARD -->
+    <div class="admin-card">
+
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+
+        <tbody id="userTable">
+          <!-- JS injects rows -->
+        </tbody>
+      </table>
+
+      <div id="confirmModal" class="modal hidden">
+        <div class="modal-card">
+          <h3 id="confirmText"></h3>
+          <div class="modal-actions">
+            <button id="confirmYes" class="btn-unblock">Yes</button>
+            <button id="confirmNo" class="btn-block">Cancel</button>
+          </div>
+        </div>
+      </div>
+
+
+
+      <!-- PAGINATION -->
+      <div class="admin-pagination">
+        <button id="prevBtn">Previous</button>
+        <span id="pageInfo"></span>
+        <button id="nextBtn">Next</button>
+      </div>
+
+    </div>
+
+  </main>
+</div>
+
+<script src="/js/admin-users.js"></script>
+<script src="/js/auth-ui.js"></script>
+

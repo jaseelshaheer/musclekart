@@ -1,0 +1,78 @@
+<main class="auth-page">
+  <div class="auth-container">
+
+    <!-- LEFT IMAGE -->
+    <div class="auth-image">
+      <img src="/images/banner1-signup.jpg" alt="Signup">
+    </div>
+
+    <!-- RIGHT FORM -->
+    <div class="auth-form">
+      <h2>Sign up & Get Reward</h2>
+      <p class="auth-subtitle">
+        Get ₹300 Welcome Bonus on Signup 🎉
+      </p>
+
+      <form id="signupForm" novalidate>
+
+        <div class="form-group">
+          <label>First Name</label>
+          <input type="text" name="firstName" placeholder="Enter your first name">
+        </div>
+
+        <div class="form-group">
+          <label>Last Name</label>
+          <input type="text" name="lastName" placeholder="Enter your last name">
+        </div>
+
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" name="email" placeholder="Enter your email">
+        </div>
+
+        <div class="form-group">
+          <label>Mobile Number</label>
+          <input type="tel" name="phone" placeholder="Enter your mobile number" inputmode="numeric" autocomplete="off">
+          <medium class="field-error" id="phoneError"></medium>
+        </div>
+
+        <div class="form-group">
+          <label>Password</label>
+          <div class="password-wrapper">
+            <input type="password" name="password" placeholder="Enter your password">
+            <span class="toggle-password">👁</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Confirm Password</label>
+          <div class="password-wrapper">
+            <input type="password" name="confirmPassword" placeholder="Re-enter your password">
+            <span class="toggle-password">👁</span>
+          </div>
+        </div>
+
+        <button type="submit" class="primary-btn">
+          Sign Up
+        </button>
+
+        <p class="auth-switch">
+          Already have an account?
+          <a href="/login">Log in</a>
+        </p>
+
+        <div class="divider">OR</div>
+
+        <a href="/auth/google" class="google-btn">
+          <img src="/images/google-logo.png" alt="Google">
+          Continue with Google
+        </a>
+        <!-- <div id="formError"></div> -->
+      </form>
+    </div>
+
+  </div>
+</main>
+
+
+<script src="/public/js/signup.js"></script>

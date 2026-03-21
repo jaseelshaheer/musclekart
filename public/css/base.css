@@ -1,0 +1,15 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: system-ui, sans-serif;
+  background: #eef6f5;
+  color: var(--text-dark);
+}
+
+a {
+  text-decoration: none;
+}

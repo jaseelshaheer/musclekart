@@ -1,0 +1,79 @@
+<div class="admin-layout">
+
+<%- include("../partials/admin-sidebar") %>
+
+  <main class="admin-main">
+
+        <!-- PAGE HEADER -->
+
+        <div class="admin-page-header">
+
+        <div>
+            <h1>Products</h1>
+            <p class="breadcrumb">Dashboard / Products</p>
+        </div>
+
+        <div style="display:flex; gap:12px; align-items:center;">
+
+            <div class="search-wrapper">
+            <input
+                type="text"
+                id="searchInput"
+                placeholder="Search product..."
+            />
+            <button id="clearSearch">✕</button>
+            </div>
+
+            <button id="addProductBtn" class="btn-primary" type="button">
+                + Add Product
+            </button>
+
+        </div>
+
+        </div>
+
+
+
+        <!-- TABLE CARD -->
+
+        <div class="admin-card">
+
+        <table class="admin-table">
+
+            <thead>
+            <tr>
+                <th>Image</th>
+                <th>Product Name</th>
+                <th>Category</th>
+                <th>Price Range</th>
+                <th>Stock</th>
+                <th>Status</th>
+                <th>Brand</th>
+                <th>Action</th>
+            </tr>
+            </thead>
+
+            <tbody id="productTable">
+            <!-- JS inject rows -->
+            </tbody>
+
+        </table>
+
+
+
+
+        <!-- PAGINATION -->
+
+        <div class="admin-pagination">
+            <button id="prevBtn">Previous</button>
+            <span id="pageInfo"></span>
+            <button id="nextBtn">Next</button>
+        </div>
+
+        </div>
+
+  </main>
+
+</div>
+
+<script src="/js/product-management.js"></script>

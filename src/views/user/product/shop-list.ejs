@@ -1,0 +1,227 @@
+<section class="page shop-page">
+
+  <div class="shop-header">
+    <div>
+      <h1>Shop Products</h1>
+      <p class="shop-subtitle">
+        Find the right supplements and essentials for your routine.
+      </p>
+    </div>
+  </div>
+
+  <% if (errorMessage) { %>
+    <div class="shop-alert"><%= errorMessage %></div>
+  <% } %>
+
+  <div
+    id="shopNoticeData"
+    data-notice="<%= notice || '' %>"
+    class="hidden"
+  ></div>
+
+  <div class="shop-layout">
+
+    <aside class="shop-sidebar">
+      <form id="shopFilterForm" method="GET" action="/shop">
+        <input type="hidden" id="pageInput" name="page" value="1">
+
+
+        <div class="filter-group">
+          <label for="search">Search</label>
+          <div class="shop-search-row">
+            <input
+              type="text"
+              id="search"
+              name="search"
+              value="<%= filters.search %>"
+              placeholder="Search products..."
+            >
+            <button type="button" id="clearSearchBtn" class="btn-filter-clear">
+              Clear
+            </button>
+          </div>
+        </div>
+
+        <div class="filter-group">
+          <label for="sort">Sort</label>
+          <select id="sort" name="sort">
+            <option value="">Newest</option>
+            <option value="price_asc" <%= filters.sort === "price_asc" ? "selected" : "" %>>
+              Price: Low to High
+            </option>
+            <option value="price_desc" <%= filters.sort === "price_desc" ? "selected" : "" %>>
+              Price: High to Low
+            </option>
+            <option value="name_asc" <%= filters.sort === "name_asc" ? "selected" : "" %>>
+              A - Z
+            </option>
+            <option value="name_desc" <%= filters.sort === "name_desc" ? "selected" : "" %>>
+              Z - A
+            </option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label for="category">Category</label>
+          <select id="category" name="category">
+            <option value="">All Categories</option>
+            <% categories.forEach(category => { %>
+              <option
+                value="<%= category._id %>"
+                <%= filters.category === String(category._id) ? "selected" : "" %>
+              >
+                <%= category.name %>
+              </option>
+            <% }) %>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label for="brand">Brand</label>
+          <select id="brand" name="brand">
+            <option value="">All Brands</option>
+            <% brands.forEach(brand => { %>
+              <option
+                value="<%= brand._id %>"
+                <%= filters.brand === String(brand._id) ? "selected" : "" %>
+              >
+                <%= brand.name %>
+              </option>
+            <% }) %>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label>Price Range</label>
+          <div class="price-range-row">
+            <input
+                type="number"
+                id="minPrice"
+                name="minPrice"
+                value="<%= filters.minPrice %>"
+                placeholder="Min"
+            >
+            <input
+                type="number"
+                id="maxPrice"
+                name="maxPrice"
+                value="<%= filters.maxPrice %>"
+                placeholder="Max"
+            >
+
+          </div>
+        </div>
+
+        <div class="filter-actions">
+          <!-- <button type="submit" class="btn-primary">Apply</button> -->
+          <a href="/shop" class="btn-shop-reset">Reset</a>
+        </div>
+
+      </form>
+    </aside>
+
+    <section class="shop-content">
+      <div class="shop-toolbar">
+        <p id="shopCountText">
+            Showing <strong><%= products.length %></strong> of
+            <strong><%= pagination.totalProducts %></strong> products
+        </p>
+      </div>
+
+      <div id="shopResults">
+        <% if (!products.length) { %>
+            <div class="shop-empty">
+            <h3>No products found</h3>
+            <p>Try changing search, sort, or filter options.</p>
+            </div>
+        <% } else { %>
+            <div class="shop-grid">
+            <% products.forEach(product => { %>
+                <article class="shop-card">
+                <a href="/shop/<%= product._id %>" class="shop-card-link">
+                    <img
+                    src="<%= product.main_image || '/images/no-image.png' %>"
+                    alt="<%= product.product_name %>"
+                    >
+                    <h3><%= product.product_name %></h3>
+                    <p class="shop-meta">
+                    <%= product.category_name || "Category" %>
+                    <% if (product.brand_name) { %>
+                        • <%= product.brand_name %>
+                    <% } %>
+                    </p>
+                    <p class="shop-price">
+                    ₹<%= product.min_price %>
+                    <% if (product.max_price && product.max_price !== product.min_price) { %>
+                        - ₹<%= product.max_price %>
+                    <% } %>
+                    </p>
+                    <p class="shop-stock <%= product.total_stock > 0 ? 'in-stock' : 'out-stock' %>">
+                    <%= product.total_stock > 0 ? "In stock" : "Out of stock" %>
+                    </p>
+                </a>
+                </article>
+            <% }) %>
+            </div>
+        <% } %>
+      </div>
+
+
+      <div id="shopPagination">
+        <% if (pagination.totalPages > 1) { %>
+            <div class="shop-pagination">
+            <% const prevPage = pagination.currentPage - 1; %>
+            <% const nextPage = pagination.currentPage + 1; %>
+
+            <% if (pagination.currentPage > 1) { %>
+                <a
+                href="/shop?<%= new URLSearchParams({
+                    search: filters.search,
+                    sort: filters.sort,
+                    category: filters.category,
+                    brand: filters.brand,
+                    minPrice: filters.minPrice,
+                    maxPrice: filters.maxPrice,
+                    page: prevPage
+                }).toString() %>"
+                class="page-btn"
+                >
+                Previous
+                </a>
+            <% } else { %>
+                <span class="page-btn disabled">Previous</span>
+            <% } %>
+
+            <span class="page-current">
+                Page <%= pagination.currentPage %> of <%= pagination.totalPages %>
+            </span>
+
+            <% if (pagination.currentPage < pagination.totalPages) { %>
+                <a
+                href="/shop?<%= new URLSearchParams({
+                    search: filters.search,
+                    sort: filters.sort,
+                    category: filters.category,
+                    brand: filters.brand,
+                    minPrice: filters.minPrice,
+                    maxPrice: filters.maxPrice,
+                    page: nextPage
+                }).toString() %>"
+                class="page-btn"
+                >
+                Next
+                </a>
+            <% } else { %>
+                <span class="page-btn disabled">Next</span>
+            <% } %>
+            </div>
+        <% } %>
+      </div>
+
+    </section>
+
+  </div>
+
+</section>
+
+<script src="/js/shop-list.js"></script>

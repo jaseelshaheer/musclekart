@@ -1,0 +1,79 @@
+<section class="account-page">
+  <div class="account-layout">
+
+    <%- include("../profile/_sidebar") %>
+
+    <!-- CONTENT -->
+    <main class="content">
+      <div class="profile-box">
+
+        <!-- HEADER -->
+        <div class="profile-header">
+          <img
+            src="<%= user?.profileImage || '/images/user-dp.jpg' %>"
+            alt="profile"
+          />
+          <div>
+            <small>WELCOME</small>
+            <h2 id="profileHeaderName">
+              <%= user
+                ? `${user.firstName || ""} ${user.lastName || ""}`.trim() || "User"
+                : "User"
+              %>
+            </h2>
+          </div>
+        </div>
+
+        <!-- DETAILS GRID -->
+        <div class="profile-grid">
+
+          <div>
+            <label>First Name</label>
+            <p id="profileFirstName">-</p>
+          </div>
+
+          <div>
+            <label>Last Name</label>
+            <p id="profileLastName">-</p>
+          </div>
+
+          <div class="profile-row">
+            <label>Email</label>
+            <p>
+              <span id="currentEmail">-</span>
+              <button class="link-btn" id="openEmailBtn">Change</button>
+            </p>
+          </div>
+
+
+
+          <div>
+            <label>Phone Number</label>
+            <p id="profilePhone">-</p>
+          </div>
+
+        </div>
+
+        <!-- ACTION -->
+        <div class="profile-action">
+          <a href="/profile/edit" class="primary-btn">
+            Edit Profile
+          </a>
+        </div>
+
+      </div>
+    </main>
+
+  </div>
+</section>
+
+
+<%- include("../profile/_email-modals") %>
+
+
+
+
+<script src="/js/profile-email.js"></script>
+<script src="/js/profile-view.js"></script>
+
+

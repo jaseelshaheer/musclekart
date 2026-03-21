@@ -1,0 +1,69 @@
+<main class="auth-page">
+  <div class="auth-container">
+
+    <!-- LEFT IMAGE -->
+    <div class="auth-image">
+      <img src="/images/banner1-login.png" alt="Login">
+    </div>
+
+    <!-- RIGHT FORM -->
+    <div class="auth-form">
+      <h2>Log in</h2>
+      <p class="auth-subtitle">
+        Welcome back! Please login to your account
+      </p>
+
+      <form id="loginForm" novalidate>
+
+        <div class="form-group">
+          <label>Email</label>
+          <input
+            type="email"
+            name="email"
+            placeholder="Enter your email"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label>Password</label>
+          <div class="password-wrapper">
+            <input
+              type="password"
+              name="password"
+              placeholder="Enter your password"
+              required
+            />
+            <span class="toggle-password">👁</span>
+          </div>
+        </div>
+
+        <div class="form-extra">
+          <a href="/forgot-password" class="forgot-link">
+            Forgot Password?
+          </a>
+        </div>
+        <p class="field-error" id="loginError"></p>
+        <button type="submit" class="primary-btn">
+          Log in
+        </button>
+
+        <p class="auth-switch">
+          New user?
+          <a href="/signup">Sign up</a>
+        </p>
+
+        <div class="divider">OR</div>
+
+        <a href="/auth/google" class="google-btn">
+          <img src="/images/google-logo.png" alt="Google">
+          Continue with Google
+        </a>
+
+      </form>
+    </div>
+
+  </div>
+</main>
+
+<script src="/js/login.js"></script>

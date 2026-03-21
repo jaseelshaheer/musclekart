@@ -1,0 +1,51 @@
+<aside class="admin-sidebar">
+  <div class="admin-brand">
+    <h2>MuscleKart</h2>
+    <span>Admin Panel</span>
+  </div>
+
+  <nav class="admin-nav">
+    <a href="/admin/dashboard"
+       class="<%= activePage === 'dashboard' ? 'active' : '' %>">
+      Dashboard
+    </a>
+
+    <a href="/admin/users-list"
+       class="<%= activePage === 'customers' ? 'active' : '' %>">
+      Customers
+    </a>
+
+    <a href="/admin/products-list" class="<%= activePage === 'products' ? 'active' : '' %>">Products</a>
+    <a href="/admin/categories-list"
+      class="<%= activePage === 'categories' ? 'active' : '' %>">
+      Categories
+    </a>
+    <a href="/admin/brands-list"
+      class="<%= activePage === 'brands' ? 'active' : '' %>">
+      Brands
+    </a>
+    <a href="#">Orders</a>
+    <a href="#">Sales</a>
+  </nav>
+
+  <button id="logoutBtn" class="admin-logout-btn">
+    Logout
+  </button>
+</aside>
+
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const logoutBtn = document.getElementById("logoutBtn");
+    if (!logoutBtn) return;
+
+    logoutBtn.addEventListener("click", () => {
+      // Remove token
+      localStorage.removeItem("adminToken");
+
+      // Redirect to admin login
+      window.location.href = "/admin/login";
+    });
+  });
+</script>
+
