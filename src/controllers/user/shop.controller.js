@@ -2,6 +2,7 @@ import {
   getProductsPageService,
   getProductDetailsPageService
 } from "../../services/user/shop.service.js";
+import HTTP_STATUS from "../../constants/httpStatus.js";
 
 export const getProductsPage = async (req, res) => {
   try {
@@ -14,7 +15,7 @@ export const getProductsPage = async (req, res) => {
       ...result
     });
   } catch (error) {
-    res.status(500).render("user/product/shop-list", {
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).render("user/product/shop-list", {
       layout: "layouts/user",
       activePage: "shop",
       notice: "",
@@ -46,12 +47,12 @@ export const getProductsData = async (req, res) => {
   try {
     const result = await getProductsPageService(req.query);
 
-    res.status(200).json({
+    res.status(HTTP_STATUS.OK).json({
       success: true,
       data: result
     });
   } catch (error) {
-    res.status(500).json({
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
       success: false,
       message: error.message || "Failed to load products"
     });

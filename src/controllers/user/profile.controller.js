@@ -1,6 +1,7 @@
 import { getProfileService, updateProfileService, requestEmailChangeService, verifyEmailChangeService, changePasswordService, addAddressService, updateAddressService, deleteAddressService, getAddressesService, setDefaultAddressService } from "../../services/user/profile.service.js";
 import { sendEmail } from "../../utils/email.js";
 import cloudinary from "../../config/cloudinary.js";
+import HTTP_STATUS from "../../constants/httpStatus.js";
 
 export const getProfile = async (req, res) => {
   try {
@@ -8,12 +9,12 @@ export const getProfile = async (req, res) => {
 
     const profile = await getProfileService(userId);
 
-    return res.status(200).json({
+    return res.status(HTTP_STATUS.OK).json({
       success: true,
       data: profile,
     });
   } catch (error) {
-    return res.status(400).json({
+    return res.status(HTTP_STATUS.BAD_REQUEST).json({
       success: false,
       message: error.message,
     });
@@ -50,7 +51,7 @@ export const updateProfile = async (req, res) => {
 
           const updatedUser = await updateProfileService(userId, updateData);
 
-          return res.status(200).json({
+          return res.status(HTTP_STATUS.OK).json({
             success: true,
             message: "Profile updated successfully",
             data: updatedUser,
@@ -64,14 +65,14 @@ export const updateProfile = async (req, res) => {
 
     const updatedUser = await updateProfileService(userId, updateData);
 
-    return res.status(200).json({
+    return res.status(HTTP_STATUS.OK).json({
       success: true,
       message: "Profile updated successfully",
       data: updatedUser,
     });
 
   } catch (error) {
-    return res.status(400).json({
+    return res.status(HTTP_STATUS.BAD_REQUEST).json({
       success: false,
       message: error.message,
     });
@@ -83,7 +84,7 @@ export const updateProfile = async (req, res) => {
 
 export const requestEmailChange = async (req, res) => {
   if (req.user.authProvider === "google") {
-    return res.status(403).json({
+    return res.status(HTTP_STATUS.FORBIDDEN).json({
       success: false,
       message: "Email change is not allowed for Google accounts."
     });
@@ -110,12 +111,12 @@ export const requestEmailChange = async (req, res) => {
       `,
     });
 
-    return res.status(200).json({
+    return res.status(HTTP_STATUS.OK).json({
       success: true,
       message: "OTP sent to new email address",
     });
   } catch (error) {
-    return res.status(400).json({
+    return res.status(HTTP_STATUS.BAD_REQUEST).json({
       success: false,
       message: error.message,
     });
@@ -130,12 +131,12 @@ export const verifyEmailChange = async (req, res) => {
 
     await verifyEmailChangeService(userId, otp);
 
-    return res.status(200).json({
+    return res.status(HTTP_STATUS.OK).json({
       success: true,
       message: "Email updated successfully",
     });
   } catch (error) {
-    return res.status(400).json({
+    return res.status(HTTP_STATUS.BAD_REQUEST).json({
       success: false,
       message: error.message,
     });
@@ -146,7 +147,7 @@ export const verifyEmailChange = async (req, res) => {
 export const changePassword = async (req, res) => {
     console.log(req.user);
   if (req.user.authProvider === "google") {
-    return res.status(403).json({
+    return res.status(HTTP_STATUS.FORBIDDEN).json({
       success: false,
       message: "Password change is not allowed for Google accounts."
     });
@@ -161,12 +162,12 @@ export const changePassword = async (req, res) => {
 
     await changePasswordService(user, currentPassword, newPassword);
 
-    return res.status(200).json({
+    return res.status(HTTP_STATUS.OK).json({
       success: true,
       message: "Password updated successfully",
     });
   } catch (error) {
-    return res.status(400).json({
+    return res.status(HTTP_STATUS.BAD_REQUEST).json({
       success: false,
       message: error.message,
     });
@@ -188,32 +189,32 @@ export const addAddress = async (req, res) => {
 
     // 🔒 Backend validation
     if (!name?.trim())
-      return res.status(400).json({ success: false, message: "Name is required" });
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({ success: false, message: "Name is required" });
 
     if (!/^[0-9]{10}$/.test(phone))
-      return res.status(400).json({ success: false, message: "Invalid phone number" });
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({ success: false, message: "Invalid phone number" });
 
     if (!house?.trim())
-      return res.status(400).json({ success: false, message: "House is required" });
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({ success: false, message: "House is required" });
 
     if (!district?.trim())
-      return res.status(400).json({ success: false, message: "District is required" });
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({ success: false, message: "District is required" });
 
     if (!state?.trim())
-      return res.status(400).json({ success: false, message: "State is required" });
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({ success: false, message: "State is required" });
 
     if (!/^[0-9]{6}$/.test(pincode))
-      return res.status(400).json({ success: false, message: "Invalid pincode" });
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({ success: false, message: "Invalid pincode" });
 
     const address = await addAddressService(userId, req.body);
 
-    return res.status(201).json({
+    return res.status(HTTP_STATUS.CREATED).json({
       success: true,
       message: "Address added successfully",
       data: address,
     });
   } catch (error) {
-    return res.status(400).json({
+    return res.status(HTTP_STATUS.BAD_REQUEST).json({
       success: false,
       message: error.message,
     });
@@ -239,22 +240,22 @@ export const updateAddress = async (req, res) => {
 
     // 🔒 Backend validation
     if (!name?.trim())
-      return res.status(400).json({ success: false, message: "Name is required" });
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({ success: false, message: "Name is required" });
 
     if (!/^[0-9]{10}$/.test(phone))
-      return res.status(400).json({ success: false, message: "Invalid phone number" });
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({ success: false, message: "Invalid phone number" });
 
     if (!house?.trim())
-      return res.status(400).json({ success: false, message: "House is required" });
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({ success: false, message: "House is required" });
 
     if (!district?.trim())
-      return res.status(400).json({ success: false, message: "District is required" });
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({ success: false, message: "District is required" });
 
     if (!state?.trim())
-      return res.status(400).json({ success: false, message: "State is required" });
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({ success: false, message: "State is required" });
 
     if (!/^[0-9]{6}$/.test(pincode))
-      return res.status(400).json({ success: false, message: "Invalid pincode" });
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({ success: false, message: "Invalid pincode" });
 
     const updatedAddress = await updateAddressService(
       userId,
@@ -262,13 +263,13 @@ export const updateAddress = async (req, res) => {
       req.body
     );
 
-    return res.status(200).json({
+    return res.status(HTTP_STATUS.OK).json({
       success: true,
       message: "Address updated successfully",
       data: updatedAddress,
     });
   } catch (error) {
-    return res.status(400).json({
+    return res.status(HTTP_STATUS.BAD_REQUEST).json({
       success: false,
       message: error.message,
     });
@@ -283,12 +284,12 @@ export const deleteAddress = async (req, res) => {
 
     await deleteAddressService(userId, addressId);
 
-    return res.status(200).json({
+    return res.status(HTTP_STATUS.OK).json({
       success: true,
       message: "Address deleted successfully",
     });
   } catch (error) {
-    return res.status(400).json({
+    return res.status(HTTP_STATUS.BAD_REQUEST).json({
       success: false,
       message: error.message,
     });
@@ -303,12 +304,12 @@ export const getAddresses = async (req, res) => {
     const addresses = await getAddressesService(userId);
     console.log("Addresses found:", addresses.length);
 
-    return res.status(200).json({
+    return res.status(HTTP_STATUS.OK).json({
       success: true,
       data: addresses,
     });
   } catch (error) {
-    return res.status(400).json({
+    return res.status(HTTP_STATUS.BAD_REQUEST).json({
       success: false,
       message: error.message,
     });
@@ -323,12 +324,12 @@ export const setDefaultAddress = async (req, res) => {
 
     await setDefaultAddressService(userId, addressId);
 
-    return res.status(200).json({
+    return res.status(HTTP_STATUS.OK).json({
       success: true,
       message: "Default address updated successfully",
     });
   } catch (error) {
-    return res.status(400).json({
+    return res.status(HTTP_STATUS.BAD_REQUEST).json({
       success: false,
       message: error.message,
     });

@@ -1,0 +1,52 @@
+<section class="account-page">
+  <div class="account-layout order-account-layout">
+    <%- include("../profile/_sidebar") %>
+
+    <main class="content order-page-content">
+      <div class="wishlist-page-topbar">
+        <div class="wishlist-page-heading">
+          <h2>My Wishlist</h2>
+          <p>Save products you may want to buy later.</p>
+        </div>
+
+        <button type="button" id="clearWishlistBtn" class="btn-danger-soft" style="display:none;">
+            Remove All
+        </button>
+
+      </div>
+
+      <% if (errorMessage) { %>
+        <div class="shop-alert"><%= errorMessage %></div>
+      <% } %>
+
+      <div class="profile-box wishlist-page">
+        <div id="wishlistContent"></div>
+      </div>
+    </main>
+  </div>
+</section>
+
+
+
+<div id="wishlistVariantModal" class="modal hidden">
+  <div class="modal-backdrop" id="wishlistVariantModalBackdrop"></div>
+
+  <div class="modal-card shop-variant-modal-card">
+    <div class="modal-header">
+      <h3 id="wishlistVariantModalTitle">Choose Variant</h3>
+      <button type="button" id="closeWishlistVariantModalBtn" class="checkout-address-close-btn">✕</button>
+    </div>
+
+    <div class="modal-body">
+      <div id="wishlistVariantOptions" class="shop-variant-options"></div>
+    </div>
+
+    <div class="modal-footer">
+      <button type="button" id="wishlistVariantCancelBtn" class="btn-shop-outline">Cancel</button>
+      <button type="button" id="wishlistVariantAddToCartBtn" class="btn-primary">Add to Cart</button>
+    </div>
+  </div>
+</div>
+
+
+<script src="/js/wishlist.js"></script>

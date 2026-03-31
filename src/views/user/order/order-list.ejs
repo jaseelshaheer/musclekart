@@ -1,0 +1,40 @@
+<section class="account-page">
+  <div class="account-layout order-account-layout">
+    <%- include("../profile/_sidebar") %>
+
+    <main class="content order-page-content">
+      <div class="order-page-topbar">
+        <div class="order-page-heading">
+          <h2>My Orders</h2>
+          <p>Track, review, and manage your placed orders.</p>
+        </div>
+
+        <div class="order-list-toolbar">
+          <div class="search-wrapper">
+            <input
+              type="text"
+              id="orderSearchInput"
+              placeholder="Search by Order ID"
+            >
+            <button type="button" id="clearSearch">✕</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="profile-box order-list-page">
+        <% if (errorMessage) { %>
+            <div class="shop-alert"><%= errorMessage %></div>
+        <% } %>
+
+        <div id="ordersContent"></div>
+      </div>
+
+      <div id="ordersPagination" class="order-pagination"></div>
+
+    </main>
+  </div>
+</section>
+
+<script src="/js/order-list.js"></script>
+
+

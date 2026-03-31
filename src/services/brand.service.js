@@ -1,4 +1,5 @@
 import Brand from "../models/brand.model.js";
+import { BRAND_MESSAGES } from "../constants/messages.js";
 
 /* CREATE BRAND */
 
@@ -7,7 +8,7 @@ export const createBrandService = async (data) => {
   const { name } = data;
 
   if (!data.name || !data.name.trim()) {
-    throw new Error("Brand name is required");
+    throw new Error(BRAND_MESSAGES.NAME_REQUIRED);
   }
 
   if (data.name.trim().length > 50) {
@@ -21,7 +22,7 @@ export const createBrandService = async (data) => {
   });
 
   if (existing) {
-    throw new Error("Brand already exists");
+    throw new Error(BRAND_MESSAGES.NAME_EXISTS);
   }
 
   const brand = await Brand.create({ name });
@@ -77,7 +78,7 @@ export const updateBrandService = async (id, data) => {
 
 
   if (!data.name || !data.name.trim()) {
-    throw new Error("Brand name is required");
+    throw new Error(BRAND_MESSAGES.NAME_REQUIRED);
   }
 
   if (data.name.trim().length > 50) {
@@ -85,7 +86,7 @@ export const updateBrandService = async (id, data) => {
   }
 
   if (existing) {
-    throw new Error("Brand already exists");
+    throw new Error(BRAND_MESSAGES.NAME_EXISTS);
   }
   
 
@@ -125,7 +126,7 @@ export const toggleBrandStatusService = async (id) => {
   const brand = await Brand.findById(id);
 
   if (!brand) {
-    throw new Error("Brand not found");
+    throw new Error(BRAND_MESSAGES.NOT_FOUND);
   }
 
   brand.status = !brand.status;

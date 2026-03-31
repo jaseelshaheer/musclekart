@@ -18,6 +18,14 @@ import adminCategoryRoutes from "./routes/admin/adminCategory.routes.js"
 import adminBrandRoutes from "./routes/admin/adminBrand.routes.js"
 import adminProductRoutes from "./routes/admin/product.routes.js"
 import userProductRoutes from "./routes/user/shop.routes.js"
+import cartRoutes from "./routes/user/cart.routes.js";
+import checkoutRoutes from "./routes/user/checkout.routes.js";
+import orderRoutes from "./routes/user/order.routes.js";
+import adminOrderRoutes from "./routes/admin/adminOrder.routes.js";
+import wishlistRoutes from "./routes/user/wishlist.routes.js";
+
+
+
 
 const app = express();
 
@@ -55,9 +63,18 @@ app.use("/admin", adminAuthRoutes);
 app.use("/admin", adminCategoryRoutes);
 app.use("/admin", adminBrandRoutes);
 app.use("/admin", adminProductRoutes);
+app.use("/admin", adminOrderRoutes);
+
 app.use("/user", userProfileRoutes);
 app.use("/", userProductRoutes);
 app.use("/", homeRoutes);
+app.use("/", cartRoutes);
+app.use("/", checkoutRoutes);
+app.use("/", orderRoutes);
+app.use("/", wishlistRoutes);
+
+
+
 
 app.use("/", userPageRoutes);
 

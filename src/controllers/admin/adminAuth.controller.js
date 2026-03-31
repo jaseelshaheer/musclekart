@@ -1,5 +1,6 @@
 import { adminLogin } from "../../services/auth.service.js";
 import { generateToken } from "../../utils/jwt.js";
+import HTTP_STATUS from "../../constants/httpStatus.js";
 
 export const loginAdmin = async (req, res) => {
   try {
@@ -12,7 +13,7 @@ export const loginAdmin = async (req, res) => {
       role: admin.role,
     });
 
-    res.status(200).json({
+    res.status(HTTP_STATUS.OK).json({
       success: true,
       data: {
         token,
@@ -24,7 +25,7 @@ export const loginAdmin = async (req, res) => {
     });
 
   } catch (err) {
-    res.status(401).json({
+    res.status(HTTP_STATUS.UNAUTHORIZED).json({
       success: false,
       message: err.message,
     });

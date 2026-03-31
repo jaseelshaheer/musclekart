@@ -1,3 +1,7 @@
+import HTTP_STATUS from "../constants/httpStatus.js";
+import { ADDRESS_MESSAGES } from "../constants/messages.js";
+
+
 export const validateAddress = (req, res, next) => {
   let { name, phone, country, house, district, state, pincode } = req.body;
 
@@ -10,21 +14,21 @@ export const validateAddress = (req, res, next) => {
   pincode = pincode?.trim();
 
   if (!name || !house || !country || !district || !state) {
-    return res.status(400).json({
+    return res.status(HTTP_STATUS.BAD_REQUEST).json({
       success: false,
       message: "All required fields must be filled"
     });
   }
 
   if (!/^[0-9]{10}$/.test(phone)) {
-    return res.status(400).json({
+    return res.status(HTTP_STATUS.BAD_REQUEST).json({
       success: false,
       message: "Invalid phone number"
     });
   }
 
   if (!/^[0-9]{6}$/.test(pincode)) {
-    return res.status(400).json({
+    return res.status(HTTP_STATUS.BAD_REQUEST).json({
       success: false,
       message: "Invalid pincode"
     });

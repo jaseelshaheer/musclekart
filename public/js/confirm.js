@@ -5,6 +5,8 @@ function confirmAction(message) {
     const okBtn = document.getElementById("confirmOk");
     const cancelBtn = document.getElementById("confirmCancel");
 
+    if (!modal || !messageBox || !okBtn || !cancelBtn) return;
+
     messageEl.textContent = message;
     modal.classList.remove("hidden");
 
@@ -34,8 +36,8 @@ function showConfirm(message, onConfirm){
   const modal = document.getElementById("confirmModal");
   const messageBox = document.getElementById("confirmMessage");
 
-  const okBtn = document.getElementById("confirmOkBtn");
-  const cancelBtn = document.getElementById("confirmCancelBtn");
+  const okBtn = document.getElementById("confirmOk");
+  const cancelBtn = document.getElementById("confirmCancel");
 
   messageBox.textContent = message;
 

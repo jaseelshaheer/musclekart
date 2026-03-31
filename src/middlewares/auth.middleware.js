@@ -1,13 +1,14 @@
 import jwt from "jsonwebtoken"
 import User from "../models/user.model.js"
 import { verifyToken } from "../utils/jwt.js";
+import HTTP_STATUS from "../constants/httpStatus.js";
 
 export const protect = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return res.status(401).json({
+      return res.status(HTTP_STATUS.UNAUTHORIZED).json({
         success: false,
         message: "Not authorized, token missing",
       });
@@ -20,14 +21,14 @@ export const protect = async (req, res, next) => {
     const user = await User.findById(decoded.userId).select("+password");
 
     if (!user) {
-      return res.status(401).json({
+      return res.status(HTTP_STATUS.UNAUTHORIZED).json({
         success: false,
         message: "User not found",
       });
     }
 
     if (user.isBlocked) {
-      return res.status(403).json({
+      return res.status(HTTP_STATUS.FORBIDDEN).json({
         success: false,
         message: "Your account has been blocked."
       });
@@ -37,7 +38,7 @@ export const protect = async (req, res, next) => {
     res.locals.user = user;
     next();
   } catch (error) {
-    return res.status(401).json({
+    return res.status(HTTP_STATUS.UNAUTHORIZED).json({
       success: false,
       message: "Not authorized, invalid token",
     });
@@ -47,7 +48,7 @@ export const protect = async (req, res, next) => {
 
 export const adminOnly = (req, res, next) => {
   if (req.user.role !== "admin") {
-    return res.status(403).json({
+    return res.status(HTTP_STATUS.FORBIDDEN).json({
       success: false,
       message: "Admin access only",
     });

@@ -29,7 +29,7 @@ export const getBrands = async (req, res) => {
 
   } catch (error) {
 
-    res.status(500).json({
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
       success: false,
       message: error.message
     });
@@ -52,7 +52,7 @@ export const createBrand = async (req, res) => {
 
   } catch (error) {
 
-    res.status(400).json({
+    res.status(HTTP_STATUS.BAD_REQUEST).json({
       success: false,
       message: error.message
     });
@@ -77,7 +77,7 @@ export const updateBrand = async (req, res) => {
 
   } catch (error) {
 
-    res.status(400).json({
+    res.status(HTTP_STATUS.BAD_REQUEST).json({
       success: false,
       message: error.message
     });
@@ -99,7 +99,7 @@ export const deleteBrand = async (req, res) => {
 
   } catch (error) {
 
-    res.status(400).json({
+    res.status(HTTP_STATUS.BAD_REQUEST).json({
       success: false,
       message: error.message
     });
@@ -124,7 +124,7 @@ export const toggleBrandStatus = async (req, res) => {
 
   } catch (error) {
 
-    res.status(400).json({
+    res.status(HTTP_STATUS.BAD_REQUEST).json({
       success: false,
       message: error.message
     });

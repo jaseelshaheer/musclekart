@@ -1,0 +1,14 @@
+<section class="page cart-page">
+  <div class="cart-header">
+    <h1>My Cart</h1>
+    <p>Review your selected items before checkout.</p>
+  </div>
+
+  <% if (errorMessage) { %>
+    <div class="shop-alert"><%= errorMessage %></div>
+  <% } %>
+
+  <div id="cartContent"></div>
+</section>
+
+<script src="/js/cart.js"></script>

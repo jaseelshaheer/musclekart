@@ -1,0 +1,14 @@
+<div class="admin-layout">
+  <%- include("../partials/admin-sidebar") %>
+
+  <main class="admin-main">
+    <% if (errorMessage) { %>
+      <div class="shop-alert"><%= errorMessage %></div>
+    <% } %>
+
+    <div id="adminOrderDetailContent" data-order-id="<%= orderId %>"></div>
+  </main>
+</div>
+
+<script src="/js/admin-order-detail.js"></script>
+

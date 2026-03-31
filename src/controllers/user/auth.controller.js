@@ -25,7 +25,7 @@ export const resendSignupOTP = async (req, res) => {
     const { email, type } = req.body;
 
     if (!email) {
-      return res.status(400).json({
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
         success: false,
         message: "Email is required",
       });
@@ -33,12 +33,12 @@ export const resendSignupOTP = async (req, res) => {
 
     await resendSignupOTPService(email, type);
 
-    return res.status(200).json({
+    return res.status(HTTP_STATUS.OK).json({
       success: true,
       message: "OTP resent successfully",
     });
   } catch (error) {
-    return res.status(400).json({
+    return res.status(HTTP_STATUS.BAD_REQUEST).json({
       success: false,
       message: error.message,
     });
@@ -50,7 +50,7 @@ export const verifySignupOTP = async (req, res) => {
     try{
         const {email, otp, type} = req.body;
         if(!email || !otp){
-            return res.status(400).json({
+            return res.status(HTTP_STATUS.BAD_REQUEST).json({
                 success: false,
                 message: "Email and OTP are required."
             });
@@ -58,13 +58,13 @@ export const verifySignupOTP = async (req, res) => {
 
         await verifySignupOTPService(email, otp, type);
 
-        return res.status(200).json({
+        return res.status(HTTP_STATUS.OK).json({
             success: true,
             message: "Email verified successfully"
         })
 
     }catch(err){
-        return res.status(400).json({
+        return res.status(HTTP_STATUS.BAD_REQUEST).json({
             success: false,
             message: err.message
         })
@@ -81,7 +81,7 @@ export const login = async (req, res) => {
         role: user.role,
     })
 
-    return res.status(200).json({
+    return res.status(HTTP_STATUS.OK).json({
       success: true,
       message: "Login successful",
       data: {
@@ -94,7 +94,7 @@ export const login = async (req, res) => {
       },
     });
   } catch (error) {
-    return res.status(401).json({
+    return res.status(HTTP_STATUS.UNAUTHORIZED).json({
       success: false,
       message: error.message,
     });
@@ -107,7 +107,7 @@ export const forgotPassword = async (req, res) => {
     const { email } = req.body;
 
     if (!email) {
-      return res.status(400).json({
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
         success: false,
         message: "Email is required",
       });
@@ -116,7 +116,7 @@ export const forgotPassword = async (req, res) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     if (!emailRegex.test(email)) {
-      return res.status(400).json({
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
         success: false,
         message: "Invalid email format",
       });
@@ -124,12 +124,12 @@ export const forgotPassword = async (req, res) => {
 
     await forgotPasswordService(email);
 
-    return res.status(200).json({
+    return res.status(HTTP_STATUS.OK).json({
       success: true,
       message: "OTP sent to registered email",
     });
   } catch (error) {
-    return res.status(400).json({
+    return res.status(HTTP_STATUS.BAD_REQUEST).json({
       success: false,
       message: error.message,
     });
@@ -143,12 +143,12 @@ export const resetPassword = async (req, res) => {
 
     await resetPasswordService(email, newPassword);
 
-    return res.status(200).json({
+    return res.status(HTTP_STATUS.OK).json({
       success: true,
       message: "Password reset successful",
     });
   } catch (error) {
-    return res.status(400).json({
+    return res.status(HTTP_STATUS.BAD_REQUEST).json({
       success: false,
       message: error.message,
     });

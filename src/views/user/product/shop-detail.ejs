@@ -6,42 +6,56 @@
     <a href="/shop">Shop</a>
     <span>/</span>
     <% if (product.category_name) { %>
-      <a href="/shop?category=<%= product.categoryId %>"><%= product.category_name %></a>
+      <a href="/shop?category=<%= product.categoryId %>">
+        <%= product.category_name %>
+      </a>
       <span>/</span>
-    <% } %>
-    <span><%= product.product_name %></span>
+      <% } %>
+        <span>
+          <%= product.product_name %>
+        </span>
   </nav>
 
   <section class="product-detail-layout">
 
     <div class="product-gallery-section">
       <div class="product-main-image-box" id="zoomBox">
-        <img
-          id="mainProductImage"
-          src="<%= images[0] || '/images/no-image.png' %>"
-          alt="<%= product.product_name %>"
+        <button
+          type="button"
+          id="productWishlistBtn"
+          class="wishlist-icon-btn product-detail-wishlist-btn"
+          data-product-id="<%= product._id %>"
+          aria-label="Toggle wishlist"
         >
+          <span class="wishlist-icon-outline">♡</span>
+          <span class="wishlist-icon-filled">♥</span>
+        </button>
+
+        <img id="mainProductImage" src="<%= images[0] || '/images/no-image.png' %>" alt="<%= product.product_name %>">
       </div>
 
+
       <div class="product-thumbnail-row">
-        <% images.forEach((image, index) => { %>
-          <button
-            type="button"
-            class="product-thumb-btn <%= index === 0 ? 'active' : '' %>"
-            data-image="<%= image %>"
-          >
+        <% images.forEach((image, index)=> { %>
+          <button type="button" class="product-thumb-btn <%= index === 0 ? 'active' : '' %>" data-image="<%= image %>">
             <img src="<%= image %>" alt="Thumbnail">
           </button>
-        <% }) %>
+          <% }) %>
       </div>
     </div>
 
     <div class="product-info-section">
-      <p class="detail-brand"><%= product.brand_name || "MuscleKart" %></p>
-      <h1><%= product.product_name %></h1>
+      <p class="detail-brand">
+        <%= product.brand_name || "MuscleKart" %>
+      </p>
+      <h1>
+        <%= product.product_name %>
+      </h1>
 
       <div class="detail-rating-row">
-        <span class="detail-rating-badge"><%= ratingSummary.average %> ★</span>
+        <span class="detail-rating-badge">
+          <%= ratingSummary.average %> ★
+        </span>
         <span class="detail-rating-count">
           <%= ratingSummary.totalReviews %> reviews
         </span>
@@ -49,107 +63,118 @@
 
       <div class="detail-price-row" id="detailPriceRow">
         <strong class="detail-price" id="detailPriceValue">
-            ₹<%= selectedVariant.price %>
+          ₹<%= selectedVariant.price %>
         </strong>
 
         <div class="detail-price-extra">
-            <span class="detail-original-price" id="detailOriginalPrice">
-                ₹<%= Math.round(selectedVariant.price * 1.12) %>
-            </span>
+          <span class="detail-original-price" id="detailOriginalPrice">
+            ₹<%= Math.round(selectedVariant.price * 1.12) %>
+          </span>
 
 
-            <span class="detail-discount-badge" id="detailDiscountBadge">
-                <%= Math.max(0, Math.round((((Math.round(selectedVariant.price * 1.12)) - selectedVariant.price) / Math.round(selectedVariant.price * 1.12)) * 100)) %>% OFF
-            </span>
+          <span class="detail-discount-badge" id="detailDiscountBadge">
+            <%= Math.max(0, Math.round((((Math.round(selectedVariant.price * 1.12)) - selectedVariant.price) /
+              Math.round(selectedVariant.price * 1.12)) * 100)) %>% OFF
+          </span>
 
         </div>
 
-        <% if (product.max_price > product.min_price) { %>
-            <span class="detail-price-note">Multiple variant prices available</span>
-        <% } %>
+        <% if (product.max_price> product.min_price) { %>
+          <span class="detail-price-note">Multiple variant prices available</span>
+          <% } %>
       </div>
 
 
       <div class="detail-stock-row" id="detailStockRow">
-        <% if (selectedVariant.stock_qty > 0) { %>
-            <span class="detail-stock in-stock" id="detailStockLabel">In stock</span>
-            <span class="detail-stock-meta" id="detailStockMeta">
+        <% if (selectedVariant.stock_qty> 0) { %>
+          <span class="detail-stock in-stock" id="detailStockLabel">In stock</span>
+          <span class="detail-stock-meta" id="detailStockMeta">
             <%= selectedVariant.stock_qty %> units available
-            </span>
-        <% } else { %>
+          </span>
+          <% } else { %>
             <span class="detail-stock out-stock" id="detailStockLabel">Out of stock</span>
             <span class="detail-stock-meta" id="detailStockMeta">Currently unavailable</span>
-        <% } %>
+            <% } %>
       </div>
 
 
       <div class="detail-meta-list">
-        <p><strong>Category:</strong> <%= product.category_name || "-" %></p>
-        <p><strong>Brand:</strong> <%= product.brand_name || "-" %></p>
-        <p>
-            <strong>Available variants:</strong>
-            <span id="variantCountText"><%= variants.length %></span>
+        <p><strong>Category:</strong>
+          <%= product.category_name || "-" %>
         </p>
-        </div>
+        <p><strong>Brand:</strong>
+          <%= product.brand_name || "-" %>
+        </p>
+        <p>
+          <strong>Available variants:</strong>
+          <span id="variantCountText">
+            <%= variants.length %>
+          </span>
+        </p>
+      </div>
 
-        <div class="variant-selector-box">
+      <div class="variant-selector-box">
         <h3>Select Variant</h3>
 
         <div id="variantOptions" class="variant-options">
-            <% variants.forEach((variant, index) => { %>
-            <button
-                type="button"
-                class="variant-option <%= index === 0 ? 'active' : '' %>"
-                data-variant-index="<%= index %>"
-            >
-                <% if (variant.attributes?.length) { %>
+          <% variants.forEach((variant, index)=> { %>
+            <button type="button" class="variant-option <%= index === 0 ? 'active' : '' %>"
+              data-variant-index="<%= index %>">
+              <% if (variant.attributes?.length) { %>
                 <span>
-                    <%= variant.attributes.map(attr => `${attr.type}: ${attr.value}`).join(" / ") %>
+                  <%= variant.attributes.map(attr=> `${attr.type}: ${attr.value}`).join(" / ") %>
                 </span>
                 <% } else { %>
-                <span>Variant <%= index + 1 %></span>
-                <% } %>
+                  <span>Variant <%= index + 1 %></span>
+                  <% } %>
             </button>
             <% }) %>
         </div>
-        </div>
+      </div>
 
 
       <div class="detail-coupon-box">
         <h3>Offers & Coupons</h3>
         <ul>
-          <% coupons.forEach(coupon => { %>
+          <% coupons.forEach(coupon=> { %>
             <li>
-              <strong><%= coupon.code %></strong> - <%= coupon.description %>
+              <strong>
+                <%= coupon.code %>
+              </strong> - <%= coupon.description %>
             </li>
-          <% }) %>
+            <% }) %>
         </ul>
       </div>
 
-      <div
-        class="detail-action-row"
-        id="detailActionRow"
-        data-in-stock="<%= selectedVariant.stock_qty > 0 ? 'true' : 'false' %>"
-      >
+      <div class="detail-action-row" id="detailActionRow"
+        data-in-stock="<%= selectedVariant.stock_qty > 0 ? 'true' : 'false' %>">
+        <button type="button" id="addToCartBtn" class="btn-primary" <%=selectedVariant.stock_qty> 0 ? "" :
+          "style='display:none;'" %>
+          >
+          Add to Cart
+        </button>
 
-        <% if (product.total_stock > 0) { %>
-            <button type="button" id="addToCartBtn" class="btn-primary">
-            Add to Cart
-            </button>
-            <button type="button" id="buyNowBtn" class="btn-shop-outline">
-            Buy Now
-            </button>
-        <% } else { %>
-            <button type="button" class="btn-disabled-action" disabled>
-            Out of Stock
-            </button>
-        <% } %>
+        <button type="button" id="buyNowBtn" class="btn-shop-outline" <%=selectedVariant.stock_qty> 0 ? "" :
+          "style='display:none;'" %>
+          >
+          Buy Now
+        </button>
+
+        <button type="button" id="outOfStockBtn" class="btn-disabled-action" disabled <%=selectedVariant.stock_qty> 0 ?
+          "style='display:none;'" : "" %>
+          >
+          Out of Stock
+        </button>
       </div>
+
+
 
 
       <div class="detail-short-description">
         <h3>About this product</h3>
-        <p><%= product.description || "No description available." %></p>
+        <p>
+          <%= product.description || "No description available." %>
+        </p>
       </div>
     </div>
 
@@ -159,9 +184,11 @@
     <div class="detail-panel">
       <h2>Product Highlights</h2>
       <ul class="highlights-list">
-        <% highlights.forEach(item => { %>
-          <li><%= item %></li>
-        <% }) %>
+        <% highlights.forEach(item=> { %>
+          <li>
+            <%= item %>
+          </li>
+          <% }) %>
       </ul>
     </div>
 
@@ -185,53 +212,59 @@
       <div class="shop-empty">
         <p>No related products available right now.</p>
       </div>
-    <% } else { %>
-      <div class="shop-grid">
-        <% relatedProducts.forEach(item => { %>
-          <article class="shop-card">
-            <a href="/shop/<%= item._id %>" class="shop-card-link">
-              <img
-                src="<%= item.main_image || '/images/no-image.png' %>"
-                alt="<%= item.product_name %>"
-              >
-              <h3><%= item.product_name %></h3>
-              <p class="shop-price">₹<%= item.min_price %></p>
-              <p class="shop-stock <%= item.total_stock > 0 ? 'in-stock' : 'out-stock' %>">
-                <%= item.total_stock > 0 ? "In stock" : "Out of stock" %>
-              </p>
-            </a>
-          </article>
-        <% }) %>
-      </div>
-    <% } %>
+      <% } else { %>
+        <div class="shop-grid">
+          <% relatedProducts.forEach(item=> { %>
+            <article class="shop-card">
+              <a href="/shop/<%= item._id %>" class="shop-card-link">
+                <img src="<%= item.main_image || '/images/no-image.png' %>" alt="<%= item.product_name %>">
+                <h3>
+                  <%= item.product_name %>
+                </h3>
+                <p class="shop-price">₹<%= item.min_price %>
+                </p>
+                <p class="shop-stock <%= item.total_stock > 0 ? 'in-stock' : 'out-stock' %>">
+                  <%= item.total_stock> 0 ? "In stock" : "Out of stock" %>
+                </p>
+              </a>
+            </article>
+            <% }) %>
+        </div>
+        <% } %>
   </section>
   <section class="detail-panel reviews-panel">
     <div class="reviews-header">
-        <div>
+      <div>
         <h2>Customer Reviews</h2>
         <p class="reviews-summary-text">
-            <%= ratingSummary.average %> out of 5 based on <%= ratingSummary.totalReviews %> ratings
+          <%= ratingSummary.average %> out of 5 based on <%= ratingSummary.totalReviews %> ratings
         </p>
-        </div>
+      </div>
     </div>
 
     <div class="reviews-list">
-        <% reviews.forEach(review => { %>
+      <% reviews.forEach(review=> { %>
         <article class="review-card">
-            <div class="review-top">
+          <div class="review-top">
             <div>
-                <h3><%= review.title %></h3>
-                <p class="review-author">
-                <strong><%= review.name %></strong> • <%= review.date %>
-                </p>
+              <h3>
+                <%= review.title %>
+              </h3>
+              <p class="review-author">
+                <strong>
+                  <%= review.name %>
+                </strong> • <%= review.date %>
+              </p>
             </div>
 
             <span class="review-rating">
-                <%= review.rating %> ★
+              <%= review.rating %> ★
             </span>
-            </div>
+          </div>
 
-            <p class="review-comment"><%= review.comment %></p>
+          <p class="review-comment">
+            <%= review.comment %>
+          </p>
         </article>
         <% }) %>
     </div>
@@ -241,16 +274,13 @@
 </section>
 
 
-<div
-  id="productDetailMeta"
-  data-product-id="<%= product._id %>"
-  class="hidden"
-></div>
+<div id="productDetailMeta" data-product-id="<%= product._id %>" class="hidden"></div>
 
 <script id="variantData" type="application/json">
   <%- JSON.stringify(
     variants.map((variant) => ({
       _id: variant._id,
+      product_id: variant.product_id,
       price: variant.price,
       stock_qty: variant.stock_qty,
       attributes: variant.attributes || [],

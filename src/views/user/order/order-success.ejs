@@ -1,0 +1,35 @@
+<section class="page order-success-page">
+  <div class="order-success-layout">
+    <div class="order-success-card">
+      <div class="order-success-icon">✓</div>
+      <h1>Thank You for Your Order!</h1>
+      <p>Your order has been successfully placed.</p>
+
+      <div class="order-success-meta">
+        <div class="order-success-row">
+          <span>Order ID</span>
+          <strong><%= orderId %></strong>
+        </div>
+        <div class="order-success-row">
+          <span>Payment Method</span>
+          <strong>Cash on Delivery</strong>
+        </div>
+        <div class="order-success-row">
+          <span>Payment Status</span>
+          <strong>Pending</strong>
+        </div>
+      </div>
+    </div>
+
+    <div class="order-success-side">
+      <p>
+        You will receive confirmation shortly with the details of your order.
+      </p>
+
+      <div class="order-success-actions">
+        <a href="/orders" class="btn-primary">View Orders</a>
+        <a href="/shop" class="checkout-back-cart-btn">Continue Shopping</a>
+      </div>
+    </div>
+  </div>
+</section>

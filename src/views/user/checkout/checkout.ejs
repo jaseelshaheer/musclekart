@@ -1,0 +1,14 @@
+<section class="page checkout-page">
+  <div class="checkout-header">
+    <h1>Checkout</h1>
+    <p>Review your address and order summary before placing your order.</p>
+  </div>
+
+  <% if (errorMessage) { %>
+    <div class="shop-alert"><%= errorMessage %></div>
+  <% } %>
+
+  <div id="checkoutContent"></div>
+</section>
+
+<script src="/js/checkout.js"></script>

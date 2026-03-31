@@ -1,0 +1,68 @@
+<section class="account-page">
+  <div class="account-layout order-account-layout">
+    <%- include("../profile/_sidebar") %>
+
+    <main class="content order-page-content">
+
+      <div class="profile-box order-detail-page">
+        <% if (errorMessage) { %>
+          <div class="shop-alert"><%= errorMessage %></div>
+        <% } %>
+
+        <div id="orderDetailContent" data-order-id="<%= orderId %>"></div>
+
+        <div id="returnReasonModal" class="modal hidden">
+          <div class="modal-card return-reason-modal-card">
+            <div class="modal-header">
+              <h3>Return Request</h3>
+            </div>
+
+            <div class="modal-body">
+              <label for="returnReasonInput" class="return-reason-label">Reason</label>
+              <textarea
+                id="returnReasonInput"
+                class="form-control"
+                rows="4"
+                placeholder="Enter return reason"
+              ></textarea>
+              <p id="returnReasonError" class="field-error"></p>
+            </div>
+
+            <div class="modal-footer">
+              <button type="button" id="returnReasonCancelBtn" class="btn-shop-outline">Cancel</button>
+              <button type="button" id="returnReasonSubmitBtn" class="btn-primary">Submit</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="cancelReasonModal" class="modal hidden">
+            <div class="modal-card return-reason-modal-card">
+                <div class="modal-header">
+                    <h3>Cancel Order</h3>
+                </div>
+        
+                <div class="modal-body">
+                    <label for="cancelReasonInput" class="return-reason-label">Reason (Optional)</label>
+                    <textarea id="cancelReasonInput" class="form-control" rows="4"
+                        placeholder="Enter cancellation reason"></textarea>
+                    <p id="cancelReasonError" class="field-error"></p>
+                </div>
+        
+                <div class="modal-footer">
+                    <button type="button" id="cancelReasonCancelBtn" class="btn-shop-outline">Cancel</button>
+                    <button type="button" id="cancelReasonSubmitBtn" class="btn-primary">Submit</button>
+                </div>
+            </div>
+        </div>
+
+
+
+      </div>
+    </main>
+  </div>
+</section>
+
+<script src="/js/order-detail.js"></script>
+
+
+

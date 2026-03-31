@@ -137,12 +137,23 @@
         <% } else { %>
             <div class="shop-grid">
             <% products.forEach(product => { %>
-                <article class="shop-card">
-                <a href="/shop/<%= product._id %>" class="shop-card-link">
+                <article class="shop-card" data-product-id="<%= product._id %>">
+                  <button
+                    type="button"
+                    class="wishlist-icon-btn"
+                    data-product-id="<%= product._id %>"
+                    aria-label="Toggle wishlist"
+                  >
+                    <span class="wishlist-icon-outline">♡</span>
+                    <span class="wishlist-icon-filled">♥</span>
+                  </button>
+
+                  <a href="/shop/<%= product._id %>" class="shop-card-link">
                     <img
-                    src="<%= product.main_image || '/images/no-image.png' %>"
-                    alt="<%= product.product_name %>"
+                      src="<%= product.main_image || '/images/no-image.png' %>"
+                      alt="<%= product.product_name %>"
                     >
+
                     <h3><%= product.product_name %></h3>
                     <p class="shop-meta">
                     <%= product.category_name || "Category" %>
@@ -156,9 +167,28 @@
                         - ₹<%= product.max_price %>
                     <% } %>
                     </p>
-                    <p class="shop-stock <%= product.total_stock > 0 ? 'in-stock' : 'out-stock' %>">
-                    <%= product.total_stock > 0 ? "In stock" : "Out of stock" %>
-                    </p>
+                    <div class="shop-card-footer">
+                      <p class="shop-stock <%= product.total_stock > 0 ? 'in-stock' : 'out-stock' %>">
+                        <%= product.total_stock> 0 ? "In stock" : "Out of stock" %>
+                      </p>
+                    
+                      <% if (product.total_stock> 0 && product.variant_count === 1) { %>
+                        <button type="button" class="shop-add-cart-btn" data-product-id="<%= product._id %>"
+                          data-variant-id="<%= product.single_variant_id %>">
+                          Add to Cart
+                        </button>
+                        <% } else if (product.total_stock> 0 && product.variant_count > 1) { %>
+                          <button type="button" class="shop-choose-options-btn" data-product-id="<%= product._id %>"
+                            data-product-name="<%= product.product_name %>" data-variants='<%- JSON.stringify(product.variant_options) %>'>
+                            Add to Cart
+                          </button>
+                          <% } else { %>
+                            <button type="button" class="shop-add-cart-btn" disabled>
+                              Out of Stock
+                            </button>
+                            <% } %>
+                    </div>
+
                 </a>
                 </article>
             <% }) %>
@@ -223,5 +253,27 @@
   </div>
 
 </section>
+
+
+<div id="shopVariantModal" class="modal hidden">
+  <div class="modal-backdrop" id="shopVariantModalBackdrop"></div>
+
+  <div class="modal-card shop-variant-modal-card">
+    <div class="modal-header">
+      <h3 id="shopVariantModalTitle">Choose Variant</h3>
+      <button type="button" id="closeShopVariantModalBtn" class="checkout-address-close-btn">✕</button>
+    </div>
+
+    <div class="modal-body">
+      <div id="shopVariantOptions" class="shop-variant-options"></div>
+    </div>
+
+    <div class="modal-footer">
+      <button type="button" id="shopVariantCancelBtn" class="btn-shop-outline">Cancel</button>
+      <button type="button" id="shopVariantAddToCartBtn" class="btn-primary">Add to Cart</button>
+    </div>
+  </div>
+</div>
+
 
 <script src="/js/shop-list.js"></script>

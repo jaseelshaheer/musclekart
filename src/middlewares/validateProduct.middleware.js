@@ -3,14 +3,14 @@ export const validateProductPayload = (req, res, next) => {
     const { product_name, category_id, brand_id, variants } = req.body;
 
     if (!product_name || !product_name.trim()) {
-      return res.status(400).json({
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
         success: false,
         message: "Product name is required",
       });
     }
 
     if (product_name.trim().length > 120) {
-      return res.status(400).json({
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
         success: false,
         message: "Product name must be 120 characters or fewer",
       });
@@ -18,7 +18,7 @@ export const validateProductPayload = (req, res, next) => {
 
 
     if (req.body.description && req.body.description.trim().length > 1000) {
-      return res.status(400).json({
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
         success: false,
         message: "Description must be 1000 characters or fewer",
       });
@@ -28,21 +28,21 @@ export const validateProductPayload = (req, res, next) => {
       req.body.specifications &&
       req.body.specifications.trim().length > 2000
     ) {
-      return res.status(400).json({
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
         success: false,
         message: "Specifications must be 2000 characters or fewer",
       });
     }
 
     if (!category_id || !category_id.trim()) {
-      return res.status(400).json({
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
         success: false,
         message: "Category is required"
       });
     }
 
     if (!brand_id || !brand_id.trim()) {
-      return res.status(400).json({
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
         success: false,
         message: "Brand is required",
       });
@@ -50,7 +50,7 @@ export const validateProductPayload = (req, res, next) => {
 
 
     if (!variants) {
-      return res.status(400).json({
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
         success: false,
         message: "At least one variant is required"
       });
@@ -61,14 +61,14 @@ export const validateProductPayload = (req, res, next) => {
     try {
       parsedVariants = JSON.parse(variants);
     } catch (error) {
-      return res.status(400).json({
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
         success: false,
         message: "Invalid variants data"
       });
     }
 
     if (!Array.isArray(parsedVariants) || !parsedVariants.length) {
-      return res.status(400).json({
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
         success: false,
         message: "At least one variant is required"
       });
@@ -76,21 +76,21 @@ export const validateProductPayload = (req, res, next) => {
 
     for (const variant of parsedVariants) {
       if (!Array.isArray(variant.attributes) || !variant.attributes.length) {
-        return res.status(400).json({
+        return res.status(HTTP_STATUS.BAD_REQUEST).json({
           success: false,
           message: "Each variant must include at least one attribute"
         });
       }
 
       if (variant.price === undefined || Number(variant.price) <= 0) {
-        return res.status(400).json({
+        return res.status(HTTP_STATUS.BAD_REQUEST).json({
           success: false,
           message: "Each variant must have valid price"
         });
       }
 
       if (variant.stock === undefined || Number(variant.stock) < 0) {
-        return res.status(400).json({
+        return res.status(HTTP_STATUS.BAD_REQUEST).json({
           success: false,
           message: "Each variant must have valid stock"
         });
@@ -109,7 +109,7 @@ export const validateProductPayload = (req, res, next) => {
 
 
       if (totalImageCount < 3) {
-        return res.status(400).json({
+        return res.status(HTTP_STATUS.BAD_REQUEST).json({
             success: false,
             message: "Each variant must include at least 3 images"
         });
@@ -123,21 +123,21 @@ export const validateProductPayload = (req, res, next) => {
           !attr.value ||
           !attr.value.trim()
         ) {
-          return res.status(400).json({
+          return res.status(HTTP_STATUS.BAD_REQUEST).json({
             success: false,
             message: "Variant attributes must include both type and value",
           });
         }
 
         if (attr.type.trim().length > 30) {
-          return res.status(400).json({
+          return res.status(HTTP_STATUS.BAD_REQUEST).json({
             success: false,
             message: "Variant attribute name must be 30 characters or fewer",
           });
         }
 
         if (attr.value.trim().length > 50) {
-          return res.status(400).json({
+          return res.status(HTTP_STATUS.BAD_REQUEST).json({
             success: false,
             message: "Variant attribute value must be 50 characters or fewer",
           });
@@ -148,7 +148,7 @@ export const validateProductPayload = (req, res, next) => {
 
     next();
   } catch (error) {
-    return res.status(400).json({
+    return res.status(HTTP_STATUS.BAD_REQUEST).json({
       success: false,
       message: "Invalid product payload"
     });

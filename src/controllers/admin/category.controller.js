@@ -122,7 +122,7 @@ export const toggleCategoryStatus = async (req, res) => {
 
   } catch (error) {
 
-    res.status(400).json({
+    res.status(HTTP_STATUS.BAD_REQUEST).json({
       success: false,
       message: error.message
     });

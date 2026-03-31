@@ -43,6 +43,8 @@ const mainImagePreview = document.getElementById("mainImagePreview");
 const removeMainImage = document.getElementById("removeMainImage");
 const galleryPreview = document.getElementById("galleryPreview");
 const productIdInput = document.getElementById("productId");
+const saveProductBtn = document.getElementById("saveProductBtn");
+
 
 const productNameCount = document.getElementById("productNameCount");
 const descriptionCount = document.getElementById("descriptionCount");
@@ -130,8 +132,8 @@ function showConfirm(message, onConfirm){
 
   const modal = document.getElementById("confirmModal");
   const msg = document.getElementById("confirmMessage");
-  const okBtn = document.getElementById("confirmOkBtn");
-  const cancelBtn = document.getElementById("confirmCancelBtn");
+  const okBtn = document.getElementById("confirmOk");
+  const cancelBtn = document.getElementById("confirmCancel");
 
   msg.textContent = message;
 
@@ -379,6 +381,9 @@ attributesContainer.addEventListener("click", (e) => {
    TEMP STORAGE
 ----------------------------- */
 
+
+let isProductSubmitting = false;
+
 let variants = [];
 let editIndex = null;
 let galleryImages = [];
@@ -391,9 +396,10 @@ const MAX_GALLERY_IMAGES = 6;
 
 function normalizeVariantForEdit(variant) {
   return {
+    _id: variant._id || null,
     attributes: variant.attributes || [],
     price: variant.price || "",
-    stock: variant.stock_qty || "",
+    stock: variant.stock_qty ?? "",
     main_image_preview: variant.main_image || null,
     main_image_file: null,
     gallery_images: [...(variant.gallery_images || [])],
@@ -504,23 +510,13 @@ cancelProductBtn.onclick = () => {
 ----------------------------- */
 
 addVariantBtn.onclick = () => {
-
-  editIndex = null;
+  clearVariantForm();
 
   variantForm.classList.remove("hidden");
   variantFormWrapper.classList.remove("hidden");
   addVariantBtn.style.display = "none";
-
-  /* reset images for new variant */
-
-  mainImagePreview.src = "";
-  mainImagePreviewWrapper.classList.add("hidden");
-  mainImageUpload.classList.remove("hidden");
-
-  galleryImages = [];
-  renderGallery();
-
 };
+
 
 
 /* -----------------------------
@@ -618,6 +614,7 @@ document.getElementById("saveVariantBtn").onclick = () => {
 
 
   const variant = {
+    _id: editIndex !== null ? variants[editIndex]?._id || null : null,
     attributes,
     price,
     stock,
@@ -813,14 +810,27 @@ function clearVariantForm(){
 }
 
 
+function setProductSubmittingState(isSubmitting, isEditMode) {
+  if (!saveProductBtn) return;
+
+  saveProductBtn.disabled = isSubmitting;
+  saveProductBtn.style.pointerEvents = isSubmitting ? "none" : "auto";
+  saveProductBtn.textContent = isSubmitting
+    ? (isEditMode ? "Updating..." : "Saving...")
+    : (isEditMode ? "Update Product" : "Save Product");
+}
+
+
 
 /* -----------------------------
    SAVE PRODUCT
 ----------------------------- */
 
-document.getElementById("saveProductBtn").onclick = async () => {
+saveProductBtn.onclick = async () => {
   const productId = productIdInput.value;
   const isEditMode = Boolean(productId);
+
+  if (isProductSubmitting) return;
 
   clearProductErrors();
 
@@ -872,8 +882,11 @@ document.getElementById("saveProductBtn").onclick = async () => {
 
   if (!isValid) return;
 
+  isProductSubmitting = true;
+  setProductSubmittingState(true, isEditMode);
 
   const formData = new FormData();
+
 
   formData.append("product_name", productName.value);
   formData.append("description", description.value);
@@ -896,10 +909,12 @@ document.getElementById("saveProductBtn").onclick = async () => {
     const newGalleryFiles = v.gallery_files.filter(Boolean);
 
     variantMeta.push({
+      _id: v._id || null,
       attributes: v.attributes,
       price: v.price,
       stock: v.stock,
       existing_main_image: v.main_image_file ? null : (v.main_image_preview || null),
+      has_new_main_image: Boolean(v.main_image_file),
       existing_gallery_images: existingGalleryImages,
       new_gallery_count: newGalleryFiles.length
     });
@@ -929,32 +944,40 @@ document.getElementById("saveProductBtn").onclick = async () => {
 
   const method = isEditMode ? "PATCH" : "POST";
 
-  const res = await fetch(url, {
-    method,
-    headers: {
-      Authorization: `Bearer ${token}`
-    },
-    body: formData
-  });
+  try {
+    const res = await fetch(url, {
+      method,
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    });
 
-  const data = await res.json();
+    const data = await res.json();
 
-  if (!data.success) {
-    showAlertModal(data.message || "Failed to save product");
-    return;
+    if (!data.success) {
+      showAlertModal(data.message || "Failed to save product");
+      return;
+    }
+
+    sessionStorage.setItem(
+      "toast",
+      JSON.stringify({
+        message: isEditMode
+          ? "Product updated successfully."
+          : "Product created successfully.",
+        type: "success",
+      }),
+    );
+
+    window.location.href = "/admin/products-list";
+  } catch (error) {
+    showAlertModal("Failed to save product");
+  }finally {
+    isProductSubmitting = false;
+    setProductSubmittingState(false, isEditMode);
   }
 
-  sessionStorage.setItem(
-    "toast",
-    JSON.stringify({
-      message: isEditMode
-        ? "Product updated successfully."
-        : "Product created successfully.",
-      type: "success"
-    })
-  );
-
-  window.location.href = "/admin/products-list";
 };
 
 

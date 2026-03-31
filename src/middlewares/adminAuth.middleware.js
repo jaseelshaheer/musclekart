@@ -1,11 +1,12 @@
 import jwt from "jsonwebtoken";
+import HTTP_STATUS from "../constants/httpStatus.js";
 
 export const adminAuth = (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return res.status(401).json({
+      return res.status(HTTP_STATUS.UNAUTHORIZED).json({
         success: false,
         message: "Authorization token missing",
       });
@@ -16,7 +17,7 @@ export const adminAuth = (req, res, next) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
     if (decoded.role !== "admin") {
-      return res.status(403).json({
+      return res.status(HTTP_STATUS.FORBIDDEN).json({
         success: false,
         message: "Admin access denied",
       });
@@ -27,7 +28,7 @@ export const adminAuth = (req, res, next) => {
     next();
 
   } catch (error) {
-    return res.status(401).json({
+    return res.status(HTTP_STATUS.UNAUTHORIZED).json({
       success: false,
       message: "Invalid or expired token",
     });

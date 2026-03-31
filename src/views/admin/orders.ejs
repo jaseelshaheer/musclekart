@@ -1,0 +1,61 @@
+<div class="admin-layout">
+  <%- include("../partials/admin-sidebar") %>
+
+  <main class="admin-main">
+    <div class="admin-page-header">
+      <div>
+        <h1>Orders</h1>
+        <p class="breadcrumb">Dashboard / Orders</p>
+      </div>
+
+      <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
+        <div class="search-wrapper">
+          <input type="text" id="searchInput" placeholder="Search order..." />
+          <button id="clearSearch">×</button>
+        </div>
+
+        <select id="statusFilter" class="form-control" style="min-width:180px;">
+          <option value="">All Statuses</option>
+          <option value="order_placed">Order Placed</option>
+          <option value="pending">Pending</option>
+          <option value="confirmed">Confirmed</option>
+          <option value="packed">Packed</option>
+          <option value="shipped">Shipped</option>
+          <option value="out_for_delivery">Out for Delivery</option>
+          <option value="delivered">Delivered</option>
+          <option value="cancelled">Cancelled</option>
+          <option value="returned">Returned</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="admin-card">
+      <table class="admin-table">
+        <thead>
+            <tr>
+                <th>Order ID</th>
+                <th>Date</th>
+                <th>User</th>
+                <th>Items</th>
+                <th>Total</th>
+                <th>Payment Method</th>
+                <th>Payment Status</th>
+                <th>Order Status</th>
+                <th>Action</th>
+            </tr>
+        
+        </thead>
+
+        <tbody id="ordersTable"></tbody>
+      </table>
+
+      <div class="admin-pagination">
+        <button id="prevBtn">Previous</button>
+        <span id="pageInfo"></span>
+        <button id="nextBtn">Next</button>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="/js/admin-orders.js"></script>

@@ -2,6 +2,7 @@ import { generateOTPService, verifyOTPService } from "../otp.service.js";
 import User from "../../models/user.model.js";
 import Address from '../../models/address.model.js';
 import bcrypt from "bcrypt";
+import { ADDRESS_MESSAGES } from "../../constants/messages.js";
 
 export const getProfileService = async (userId) => {
   const user = await User.findById(userId).select(
@@ -147,7 +148,7 @@ export const updateAddressService = async (
   });
 
   if (!address) {
-    throw new Error("Address not found");
+    throw new Error(ADDRESS_MESSAGES.NOT_FOUND);
   }
 
   Object.assign(address, updateData);
@@ -164,7 +165,7 @@ export const deleteAddressService = async (userId, addressId) => {
   });
 
   if (!address) {
-    throw new Error("Address not found");
+    throw new Error(ADDRESS_MESSAGES.NOT_FOUND);
   }
 
   await address.deleteOne();
@@ -192,7 +193,7 @@ export const setDefaultAddressService = async (userId, addressId) => {
   );
 
   if (!address) {
-    throw new Error("Address not found");
+    throw new Error(ADDRESS_MESSAGES.NOT_FOUND);
   }
 
   return address;

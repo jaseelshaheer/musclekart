@@ -1,11 +1,12 @@
 import Category from "../models/category.model.js";
+import { CATEGORY_MESSAGES } from "../constants/messages.js";
 
 export const createCategoryService = async (data) => {
 
     const { name, description } = data;
 
     if (!data.name || !data.name.trim()) {
-      throw new Error("Category name is required");
+      throw new Error(CATEGORY_MESSAGES.NAME_REQUIRED);
     }
 
     if (data.name.trim().length > 50) {
@@ -22,7 +23,7 @@ export const createCategoryService = async (data) => {
     });
 
     if (existingCategory) {
-        throw new Error("Category already exists");
+        throw new Error(CATEGORY_MESSAGES.NAME_EXISTS);
     }
 
     const category = await Category.create({
@@ -71,7 +72,7 @@ export const updateCategoryService = async (id, data) => {
     const { name, description, isActive } = data;
 
     if (!data.name || !data.name.trim()) {
-      throw new Error("Category name is required");
+      throw new Error(CATEGORY_MESSAGES.NAME_REQUIRED);
     }
 
     if (data.name.trim().length > 50) {
@@ -90,7 +91,7 @@ export const updateCategoryService = async (id, data) => {
     });
 
     if (existingCategory) {
-        throw new Error("Category name already exists");
+        throw new Error(CATEGORY_MESSAGES.NAME_EXISTS_EDIT);
     }
 
     const category = await Category.findByIdAndUpdate(
@@ -129,7 +130,7 @@ export const toggleCategoryStatusService = async (id) => {
     const category = await Category.findById(id);
 
     if (!category) {
-        throw new Error("Category not found");
+        throw new Error(CATEGORY_MESSAGES.NOT_FOUND);
     }
 
     category.isActive = !category.isActive;

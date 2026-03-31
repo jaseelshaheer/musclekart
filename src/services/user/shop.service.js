@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import Product from "../../models/product.model.js";
 import Category from "../../models/category.model.js";
 import Brand from "../../models/brand.model.js";
+import { PRODUCT_MESSAGES } from "../../constants/messages.js";
 
 export const getProductsPageService = async (query) => {
   const page = parseInt(query.page) || 1;
@@ -76,7 +77,29 @@ export const getProductsPageService = async (query) => {
         min_price: { $min: "$variants.price" },
         max_price: { $max: "$variants.price" },
         total_stock: { $sum: "$variants.stock_qty" },
-        main_image: { $arrayElemAt: ["$variants.main_image", 0] }
+        main_image: { $arrayElemAt: ["$variants.main_image", 0] },
+        variant_count: { $size: "$variants" },
+        single_variant_id: {
+          $cond: [
+            { $eq: [{ $size: "$variants" }, 1] },
+            { $arrayElemAt: ["$variants._id", 0] },
+            null
+          ]
+        },
+        variant_options: {
+          $map: {
+            input: "$variants",
+            as: "variant",
+            in: {
+              _id: "$$variant._id",
+              price: "$$variant.price",
+              stock_qty: "$$variant.stock_qty",
+              main_image: "$$variant.main_image",
+              attributes: "$$variant.attributes"
+            }
+          }
+        }
+
       }
     },
 
@@ -134,6 +157,9 @@ export const getProductsPageService = async (query) => {
       max_price: 1,
       total_stock: 1,
       main_image: 1,
+      variant_count: 1,
+      single_variant_id: 1,
+      variant_options: 1,
       createdAt: 1
     }
   });
@@ -220,15 +246,15 @@ export const getProductDetailsPageService = async (productId) => {
     .lean();
 
   if (!product) {
-    throw new Error("Product unavailable");
+    throw new Error(PRODUCT_MESSAGES.UNAVAILABLE);
   }
 
   if (!product.category_id || product.category_id.isDeleted || !product.category_id.isActive) {
-    throw new Error("Product unavailable");
+    throw new Error(PRODUCT_MESSAGES.UNAVAILABLE);
   }
 
   if (product.brand_id && (product.brand_id.isDeleted || !product.brand_id.status)) {
-    throw new Error("Product unavailable");
+    throw new Error(PRODUCT_MESSAGES.UNAVAILABLE);
   }
 
   const variants = await Product.aggregate([
@@ -260,7 +286,7 @@ export const getProductDetailsPageService = async (productId) => {
   const activeVariants = variants[0]?.variants || [];
 
   if (!activeVariants.length) {
-    throw new Error("Product unavailable");
+    throw new Error(PRODUCT_MESSAGES.UNAVAILABLE);
   }
 
   const defaultVariant = activeVariants[0];

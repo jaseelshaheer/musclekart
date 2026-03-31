@@ -2,6 +2,8 @@ import Product from "../../models/product.model.js";
 import Variant from "../../models/variant.model.js";
 
 import cloudinary from "../../config/cloudinary.js";
+import { PRODUCT_MESSAGES } from "../../constants/messages.js";
+
 
 function uploadImage(buffer) {
 
@@ -134,7 +136,7 @@ export const getProductByIdService = async (productId) => {
   }).lean();
 
   if (!product) {
-    throw new Error("Product not found");
+    throw new Error(PRODUCT_MESSAGES.NOT_FOUND);
   }
 
   const variants = await Variant.find({
@@ -164,19 +166,19 @@ export const createProductService = async (data, files) => {
   const parsedVariants = JSON.parse(data.variants);
 
   if (!Array.isArray(parsedVariants) || !parsedVariants.length) {
-    throw new Error("At least one variant is required");
+    throw new Error(PRODUCT_MESSAGES.AT_LEAST_ONE_VARIANT);
   }
 
   if (!product_name?.trim()) {
-    throw new Error("Product name is required");
+    throw new Error(PRODUCT_MESSAGES.NAME_REQUIRED);
   }
 
   if (!category_id) {
-    throw new Error("Category is required");
+    throw new Error(PRODUCT_MESSAGES.CATEGORY_REQUIRED);
   }
 
   if (!brand_id) {
-    throw new Error("Brand is required");
+    throw new Error(PRODUCT_MESSAGES.BRAND_REQUIRED);
   }
 
 
@@ -199,17 +201,13 @@ export const createProductService = async (data, files) => {
 
     parsedVariants.map(async (v) => {
 
-      let mainImageUrl = null;
+      let mainImageUrl = v.existing_main_image || null;
 
-      if (mainImages[mainIndex]) {
-
-        mainImageUrl = await uploadImage(
-          mainImages[mainIndex].buffer
-        );
-
+      if (v.has_new_main_image && mainImages[mainIndex]) {
+        mainImageUrl = await uploadImage(mainImages[mainIndex].buffer);
         mainIndex++;
-
       }
+
 
       const galleryUrls = [];
 
@@ -232,7 +230,7 @@ export const createProductService = async (data, files) => {
       const totalImages = (mainImageUrl ? 1 : 0) + galleryUrls.length;
 
       if (totalImages < 3) {
-        throw new Error("Each variant must include at least 3 images");
+        throw new Error(PRODUCT_MESSAGES.MIN_VARIANT_IMAGES);
       }
 
 
@@ -269,7 +267,7 @@ export const updateProductService = async (productId, data, files) => {
   const parsedVariants = JSON.parse(data.variants);
 
   if (!Array.isArray(parsedVariants) || !parsedVariants.length) {
-    throw new Error("At least one variant is required");
+    throw new Error(PRODUCT_MESSAGES.AT_LEAST_ONE_VARIANT);
   }
 
 
@@ -280,21 +278,20 @@ export const updateProductService = async (productId, data, files) => {
   });
 
   if (existingProduct) {
-    throw new Error("Product name already exists");
+    throw new Error(PRODUCT_MESSAGES.NAME_EXISTS);
   }
 
   if (!product_name?.trim()) {
-    throw new Error("Product name is required");
+    throw new Error(PRODUCT_MESSAGES.NAME_REQUIRED);
   }
 
   if (!category_id) {
-    throw new Error("Category is required");
+    throw new Error(PRODUCT_MESSAGES.CATEGORY_REQUIRED);
   }
 
   if (!brand_id) {
-    throw new Error("Brand is required");
+    throw new Error(PRODUCT_MESSAGES.BRAND_REQUIRED);
   }
-
 
 
   const product = await Product.findByIdAndUpdate(
@@ -311,16 +308,13 @@ export const updateProductService = async (productId, data, files) => {
   );
 
   if (!product) {
-    throw new Error("Product not found");
+    throw new Error(PRODUCT_MESSAGES.NOT_FOUND);
   }
 
-  await Variant.updateMany(
-    { product_id: productId, isDeleted: false },
-    {
-      isDeleted: true,
-      deletedAt: new Date()
-    }
-  );
+  const existingVariants = await Variant.find({
+    product_id: productId,
+    isDeleted: false
+  });
 
   const mainImages = files.main_images || [];
   const galleryImages = files.gallery_images || [];
@@ -328,44 +322,75 @@ export const updateProductService = async (productId, data, files) => {
   let mainIndex = 0;
   let galleryIndex = 0;
 
-  const variantDocs = await Promise.all(
-    parsedVariants.map(async (v) => {
-      let mainImageUrl = v.existing_main_image || null;
+  const keptVariantIds = new Set();
 
-      if (mainImages[mainIndex]) {
-        mainImageUrl = await uploadImage(mainImages[mainIndex].buffer);
-        mainIndex++;
+
+  for (const v of parsedVariants) {
+    let mainImageUrl = v.existing_main_image || null;
+
+    if (v.has_new_main_image && mainImages[mainIndex]) {
+      mainImageUrl = await uploadImage(mainImages[mainIndex].buffer);
+      mainIndex++;
+    }
+
+
+    const galleryUrls = [...(v.existing_gallery_images || [])];
+
+    for (let i = 0; i < v.new_gallery_count; i++) {
+      if (galleryImages[galleryIndex]) {
+        const url = await uploadImage(galleryImages[galleryIndex].buffer);
+        galleryUrls.push(url);
+        galleryIndex++;
       }
+    }
 
-      const galleryUrls = [...(v.existing_gallery_images || [])];
+    const totalImages = (mainImageUrl ? 1 : 0) + galleryUrls.length;
 
-      for (let i = 0; i < v.new_gallery_count; i++) {
-        if (galleryImages[galleryIndex]) {
-          const url = await uploadImage(galleryImages[galleryIndex].buffer);
-          galleryUrls.push(url);
-          galleryIndex++;
-        }
+    if (totalImages < 3) {
+      throw new Error(PRODUCT_MESSAGES.MIN_VARIANT_IMAGES);
+    }
+
+    if (v._id) {
+      const existingVariant = existingVariants.find(
+        (variant) => String(variant._id) === String(v._id)
+      );
+
+      if (existingVariant) {
+        existingVariant.price = v.price;
+        existingVariant.stock_qty = v.stock;
+        existingVariant.main_image = mainImageUrl;
+        existingVariant.gallery_images = galleryUrls;
+        existingVariant.attributes = v.attributes;
+        existingVariant.isDeleted = false;
+        existingVariant.deletedAt = null;
+
+        await existingVariant.save();
+        keptVariantIds.add(String(existingVariant._id));
+        continue;
       }
-
-      const totalImages = (mainImageUrl ? 1 : 0) + galleryUrls.length;
-
-      if (totalImages < 3) {
-        throw new Error("Each variant must include at least 3 images");
-      }
+    }
 
 
-      return {
-        product_id: productId,
-        price: v.price,
-        stock_qty: v.stock,
-        main_image: mainImageUrl,
-        gallery_images: galleryUrls,
-        attributes: v.attributes
-      };
-    })
-  );
+    const newVariant = await Variant.create({
+      product_id: productId,
+      price: v.price,
+      stock_qty: v.stock,
+      main_image: mainImageUrl,
+      gallery_images: galleryUrls,
+      attributes: v.attributes
+    });
 
-  await Variant.insertMany(variantDocs);
+    keptVariantIds.add(String(newVariant._id));
+  }
+
+  for (const variant of existingVariants) {
+    if (!keptVariantIds.has(String(variant._id))) {
+      variant.isDeleted = true;
+      variant.deletedAt = new Date();
+      await variant.save();
+    }
+  }
+
 
   return product;
 };
@@ -403,7 +428,7 @@ export const toggleProductStatusService = async (productId) => {
     });
 
   if (!product) {
-    throw new Error("Product not found");
+    throw new Error(PRODUCT_MESSAGES.NOT_FOUND);
   }
 
   product.isActive = !product.isActive;
