@@ -17,7 +17,36 @@ document.addEventListener("DOMContentLoaded", () => {
     phone: signupForm.querySelector('input[name="phone"]'),
     password: signupForm.querySelector('input[name="password"]'),
     confirmPassword: signupForm.querySelector('input[name="confirmPassword"]'),
+    referralCode: signupForm.querySelector('input[name="referralCode"]'),
   };
+
+  let referralTokenFromUrl = "";
+
+  async function applyReferralTokenFromUrl() {
+    const refToken = new URLSearchParams(window.location.search).get("ref");
+    referralTokenFromUrl = refToken || "";
+
+    if (!refToken || !fields.referralCode) return;
+
+    try {
+      const res = await fetch(
+        `/auth/referral/resolve?ref=${encodeURIComponent(refToken)}`,
+      );
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        throw new Error(data.message || "Invalid referral link");
+      }
+
+      fields.referralCode.value = data.data.referralCode || "";
+      fields.referralCode.readOnly = true;
+      fields.referralCode.title = `Referred by ${data.data.referrerName || "friend"}`;
+    } catch {
+      // Keep existing manual referral flow untouched
+    }
+  }
+
+  applyReferralTokenFromUrl();
   
   function removeStrengthMessage(input) {
     const existing = input.parentElement.querySelector(".password-strength");
@@ -155,6 +184,8 @@ document.addEventListener("DOMContentLoaded", () => {
       phone: fields.phone.value.trim(),
       password: fields.password.value,
       confirmPassword: fields.confirmPassword.value,
+      referralCode: fields.referralCode?.value.trim() || "",
+      referralToken: referralTokenFromUrl,
     };
 
     if (!validate(payload)) return;
@@ -186,7 +217,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       sessionStorage.setItem("signupEmail", payload.email);
-
+      sessionStorage.setItem("signupReferralUsed", payload.referralCode ? "true" : "false");
       window.location.href = "/verify-otp?type=signup";
 
     } catch (err) {

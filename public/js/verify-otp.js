@@ -81,13 +81,19 @@ otpForm.addEventListener("submit", async (e) => {
       window.location.href = "/reset-password";
     }else {
       if (type === "signup") {
+        const referralUsed = sessionStorage.getItem("signupReferralUsed") === "true";
+
         sessionStorage.setItem(
           "toast",
           JSON.stringify({
-            message: "Account created successfully. Please login.",
+            message: referralUsed
+              ? "Account created. Referral applied successfully. Welcome coupon unlocked."
+              : "Account created successfully. Please login.",
             type: "success",
           })
         );
+
+        sessionStorage.removeItem("signupReferralUsed");
 
         window.location.href = "/login";
       }

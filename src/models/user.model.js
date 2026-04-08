@@ -1,29 +1,29 @@
 import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema(
-    {
+  {
     firstName: {
       type: String,
       required: true,
-      trim: true
+      trim: true,
     },
 
     lastName: {
       type: String,
-      trim: true
+      trim: true,
     },
 
     email: {
       type: String,
       required: true,
       unique: true,
-      lowercase: true
+      lowercase: true,
     },
 
     phone: {
       type: String,
       unique: true,
-      sparse: true
+      sparse: true,
     },
 
     password: {
@@ -39,27 +39,38 @@ const userSchema = new mongoose.Schema(
     authProvider: {
       type: String,
       enum: ["local", "google"],
-      default: "local"
+      default: "local",
     },
 
     role: {
       type: String,
       enum: ["user", "admin"],
-      default: "user"
+      default: "user",
     },
 
     isBlocked: {
       type: Boolean,
-      default: false
+      default: false,
     },
 
     referral_code: {
       type: String,
-      unique: true
+      unique: true,
+    },
+
+    referred_by: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      default: null,
+    },
+
+    referral_reward_granted: {
+      type: Boolean,
+      default: false,
     },
 
     last_login_at: {
-      type: Date
+      type: Date,
     },
 
     pendingEmail: {
@@ -73,22 +84,22 @@ const userSchema = new mongoose.Schema(
 
     otp: {
       type: String,
-      select: false
+      select: false,
     },
 
     otpExpiresAt: {
-      type: Date
+      type: Date,
     },
 
     isEmailVerified: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
 
   {
-    timestamps: true
-  }
+    timestamps: true,
+  },
 );
 
 export default mongoose.model("User", userSchema);

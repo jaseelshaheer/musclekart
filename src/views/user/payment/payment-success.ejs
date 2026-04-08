@@ -1,0 +1,21 @@
+<section class="page order-success-page">
+  <div class="order-success-layout">
+    <div class="order-success-card">
+      <div class="order-success-icon">✓</div>
+      <h1>Payment Successful</h1>
+      <p>Your payment has been completed successfully and your order has been placed.</p>
+
+      <div class="order-success-meta">
+        <div class="order-success-row">
+          <span>Order ID</span>
+          <strong><%= orderId %></strong>
+        </div>
+      </div>
+
+      <div class="order-success-actions" style="margin-top:24px;">
+        <a href="/orders/<%= orderId %>" class="btn-primary">View Order Details</a>
+        <a href="/shop" class="checkout-back-cart-btn">Continue Shopping</a>
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,93 @@
+<div class="admin-layout">
+  <%- include("../partials/admin-sidebar") %>
+
+  <main class="admin-main">
+    <div class="admin-page-header">
+      <div>
+        <h1>Sales Reports</h1>
+        <p class="breadcrumb">Admin / Reports</p>
+      </div>
+    </div>
+
+    <section class="report-toolbar">
+      <div class="report-filter-grid">
+        <div class="form-group">
+          <label for="reportPeriod">Period</label>
+          <select id="reportPeriod" class="form-control">
+            <option value="daily">Daily</option>
+            <option value="weekly">Weekly</option>
+            <option value="monthly" selected>Monthly</option>
+            <option value="yearly">Yearly</option>
+            <option value="custom">Custom</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="reportFrom">From</label>
+          <input type="date" id="reportFrom" class="form-control" />
+        </div>
+
+        <div class="form-group">
+          <label for="reportTo">To</label>
+          <input type="date" id="reportTo" class="form-control" />
+        </div>
+      </div>
+
+      <div class="report-actions">
+        <button id="reportApplyBtn" class="btn-primary" type="button">Apply Filter</button>
+        <button id="reportDownloadExcelBtn" class="btn-shop-outline" type="button">Download Excel</button>
+        <button id="reportDownloadPdfBtn" class="btn-shop-outline" type="button">Download PDF</button>
+      </div>
+    </section>
+
+    <section class="report-kpi-grid" id="reportSummaryCards">
+      <article class="report-kpi-card">
+        <h3>Sales Count</h3>
+        <p id="kpiSalesCount">0</p>
+      </article>
+      <article class="report-kpi-card">
+        <h3>Order Amount</h3>
+        <p id="kpiOrderAmount">Rs. 0.00</p>
+      </article>
+      <article class="report-kpi-card">
+        <h3>Coupon Discount</h3>
+        <p id="kpiCouponDiscount">Rs. 0.00</p>
+      </article>
+      <article class="report-kpi-card">
+        <h3>Offer Discount</h3>
+        <p id="kpiOfferDiscount">Rs. 0.00</p>
+      </article>
+      <article class="report-kpi-card">
+        <h3>Total Discount</h3>
+        <p id="kpiTotalDiscount">Rs. 0.00</p>
+      </article>
+    </section>
+
+    <section class="admin-card">
+      <div class="table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Order ID</th>
+              <th>Date</th>
+              <th>Status</th>
+              <th>Payment</th>
+              <th>Subtotal</th>
+              <th>Coupon</th>
+              <th>Offer</th>
+              <th>Total Discount</th>
+              <th>Grand Total</th>
+            </tr>
+          </thead>
+          <tbody id="reportTableBody">
+            <tr>
+              <td colspan="9">Loading report...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script src="/js/admin-reports.js"></script>

@@ -1,6 +1,6 @@
 import express from "express";
 import { protect } from "../../middlewares/auth.middleware.js";
-import { getProfile, updateProfile, requestEmailChange, verifyEmailChange, changePassword, addAddress, updateAddress, deleteAddress, getAddresses, setDefaultAddress} from "../../controllers/user/profile.controller.js";
+import { getProfile, updateProfile, requestEmailChange, verifyEmailChange, changePassword, addAddress, updateAddress, deleteAddress, getAddresses, setDefaultAddress, getReferralLink} from "../../controllers/user/profile.controller.js";
 import upload from "../../config/multer.js";
 import { validateAddress } from "../../middlewares/validateAddress.middleware.js";
 // import userAuth from "../../middlewares/userAuth.middleware.js";
@@ -12,6 +12,8 @@ router.get("/profile", protect, getProfile);
 router.patch("/profile/email", protect, emailOtpLimiter, requestEmailChange);
 router.post("/profile/email/verify", protect, verifyEmailChange);
 router.patch("/profile/change-password", protect, changePassword);
+router.get("/profile/referral-link", protect, getReferralLink);
+
 router.post("/address", protect, validateAddress, addAddress);
 router.patch("/address/:addressId", protect, validateAddress, updateAddress);
 router.delete("/address/:addressId", protect, deleteAddress);

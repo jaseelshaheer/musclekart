@@ -61,7 +61,9 @@ async function loadOrders() {
         </td>
         <td>
             <span class="order-status-pill ${order.order_status}">
-            ${order.order_status.replaceAll("_", " ")}
+                ${order.order_status
+                    .replaceAll("_", " ")
+                    .replace(/\b\w/g, (char) => char.toUpperCase())}
             </span>
         </td>
         <td>

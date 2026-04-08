@@ -21,58 +21,79 @@ const orderItemSchema = new mongoose.Schema(
     product_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Product",
-      required: true
+      required: true,
     },
     variant_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Variant",
-      required: true
+      required: true,
     },
     product_name: {
       type: String,
       required: true,
-      trim: true
+      trim: true,
     },
     main_image: {
       type: String,
-      default: ""
+      default: "",
     },
     quantity: {
       type: Number,
       required: true,
-      min: 1
+      min: 1,
     },
     price: {
       type: Number,
       required: true,
-      min: 0
+      min: 0,
+    },
+    original_price: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+    discount_amount: {
+      type: Number,
+      default: 0,
+      min: 0,
     },
     total: {
       type: Number,
       required: true,
-      min: 0
+      min: 0,
     },
     item_status: {
       type: String,
-      enum: ["active", "cancelled", "returned"],
-      default: "active"
+      enum: [
+        "active",
+        "cancelled",
+        "return_requested",
+        "return_rejected",
+        "returned",
+      ],
+      default: "active",
     },
     cancel_reason: {
       type: String,
       trim: true,
-      default: ""
+      default: "",
     },
     return_reason: {
       type: String,
       trim: true,
-      default: ""
+      default: "",
+    },
+    return_reject_reason: {
+      type: String,
+      trim: true,
+      default: "",
     },
     attributes: {
       type: [orderItemAttributeSchema],
-      default: []
-    }
+      default: [],
+    },
   },
-  { _id: false }
+  { _id: false },
 );
 
 const addressSnapshotSchema = new mongoose.Schema(
@@ -175,6 +196,8 @@ const orderSchema = new mongoose.Schema(
         "shipped",
         "out_for_delivery",
         "delivered",
+        "return_requested",
+        "return_rejected",
         "cancelled",
         "returned",
       ],
@@ -221,6 +244,11 @@ const orderSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Coupon",
       default: null,
+    },
+    return_reject_reason: {
+      type: String,
+      trim: true,
+      default: "",
     },
     address_snapshot: {
       type: addressSnapshotSchema,

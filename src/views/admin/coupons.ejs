@@ -1,0 +1,129 @@
+<div class="admin-layout">
+    <%- include("../partials/admin-sidebar") %>
+
+        <main class="admin-main">
+            <section class="admin-page">
+                <div class="admin-page-header">
+                    <div>
+                        <h1>Coupons</h1>
+                        <p class="breadcrumb">Dashboard / Coupons</p>
+                    </div>
+
+                    <div class="search-wrapper">
+                        <input
+                            type="text"
+                            id="couponSearchInput"
+                            placeholder="Search coupon..."
+                        />
+                        <button type="button" id="clearSearch">✕</button>
+                    </div>
+
+                </div>
+
+                <div class="admin-card">
+                    <div style="margin-bottom:16px;">
+                        <button type="button" id="openCouponModalBtn" class="btn-primary">
+                        + Add Coupon
+                        </button>
+                    </div>
+
+                    <div id="couponTableContent"></div>
+
+                    <div class="admin-pagination" id="couponPagination">
+                        <button id="couponPrevBtn">Previous</button>
+                        <span id="couponPageInfo"></span>
+                        <button id="couponNextBtn">Next</button>
+                    </div>
+                </div>
+
+
+            </section>
+        </main>
+</div>
+
+
+<div id="couponModal" class="modal hidden">
+  <div class="modal-backdrop" id="couponModalBackdrop"></div>
+
+  <div class="modal-card admin-coupon-modal-card">
+    <div class="modal-header">
+      <h3 id="couponModalTitle">Add Coupon</h3>
+    </div>
+
+    <form id="couponForm" class="admin-coupon-form">
+      <input type="hidden" id="couponId">
+      <div class="admin-coupon-grid">
+        <div class="form-group">
+          <label for="couponCode">Coupon Code</label>
+          <input type="text" id="couponCode" name="coupon_code">
+        </div>
+
+        <!-- <div class="form-group">
+          <label for="couponStatus">Status</label>
+          <select id="couponStatus" name="is_active">
+            <option value="true">Active</option>
+            <option value="false">Inactive</option>
+          </select>
+        </div> -->
+
+        <div class="form-group">
+          <label for="couponDescription">Description</label>
+          <input type="text" id="couponDescription" name="description">
+        </div>
+
+        <div class="form-group">
+          <label for="couponMinPurchase">Min Purchase</label>
+          <input type="number" id="couponMinPurchase" name="min_purchase" min="0">
+        </div>
+
+        <div class="form-group">
+          <label for="couponDiscountType">Discount Type</label>
+          <select id="couponDiscountType" name="discount_type">
+            <option value="flat">Flat</option>
+            <option value="percentage">Percentage</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="couponDiscountValue">Discount Value</label>
+          <input type="number" id="couponDiscountValue" name="discount_value" min="1">
+        </div>
+
+        <div class="form-group">
+          <label for="couponUsageLimit">Usage Limit</label>
+          <input type="number" id="couponUsageLimit" name="usage_limit" min="1">
+        </div>
+
+        <div class="form-group">
+          <label for="couponUsagePerUser">Usage Per User</label>
+          <input type="number" id="couponUsagePerUser" name="usage_per_user" min="1">
+        </div>
+
+        <div class="form-group hidden" id="couponMaxDiscountGroup">
+            <label for="couponMaxDiscount">Max Discount</label>
+            <input type="number" id="couponMaxDiscount" name="max_discount" min="0">
+        </div>
+
+
+        <div class="form-group">
+          <label for="couponStartDate">Start Date</label>
+          <input type="datetime-local" id="couponStartDate" name="start_date">
+        </div>
+
+        <div class="form-group">
+          <label for="couponExpiryDate">Expiry Date</label>
+          <input type="datetime-local" id="couponExpiryDate" name="expiry_date">
+        </div>
+      </div>
+
+      <div id="couponFormError" class="checkout-address-form-error hidden"></div>
+
+      <div class="modal-footer">
+        <button type="button" id="cancelCouponModalBtn" class="btn-shop-outline">Cancel</button>
+        <button type="submit" id="couponSubmitBtn" class="btn-primary">Create Coupon</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="/js/admin-coupons.js"></script>

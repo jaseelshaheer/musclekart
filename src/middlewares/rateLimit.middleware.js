@@ -10,6 +10,16 @@ export const authLimiter = rateLimit({
   }
 });
 
+export const loginAuthLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 5,
+
+  message: {
+    success: false,
+    message: "Too many requests. Please try again later."
+  }
+});
+
 
 export const emailOtpLimiter = rateLimit({
   windowMs: 30 * 1000,

@@ -2,6 +2,8 @@ if (!localStorage.getItem("adminToken")) {
   window.location.href = "/admin/login";
 }
 
+let currentCategories = [];
+
 let page = 1;
 let totalPages = 1;
 const limit = 10;
@@ -17,6 +19,12 @@ const clearBtn = document.getElementById("clearSearch");
 const categoryNameError = document.getElementById("categoryNameError");
 const categoryNameCount = document.getElementById("categoryNameCount");
 const categoryDescriptionCount = document.getElementById("categoryDescriptionCount");
+const categoryOfferIsActive = document.getElementById("categoryOfferIsActive");
+const categoryOfferFields = document.getElementById("categoryOfferFields");
+const categoryOfferDiscountType = document.getElementById("categoryOfferDiscountType");
+const categoryOfferDiscountValue = document.getElementById("categoryOfferDiscountValue");
+const categoryOfferStartDate = document.getElementById("categoryOfferStartDate");
+const categoryOfferExpiryDate = document.getElementById("categoryOfferExpiryDate");
 
 
 /* =========================
@@ -47,11 +55,40 @@ function updateCategoryCounts() {
 
 nameInput.addEventListener("input", () => {
   updateCategoryCounts();
+  nameInput.classList.remove("input-error");
+  if (categoryNameError) {
+    categoryNameError.textContent = "";
+  }
 });
+
 
 descInput.addEventListener("input", () => {
   updateCategoryCounts();
 });
+
+
+
+
+categoryOfferDiscountType?.addEventListener("change", () => {
+  categoryOfferDiscountType.classList.remove("input-error");
+  document.getElementById("categoryOfferDiscountTypeError").textContent = "";
+});
+
+categoryOfferDiscountValue?.addEventListener("input", () => {
+  categoryOfferDiscountValue.classList.remove("input-error");
+  document.getElementById("categoryOfferDiscountValueError").textContent = "";
+});
+
+categoryOfferStartDate?.addEventListener("input", () => {
+  categoryOfferStartDate.classList.remove("input-error");
+  document.getElementById("categoryOfferStartDateError").textContent = "";
+});
+
+categoryOfferExpiryDate?.addEventListener("input", () => {
+  categoryOfferExpiryDate.classList.remove("input-error");
+  document.getElementById("categoryOfferExpiryDateError").textContent = "";
+});
+
 
 
 
@@ -84,6 +121,8 @@ async function loadCategories() {
 
   if (!data.success) return;
 
+  currentCategories = data.data.categories;
+
   table.innerHTML = "";
 
   data.data.categories.forEach((cat, index) => {
@@ -113,10 +152,10 @@ async function loadCategories() {
         </button>
 
         <button
-          class="btn-edit"
-          onclick="openEditModal('${cat._id}','${cat.name}','${cat.description || ""}')"
-        >
-          Edit
+            class="btn-edit"
+            onclick="openEditModal('${cat._id}')"
+          >
+            Edit
         </button>
 
         <button
@@ -175,6 +214,20 @@ function toggleCategoryStatus(categoryId, isActive) {
   );
 }
 
+
+function toggleCategoryOfferFields() {
+  if (!categoryOfferFields || !categoryOfferIsActive) return;
+
+  categoryOfferFields.classList.toggle(
+    "hidden",
+    !categoryOfferIsActive.checked
+  );
+}
+
+
+categoryOfferIsActive?.addEventListener("change", () => {
+  toggleCategoryOfferFields();
+});
 
 
 
@@ -251,6 +304,14 @@ document.getElementById("addCategoryBtn").onclick = () => {
   nameInput.value = "";
   descInput.value = "";
 
+  categoryOfferIsActive.checked = false;
+  categoryOfferDiscountType.value = "";
+  categoryOfferDiscountValue.value = "";
+  categoryOfferStartDate.value = "";
+  categoryOfferExpiryDate.value = "";
+  toggleCategoryOfferFields();
+
+
   clearValidation();
   updateCategoryCounts();
 };
@@ -268,20 +329,42 @@ document.getElementById("closeModalBtn").onclick = () => {
 };
 
 
-function openEditModal(id, name, description) {
+function formatDateTimeLocal(value) {
+  if (!value) return "";
+
+  const date = new Date(value);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+
+  return `${year}-${month}-${day}T${hours}:${minutes}`;
+}
+
+
+function openEditModal(id) {
+  const category = currentCategories.find((cat) => cat._id === id);
+  if (!category) return;
 
   modal.classList.remove("hidden");
-
   modalTitle.textContent = "Edit Category";
 
-  idInput.value = id;
-  nameInput.value = name;
-  descInput.value = description;
+  idInput.value = category._id;
+  nameInput.value = category.name || "";
+  descInput.value = category.description || "";
+
+  categoryOfferIsActive.checked = Boolean(category.offer_is_active);
+  categoryOfferDiscountType.value = category.offer_discount_type || "";
+  categoryOfferDiscountValue.value =
+    category.offer_discount_value ? String(category.offer_discount_value) : "";
+  categoryOfferStartDate.value = formatDateTimeLocal(category.offer_start_date);
+  categoryOfferExpiryDate.value = formatDateTimeLocal(category.offer_expiry_date);
+
 
   clearValidation();
-
   updateCategoryCounts();
-
+  toggleCategoryOfferFields();
 }
 
 
@@ -294,6 +377,21 @@ function clearValidation() {
   if (categoryNameError) {
     categoryNameError.textContent = "";
   }
+
+  [
+    "categoryOfferDiscountTypeError",
+    "categoryOfferDiscountValueError",
+    "categoryOfferStartDateError",
+    "categoryOfferExpiryDateError",
+  ].forEach((id) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = "";
+  });
+
+  categoryOfferDiscountType?.classList.remove("input-error");
+  categoryOfferDiscountValue?.classList.remove("input-error");
+  categoryOfferStartDate?.classList.remove("input-error");
+  categoryOfferExpiryDate?.classList.remove("input-error");
 
   nameInput.classList.remove("input-error");
 }
@@ -308,6 +406,14 @@ function showError(input, message) {
   }
 }
 
+function showOfferFieldError(input, errorId, message) {
+  input?.classList.add("input-error");
+
+  const errorEl = document.getElementById(errorId);
+  if (errorEl) {
+    errorEl.textContent = message;
+  }
+}
 
 
 
@@ -335,9 +441,90 @@ form.addEventListener("submit", async (e) => {
     isValid = false;
   }
 
+  if (categoryOfferIsActive.checked) {
+    if (!["flat", "percentage"].includes(categoryOfferDiscountType.value)) {
+      showOfferFieldError(
+        categoryOfferDiscountType,
+        "categoryOfferDiscountTypeError",
+        "Select a valid offer type",
+      );
+      isValid = false;
+    }
+
+    if (Number(categoryOfferDiscountValue.value || 0) <= 0) {
+      showOfferFieldError(
+        categoryOfferDiscountValue,
+        "categoryOfferDiscountValueError",
+        "Offer value must be greater than 0",
+      );
+      isValid = false;
+    }
+
+    if (
+      categoryOfferDiscountType.value === "percentage" &&
+      Number(categoryOfferDiscountValue.value || 0) > 100
+    ) {
+      showOfferFieldError(
+        categoryOfferDiscountValue,
+        "categoryOfferDiscountValueError",
+        "Percentage offer cannot exceed 100",
+      );
+      isValid = false;
+    }
+
+    if (!categoryOfferStartDate.value) {
+      showOfferFieldError(
+        categoryOfferStartDate,
+        "categoryOfferStartDateError",
+        "Offer start date is required",
+      );
+      isValid = false;
+    }
+
+    if (!categoryOfferExpiryDate.value) {
+      showOfferFieldError(
+        categoryOfferExpiryDate,
+        "categoryOfferExpiryDateError",
+        "Offer expiry date is required",
+      );
+      isValid = false;
+    }
+
+    if (
+      categoryOfferStartDate.value &&
+      categoryOfferExpiryDate.value &&
+      new Date(categoryOfferExpiryDate.value) <=
+        new Date(categoryOfferStartDate.value)
+    ) {
+      showOfferFieldError(
+        categoryOfferExpiryDate,
+        "categoryOfferExpiryDateError",
+        "Expiry date must be after start date",
+      );
+      isValid = false;
+    }
+  }
+
   if (!isValid) return;
 
-  const payload = { name, description };
+  const payload = {
+    name,
+    description,
+    offer_is_active: categoryOfferIsActive.checked,
+    offer_discount_type: categoryOfferIsActive.checked
+      ? categoryOfferDiscountType.value
+      : null,
+    offer_discount_value: categoryOfferIsActive.checked
+      ? Number(categoryOfferDiscountValue.value || 0)
+      : 0,
+    offer_start_date: categoryOfferIsActive.checked
+      ? categoryOfferStartDate.value
+      : null,
+    offer_expiry_date: categoryOfferIsActive.checked
+      ? categoryOfferExpiryDate.value
+      : null,
+  };
+
   const token = getAdminToken();
   const id = idInput.value;
 
@@ -348,18 +535,18 @@ form.addEventListener("submit", async (e) => {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`
+        Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify(payload)
+      body: JSON.stringify(payload),
     });
   } else {
     res = await fetch("/admin/categories", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`
+        Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify(payload)
+      body: JSON.stringify(payload),
     });
   }
 
@@ -373,14 +560,11 @@ form.addEventListener("submit", async (e) => {
   modal.classList.add("hidden");
 
   showToast(
-    id
-      ? "Category updated successfully."
-      : "Category created successfully.",
-    "success"
+    id ? "Category updated successfully." : "Category created successfully.",
+    "success",
   );
 
   loadCategories();
-
 });
 
 

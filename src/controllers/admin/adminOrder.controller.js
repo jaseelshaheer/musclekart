@@ -2,7 +2,9 @@ import HTTP_STATUS from "../../constants/httpStatus.js";
 import {
   getAdminOrdersService,
   getAdminOrderDetailService,
-  updateAdminOrderStatusService
+  updateAdminOrderStatusService,
+  approveReturnRequestService,
+  rejectReturnRequestService
 } from "../../services/admin/adminOrder.service.js";
 
 export const getOrdersPage = async (req, res) => {
@@ -79,3 +81,43 @@ export const updateOrderStatus = async (req, res) => {
     });
   }
 };
+
+
+export const approveReturnRequest = async (req, res) => {
+  try {
+    const order = await approveReturnRequestService(req.params.orderId);
+
+    res.status(HTTP_STATUS.OK).json({
+      success: true,
+      message: "Return request approved successfully",
+      data: order
+    });
+  } catch (error) {
+    res.status(HTTP_STATUS.BAD_REQUEST).json({
+      success: false,
+      message: error.message || "Failed to approve return request"
+    });
+  }
+};
+
+export const rejectReturnRequest = async (req, res) => {
+  try {
+    const order = await rejectReturnRequestService(
+      req.params.orderId,
+      req.body.reason
+    );
+
+    res.status(HTTP_STATUS.OK).json({
+      success: true,
+      message: "Return request rejected successfully",
+      data: order
+    });
+  } catch (error) {
+    res.status(HTTP_STATUS.BAD_REQUEST).json({
+      success: false,
+      message: error.message || "Failed to reject return request"
+    });
+  }
+};
+
+

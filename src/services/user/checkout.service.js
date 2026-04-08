@@ -4,6 +4,10 @@ import Variant from "../../models/variant.model.js";
 import Order from "../../models/order.model.js";
 import Payment from "../../models/payment.model.js";
 import { getCartService } from "./cart.service.js";
+import Coupon from "../../models/coupon.model.js";
+import { getOrCreateWallet, debitWalletService } from "./wallet.service.js";
+import User from "../../models/user.model.js";
+import { creditWalletService } from "./wallet.service.js";
 
 
 function generateOrderId() {
@@ -26,28 +30,82 @@ export const getCheckoutPageService = async (userId) => {
 
   const shipping = 0;
   const tax = 0;
-  const discount = 0;
-  const finalTotal = cartData.subtotal + shipping + tax - discount;
+
+  const cart = await Cart.findOne({ user_id: userId }).lean();
+  let appliedCoupon = null;
+  let discount = cart?.coupon_discount || 0;
+
+  const itemOfferSavings = cartData.items.reduce(
+  (sum, item) => sum + Number((item.discountAmount || 0) * (item.quantity || 0)),
+  0
+);
+
+const totalSavings = itemOfferSavings + Number(discount || 0);
+
+  if (cart?.applied_coupon_id) {
+    appliedCoupon = await Coupon.findById(cart.applied_coupon_id).lean();
+  }
+
+  const finalTotal = Math.max(0, cartData.subtotal + shipping + tax - discount);
+
 
   const canCheckout =
     cartData.items.length > 0 &&
     !cartData.hasUnavailableItems &&
     Boolean(defaultAddress);
 
+  const wallet = await getOrCreateWallet(userId);
+
   return {
     items: cartData.items,
     subtotal: cartData.subtotal,
     totalItems: cartData.totalItems,
     hasUnavailableItems: cartData.hasUnavailableItems,
+    walletBalance: wallet.balance,
     addresses,
     defaultAddress,
     shipping,
     tax,
     discount,
+    itemOfferSavings,
+    totalSavings,
     finalTotal,
+    appliedCoupon,
     canCheckout
   };
 };
+
+
+async function grantReferralRewardIfEligible(userId, order) {
+  const user = await User.findById(userId);
+
+  if (!user || !user.referred_by || user.referral_reward_granted) {
+    return;
+  }
+
+  const completedOrdersCount = await Order.countDocuments({
+    user_id: userId,
+    order_status: { $ne: "cancelled" }
+  });
+
+  if (completedOrdersCount !== 1) {
+    return;
+  }
+
+  const referralRewardAmount = 100;
+
+  await creditWalletService({
+    userId: user.referred_by,
+    amount: referralRewardAmount,
+    description: `Referral reward for first order ${order.order_id}`,
+    source: "referral_reward",
+    orderId: order._id
+  });
+
+  user.referral_reward_granted = true;
+  await user.save();
+}
+
 
 
 export const placeOrderService = async (userId, payload) => {
@@ -57,8 +115,8 @@ export const placeOrderService = async (userId, payload) => {
     throw new Error("Please select a delivery address");
   }
 
-  if (paymentMethod !== "cod") {
-    throw new Error("Only Cash on Delivery is available right now");
+  if (!["cod", "wallet"].includes(paymentMethod)) {
+    throw new Error("Invalid payment method");
   }
 
   const checkoutData = await getCheckoutPageService(userId);
@@ -96,20 +154,32 @@ export const placeOrderService = async (userId, payload) => {
     }
   }
 
+  let wallet = null;
+
+  if (paymentMethod === "wallet") {
+    wallet = await getOrCreateWallet(userId);
+
+    if (wallet.balance < checkoutData.finalTotal) {
+      throw new Error("Insufficient wallet balance");
+    }
+  }
+
   const orderId = generateOrderId();
+  const cart = await Cart.findOne({ user_id: userId }).lean();
 
   const order = await Order.create({
     order_id: orderId,
     user_id: userId,
     order_date: new Date(),
     order_status: "order_placed",
-    payment_method: "cod",
-    payment_status: "pending",
+    payment_method: paymentMethod,
+    payment_status: paymentMethod === "wallet" ? "paid" : "pending",
     subtotal: checkoutData.subtotal,
     delivery_charge: checkoutData.shipping,
     discount: checkoutData.discount,
     grand_total: checkoutData.finalTotal,
     address_id: address._id,
+    coupon_id: cart?.applied_coupon_id || null,
     address_snapshot: {
       name: address.name,
       phone: address.phone,
@@ -128,6 +198,8 @@ export const placeOrderService = async (userId, payload) => {
       main_image: item.main_image || "",
       quantity: item.quantity,
       price: item.unitPrice,
+      original_price: item.originalPrice || item.unitPrice,
+      discount_amount: item.discountAmount || 0,
       total: item.itemTotal,
       item_status: "active",
       cancel_reason: "",
@@ -145,11 +217,23 @@ export const placeOrderService = async (userId, payload) => {
 
   await Payment.create({
     order_id: order._id,
-    method: "cod",
-    status: "pending",
+    method: paymentMethod,
+    status: paymentMethod === "wallet" ? "completed" : "pending",
     transaction_id: "",
-    paid_at: null
+    paid_at: paymentMethod === "wallet" ? new Date() : null,
   });
+
+
+  if (paymentMethod === "wallet") {
+    await debitWalletService({
+      userId,
+      amount: checkoutData.finalTotal,
+      description: `Wallet payment for order ${order.order_id}`,
+      source: "wallet_payment",
+      orderId: order._id,
+    });
+  }
+
 
   for (const item of checkoutData.items) {
     const variant = await Variant.findById(item.variant_id);
@@ -159,12 +243,27 @@ export const placeOrderService = async (userId, payload) => {
 
   await Cart.findOneAndUpdate(
     { user_id: userId },
-    { $set: { cart_items: [] } }
+    {
+        $set: {
+        cart_items: [],
+        applied_coupon_id: null,
+        coupon_discount: 0
+        }
+    }
   );
 
+  if (cart?.applied_coupon_id) {
+    await Coupon.findByIdAndUpdate(cart.applied_coupon_id, {
+      $inc: { used_count: 1 }
+    });
+  }
+  
+  await grantReferralRewardIfEligible(userId, order);
+
   return {
-    orderId: order.order_id,
-    orderDbId: order._id
+    orderId: order.order_id
   };
+
+
 };
 

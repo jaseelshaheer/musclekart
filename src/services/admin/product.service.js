@@ -5,6 +5,55 @@ import cloudinary from "../../config/cloudinary.js";
 import { PRODUCT_MESSAGES } from "../../constants/messages.js";
 
 
+function parseBooleanFlag(value) {
+  return value === true || value === "true";
+}
+
+function validateProductOfferFields(payload) {
+  const {
+    offer_discount_type,
+    offer_discount_value,
+    offer_start_date,
+    offer_expiry_date,
+    offer_min_final_price,
+  } = payload;
+
+  const offerIsActive = parseBooleanFlag(payload.offer_is_active);
+
+  if (!offerIsActive) {
+    return;
+  }
+
+  if (!["flat", "percentage"].includes(offer_discount_type)) {
+    throw new Error("Invalid product offer discount type");
+  }
+
+  if (Number(offer_discount_value) <= 0) {
+    throw new Error("Product offer discount value must be greater than 0");
+  }
+
+  if (
+    offer_discount_type === "percentage" &&
+    Number(offer_discount_value) > 100
+  ) {
+    throw new Error("Product percentage offer cannot exceed 100");
+  }
+
+  if (!offer_start_date || !offer_expiry_date) {
+    throw new Error("Product offer start and expiry dates are required");
+  }
+
+  if (new Date(offer_expiry_date) <= new Date(offer_start_date)) {
+    throw new Error("Product offer expiry date must be after start date");
+  }
+
+  if (Number(offer_min_final_price || 0) < 0) {
+    throw new Error("Minimum final price cannot be negative");
+  }
+}
+
+
+
 function uploadImage(buffer) {
 
   return new Promise((resolve, reject) => {
@@ -14,7 +63,6 @@ function uploadImage(buffer) {
       (error, result) => {
 
         if (error) return reject(error);
-
         resolve(result.secure_url);
 
       }
@@ -181,15 +229,24 @@ export const createProductService = async (data, files) => {
     throw new Error(PRODUCT_MESSAGES.BRAND_REQUIRED);
   }
 
+  validateProductOfferFields(data);
 
+  const offerIsActive = parseBooleanFlag(data.offer_is_active);
 
   const product = await Product.create({
     product_name,
     description,
     specifications,
     category_id,
-    brand_id
+    brand_id,
+    offer_discount_type: data.offer_discount_type || null,
+    offer_discount_value: Number(data.offer_discount_value || 0),
+    offer_start_date: data.offer_start_date || null,
+    offer_expiry_date: data.offer_expiry_date || null,
+    offer_is_active: offerIsActive,
+    offer_min_final_price: Number(data.offer_min_final_price || 0),
   });
+
 
   const mainImages = files.main_images || [];
   const galleryImages = files.gallery_images || [];
@@ -294,6 +351,10 @@ export const updateProductService = async (productId, data, files) => {
   }
 
 
+  validateProductOfferFields(data);
+
+  const offerIsActive = parseBooleanFlag(data.offer_is_active);
+
   const product = await Product.findByIdAndUpdate(
     productId,
     {
@@ -302,9 +363,15 @@ export const updateProductService = async (productId, data, files) => {
       specifications,
       category_id,
       brand_id,
-      isActive
+      isActive,
+      offer_discount_type: data.offer_discount_type || null,
+      offer_discount_value: Number(data.offer_discount_value || 0),
+      offer_start_date: data.offer_start_date || null,
+      offer_expiry_date: data.offer_expiry_date || null,
+      offer_is_active: offerIsActive,
+      offer_min_final_price: Number(data.offer_min_final_price || 0),
     },
-    { new: true }
+    { new: true },
   );
 
   if (!product) {

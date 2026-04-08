@@ -7,6 +7,45 @@ const wishlistVariantOptions = document.getElementById("wishlistVariantOptions")
 const wishlistVariantModalTitle = document.getElementById("wishlistVariantModalTitle");
 const wishlistVariantAddToCartBtn = document.getElementById("wishlistVariantAddToCartBtn");
 
+function formatCurrency(value) {
+  return `Rs. ${Number(value || 0).toFixed(2)}`;
+}
+
+function renderWishlistPriceBlock(item) {
+  const hasOffer = Boolean(item.has_offer);
+
+  const isRange =
+    Number(item.min_final_price || 0) !== Number(item.max_final_price || 0);
+
+  const finalPriceText = isRange
+    ? `${formatCurrency(item.min_final_price)} - ${formatCurrency(item.max_final_price)}`
+    : formatCurrency(item.min_final_price);
+
+  const originalPriceText =
+    Number(item.min_original_price || 0) !== Number(item.max_original_price || 0)
+      ? `${formatCurrency(item.min_original_price)} - ${formatCurrency(item.max_original_price)}`
+      : formatCurrency(item.min_original_price);
+
+  return `
+    <div class="shop-price-block">
+      <span class="shop-offer-badge ${hasOffer ? "" : "is-placeholder"}">
+        ${hasOffer ? "Offer Applied" : "&nbsp;"}
+      </span>
+
+      <div class="shop-price-stack">
+        ${
+          hasOffer
+            ? `<span class="shop-price-original">${originalPriceText}</span>`
+            : ""
+        }
+        <strong class="shop-price-final">${finalPriceText}</strong>
+      </div>
+    </div>
+  `;
+}
+
+
+
 let selectedWishlistVariantId = null;
 let selectedWishlistProductId = null;
 
@@ -46,11 +85,6 @@ function renderWishlist(data) {
     <div class="wishlist-grid">
       ${items
         .map((item) => {
-          const priceText =
-            item.max_price && item.max_price !== item.min_price
-              ? `Rs. ${item.min_price} - Rs. ${item.max_price}`
-              : `Rs. ${item.min_price}`;
-
           return `
             <article class="wishlist-card" data-product-id="${item.product_id}">
               <a href="/shop/${item.product_id}" class="wishlist-card-link">
@@ -63,7 +97,7 @@ function renderWishlist(data) {
                   <p class="wishlist-card-meta">
                     ${item.category_name || "Category"}${item.brand_name ? ` • ${item.brand_name}` : ""}
                   </p>
-                  <p class="wishlist-card-price">${priceText}</p>
+                  ${renderWishlistPriceBlock(item)}
                   <p class="wishlist-card-stock ${item.total_stock > 0 ? "in-stock" : "out-stock"}">
                     ${item.total_stock > 0 ? "In stock" : "Out of stock"}
                   </p>
@@ -89,7 +123,7 @@ function renderWishlist(data) {
                             data-product-name="${item.product_name}"
                             data-variants='${JSON.stringify(item.variant_options)}'
                             >
-                            Add to Cart
+                            View All Variants
                             </button>`
                         : `<a href="/shop/${item.product_id}" class="wishlist-add-cart-btn secondary">
                             View Details
@@ -137,7 +171,14 @@ function openWishlistVariantModal(productId, productName, variants) {
           <img src="${variant.main_image || "/images/no-image.png"}" alt="${attrs}">
           <div class="shop-variant-option-content">
             <strong>${attrs}</strong>
-            <span>Rs. ${variant.price}</span>
+            <div class="shop-variant-price-stack">
+              ${
+                variant.has_offer
+                  ? `<span class="shop-price-original">${formatCurrency(variant.original_price)}</span>`
+                  : ""
+              }
+              <span class="shop-price-final">${formatCurrency(variant.final_price || variant.price)}</span>
+            </div>
             <small class="${variant.stock_qty > 0 ? "in-stock" : "out-stock"}">
               ${variant.stock_qty > 0 ? `${variant.stock_qty} in stock` : "Out of stock"}
             </small>

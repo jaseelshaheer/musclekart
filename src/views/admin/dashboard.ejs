@@ -1,10 +1,7 @@
 <div class="admin-layout">
-
   <%- include("../partials/admin-sidebar") %>
 
   <main class="admin-main">
-
-    <!-- PAGE HEADER -->
     <div class="admin-page-header">
       <div>
         <h1>Dashboard</h1>
@@ -12,18 +9,45 @@
       </div>
     </div>
 
-    <!-- DASHBOARD CONTENT -->
-    <div class="dashboard-content">
+    <section class="dashboard-toolbar">
+      <div class="form-group">
+        <label for="dashboardViewFilter">Chart View</label>
+        <select id="dashboardViewFilter" class="form-control">
+          <option value="monthly" selected>Monthly</option>
+          <option value="yearly">Yearly</option>
+        </select>
+      </div>
 
-      <a href="/admin/users-list" class="dashboard-card">
-        <h3>Manage Users</h3>
-        <p>View, block or unblock users</p>
-      </a>
+      <div class="form-group" id="dashboardYearGroup">
+        <label for="dashboardYearFilter">Year</label>
+        <select id="dashboardYearFilter" class="form-control"></select>
+      </div>
+    </section>
 
-    </div>
+    <section class="dashboard-chart-card admin-card">
+      <h3>Sales Trend</h3>
+      <div id="dashboardChartList" class="dashboard-chart-list"></div>
+    </section>
 
+    <section class="dashboard-top-grid">
+      <article class="admin-card">
+        <h3>Best Selling Products (Top 10)</h3>
+        <div id="topProductsList" class="dashboard-rank-list"></div>
+      </article>
+
+      <article class="admin-card">
+        <h3>Best Selling Categories (Top 10)</h3>
+        <div id="topCategoriesList" class="dashboard-rank-list"></div>
+      </article>
+
+      <article class="admin-card">
+        <h3>Best Selling Brands (Top 10)</h3>
+        <div id="topBrandsList" class="dashboard-rank-list"></div>
+      </article>
+    </section>
   </main>
 </div>
 
+<script src="/js/admin-dashboard.js"></script>
 <script src="/js/auth-ui.js"></script>
 

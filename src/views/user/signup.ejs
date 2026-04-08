@@ -10,7 +10,7 @@
     <div class="auth-form">
       <h2>Sign up & Get Reward</h2>
       <p class="auth-subtitle">
-        Get ₹300 Welcome Bonus on Signup 🎉
+        Enter a referral code to unlock welcome coupon benefits. 🎉
       </p>
 
       <form id="signupForm" novalidate>
@@ -52,6 +52,20 @@
           </div>
         </div>
 
+        <div class="form-group">
+          <label for="referralCode">Referral Code</label>
+          <input
+            type="text"
+            id="referralCode"
+            name="referralCode"
+            maxlength="20"
+            placeholder="Enter referral code (optional)"
+          >
+          <small class="referral-note">
+            Use a valid referral code to unlock referral welcome coupon benefits.
+          </small>
+        </div>
+
         <button type="submit" class="primary-btn">
           Sign Up
         </button>
@@ -75,4 +89,4 @@
 </main>
 
 
-<script src="/public/js/signup.js"></script>
+<script src="/js/signup.js"></script>

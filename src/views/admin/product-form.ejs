@@ -76,6 +76,93 @@
             <small class="char-count" id="specificationsCount">0 / 2000</small>
           </div>
 
+          <div class="form-group full">
+            <div class="product-price-guard-section">
+              <h3>Price Protection</h3>
+              <p>Set the lowest final price this product can reach after any product or category offer is applied.</p>
+
+              <div class="product-price-guard-field">
+                <div class="form-group">
+                  <label>Lowest Allowed Final Price</label>
+                  <input
+                    type="number"
+                    id="productOfferMinFinalPrice"
+                    class="form-control"
+                    min="0"
+                    placeholder="Enter minimum final selling price"
+                  >
+                  <small class="field-error" id="productOfferMinFinalPriceError"></small>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group full">
+            <div class="product-offer-section">
+              <div class="product-offer-head">
+                <div>
+                  <h3>Product Offer</h3>
+                  <p>Configure a direct product-level offer.</p>
+                </div>
+
+                <div class="product-offer-head-actions">
+                  <button type="button" id="toggleProductOfferBtn" class="btn-outline">
+                    Configure Offer
+                  </button>
+                  <button type="button" id="clearProductOfferBtn" class="btn-cncel hidden">
+                    Remove Offer
+                  </button>
+                </div>
+              </div>
+
+              <div id="productOfferFields" class="product-offer-grid hidden">
+                <div class="form-group">
+                  <label>Offer Type</label>
+                  <select id="productOfferDiscountType" class="form-control">
+                    <option value="">Select Offer Type</option>
+                    <option value="flat">Flat Discount</option>
+                    <option value="percentage">Percentage Discount</option>
+                  </select>
+                  <small class="field-error" id="productOfferDiscountTypeError"></small>
+                </div>
+
+                <div class="form-group">
+                  <label>Offer Value</label>
+                  <input
+                    type="number"
+                    id="productOfferDiscountValue"
+                    class="form-control"
+                    min="0"
+                    placeholder="Enter offer value"
+                  >
+                  <small class="field-error" id="productOfferDiscountValueError"></small>
+                </div>
+
+                <div class="form-group">
+                  <label>Offer Start Date</label>
+                  <input
+                    type="datetime-local"
+                    id="productOfferStartDate"
+                    class="form-control"
+                  >
+                  <small class="field-error" id="productOfferStartDateError"></small>
+                </div>
+
+                <div class="form-group">
+                  <label>Offer Expiry Date</label>
+                  <input
+                    type="datetime-local"
+                    id="productOfferExpiryDate"
+                    class="form-control"
+                  >
+                  <small class="field-error" id="productOfferExpiryDateError"></small>
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+
         </div>
 
       </form>

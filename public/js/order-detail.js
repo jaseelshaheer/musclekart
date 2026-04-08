@@ -12,6 +12,15 @@ if (!token) {
 function renderOrderDetail(order) {
   if (!orderDetailContent) return;
 
+  const itemOfferSavings = (order.items || []).reduce(
+    (sum, item) =>
+      sum + Number((item.discount_amount || 0) * (item.quantity || 0)),
+    0,
+  );
+
+  const totalSavings = itemOfferSavings + Number(order.discount || 0);
+
+
   orderDetailContent.innerHTML = `
     <div class="order-detail-header">
         <div>
@@ -68,8 +77,21 @@ function renderOrderDetail(order) {
 
             <div class="order-detail-meta-box">
               <span>Order Status</span>
-              <strong>${order.order_status.replaceAll("_", " ")}</strong>
+              <strong>
+                ${order.order_status
+                    .replaceAll("_", " ")
+                    .replace(/\b\w/g, (char) => char.toUpperCase())}
+              </strong>
             </div>
+
+            ${
+                order.order_status === "return_rejected" && order.return_reject_reason
+                    ? `<p class="order-return-reject-note">
+                        Return request rejected: ${order.return_reject_reason}
+                    </p>`
+                    : ""
+            }
+
           </div>
         </section>
 
@@ -95,14 +117,43 @@ function renderOrderDetail(order) {
                     }
                   </p>
                   <p>Quantity: ${item.quantity}</p>
-                  <p>Price: Rs. ${item.price}</p>
+
+                  ${
+                    Number(item.discount_amount || 0) > 0
+                      ? `<p class="order-item-original-price">
+                          Rs. ${Number(item.original_price || item.price || 0).toFixed(2)} each
+                        </p>`
+                      : ""
+                  }
+
+                  <p class="order-item-final-price">
+                    Price: Rs. ${Number(item.price || 0).toFixed(2)} each
+                  </p>
                 </div>
 
                 <div class="checkout-item-total">
-                    <strong>Rs. ${item.total}</strong>
+                    <strong>Rs. ${Number(item.total || 0).toFixed(2)}</strong>
+
+                    ${
+                      Number(item.discount_amount || 0) > 0
+                        ? `<p class="order-item-savings">
+                            You saved Rs. ${Number((item.discount_amount || 0) * (item.quantity || 0)).toFixed(2)}
+                          </p>`
+                        : ""
+                    }
                     <span class="${item.item_status === "active" ? "checkout-status-good" : "checkout-status-bad"}">
-                        ${item.item_status}
+                        ${item.item_status
+                            .replaceAll("_", " ")
+                            .replace(/\b\w/g, (char) => char.toUpperCase())}
                     </span>
+
+                    ${
+                        item.item_status === "return_rejected" && item.return_reject_reason
+                            ? `<p class="order-item-reject-note">
+                                Rejected: ${item.return_reject_reason}
+                            </p>`
+                            : ""
+                    }
 
                     ${
                         item.item_status === "active" &&
@@ -159,15 +210,32 @@ function renderOrderDetail(order) {
             <strong>Rs. ${order.delivery_charge}</strong>
           </div>
 
-          <div class="checkout-summary-row">
-            <span>Discount</span>
-            <strong>- Rs. ${order.discount}</strong>
-          </div>
+          ${
+            Number(order.discount || 0) > 0
+              ? `
+              <div class="checkout-summary-row">
+                <span>Coupon Discount</span>
+                <strong>- Rs. ${Number(order.discount || 0).toFixed(2)}</strong>
+              </div>
+              `
+              : ""
+          }
 
           <div class="checkout-summary-row total">
             <span>Grand Total</span>
-            <strong>Rs. ${order.grand_total}</strong>
+            <strong>Rs. ${Number(order.grand_total || 0).toFixed(2)}</strong>
           </div>
+
+          ${
+            totalSavings > 0
+              ? `
+              <div class="checkout-summary-row order-total-savings-row">
+                <span>Your Total Savings</span>
+                <strong>Rs. ${Number(totalSavings || 0).toFixed(2)}</strong>
+              </div>
+              `
+              : ""
+          }
         </section>
       </aside>
     </div>

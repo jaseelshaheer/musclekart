@@ -24,8 +24,15 @@
       class="<%= activePage === 'brands' ? 'active' : '' %>">
       Brands
     </a>
-    <a href="/admin/orders-page">Orders</a>
-    <a href="#">Sales</a>
+    <a href="/admin/orders-page" class="<%= activePage === 'orders' ? 'active' : '' %>">Orders</a>
+    <a href="/admin/coupons"
+      class="<%= activePage === 'coupons' ? 'active' : '' %>">
+      Coupons
+    </a>
+    <a href="/admin/reports"
+      class="<%= activePage === 'reports' ? 'active' : '' %>">
+      Sales
+    </a>
   </nav>
 
   <button id="logoutBtn" class="admin-logout-btn">

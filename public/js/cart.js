@@ -54,7 +54,20 @@ function renderCart(data) {
                     </p>
 
                     <div class="cart-meta-row">
-                      <p class="cart-price">Rs. ${item.unitPrice}</p>
+                      <div class="cart-price-block">
+                        ${
+                          item.hasOffer
+                            ? `<span class="cart-price-original">Rs. ${Number(item.originalPrice || 0).toFixed(2)}</span>`
+                            : ""
+                        }
+                        <p class="cart-price">Rs. ${Number(item.unitPrice || 0).toFixed(2)}</p>
+                        ${
+                          item.hasOffer
+                            ? `<span class="cart-price-save">You save Rs. ${Number(item.discountAmount || 0).toFixed(2)} per unit</span>`
+                            : ""
+                        }
+                      </div>
+
                       <p class="cart-status ${item.isAvailable && item.stock_qty > 0 ? "in-stock" : "out-stock"}">
                         ${
                           !item.isAvailable
@@ -103,7 +116,17 @@ function renderCart(data) {
 
 
                     <div class="cart-card-footer">
-                      <p class="cart-item-total">Item Total: <strong>Rs. ${item.itemTotal}</strong></p>
+                      <div class="cart-total-block">
+                        <p class="cart-item-total">
+                          Item Total: <strong>Rs. ${Number(item.itemTotal || 0).toFixed(2)}</strong>
+                        </p>
+
+                        ${
+                          item.hasOffer
+                            ? `<p class="cart-line-save">Total savings: Rs. ${Number(item.lineDiscountAmount || 0).toFixed(2)}</p>`
+                            : ""
+                        }
+                      </div>
 
                       <button type="button" class="cart-remove-btn">
                         Remove

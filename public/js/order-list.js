@@ -50,7 +50,9 @@ function renderOrders(data) {
 
                     <div class="order-list-card-side">
                     <span class="order-status-pill ${order.order_status}">
-                        ${order.order_status.replaceAll("_", " ")}
+                        ${order.order_status
+                            .replaceAll("_", " ")
+                            .replace(/\b\w/g, (char) => char.toUpperCase())}
                     </span>
 
                     <a href="/orders/${order.order_id}" class="order-list-view-link">View Details</a>

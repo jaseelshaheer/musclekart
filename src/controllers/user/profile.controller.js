@@ -2,6 +2,7 @@ import { getProfileService, updateProfileService, requestEmailChangeService, ver
 import { sendEmail } from "../../utils/email.js";
 import cloudinary from "../../config/cloudinary.js";
 import HTTP_STATUS from "../../constants/httpStatus.js";
+import { generateReferralToken } from "../../services/user/referral.service.js";
 
 export const getProfile = async (req, res) => {
   try {
@@ -335,3 +336,32 @@ export const setDefaultAddress = async (req, res) => {
     });
   }
 };
+
+
+
+export const getReferralLink = async (req, res) => {
+  try {
+    const user = await getProfileService(req.user._id);
+
+    if (!user?.referral_code) {
+      throw new Error("Referral code not found");
+    }
+
+    const token = generateReferralToken(user.referral_code);
+
+    return res.status(HTTP_STATUS.OK).json({
+      success: true,
+      data: {
+        token,
+        referralCode: user.referral_code
+      }
+    });
+  } catch (error) {
+    return res.status(HTTP_STATUS.BAD_REQUEST).json({
+      success: false,
+      message: error.message || "Failed to generate referral link"
+    });
+  }
+};
+
+

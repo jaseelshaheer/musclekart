@@ -1,6 +1,8 @@
 import Order from "../../models/order.model.js";
 import Variant from "../../models/variant.model.js";
 import Payment from "../../models/payment.model.js";
+import Coupon from "../../models/coupon.model.js";
+import { creditWalletService } from "./wallet.service.js";
 
 
 export const getUserOrdersService = async (userId, query = {}) => {
@@ -70,6 +72,46 @@ async function syncOrderPaymentState(order, nextOrderPaymentStatus, nextPaymentS
 }
 
 
+async function releaseCouponUsage(order) {
+  if (!order.coupon_id) return;
+
+  const coupon = await Coupon.findById(order.coupon_id);
+  if (!coupon) return;
+
+  coupon.used_count = Math.max((coupon.used_count || 0) - 1, 0);
+  await coupon.save();
+}
+
+
+function roundMoney(value) {
+  return Math.round((Number(value) + Number.EPSILON) * 100) / 100;
+}
+
+function getDiscountAdjustedRefund(order, baseAmount) {
+  const subtotal = Number(order.subtotal || 0);
+  const grandTotal = Number(order.grand_total || 0);
+
+  if (subtotal <= 0) {
+    return roundMoney(baseAmount);
+  }
+
+  const proportionalPaidAmount = (Number(baseAmount || 0) / subtotal) * grandTotal;
+  return roundMoney(proportionalPaidAmount);
+}
+
+function getRefundableAmountForActiveItems(order) {
+  const activeItemsTotal = order.items.reduce((sum, item) => {
+    if (item.item_status === "active") {
+      return sum + Number(item.total || 0);
+    }
+    return sum;
+  }, 0);
+
+  return getDiscountAdjustedRefund(order, activeItemsTotal);
+}
+
+
+
 
 export const cancelOrderService = async (userId, orderId, reason = "") => {
   const order = await Order.findOne({
@@ -84,6 +126,8 @@ export const cancelOrderService = async (userId, orderId, reason = "") => {
   if (!isCancellableOrderStatus(order.order_status)) {
     throw new Error("This order can no longer be cancelled");
   }
+
+  const refundableAmount = getRefundableAmountForActiveItems(order);
 
   for (const item of order.items) {
     if (item.item_status === "active") {
@@ -112,6 +156,17 @@ export const cancelOrderService = async (userId, orderId, reason = "") => {
   }
 
   await order.save();
+  await releaseCouponUsage(order);
+
+  if (refundableAmount > 0) {
+    await creditWalletService({
+      userId,
+      amount: refundableAmount,
+      description: `Refund for cancelled order ${order.order_id}`,
+      source: "order_cancel",
+      orderId: order._id,
+    });
+  }
 
   return order;
 };
@@ -146,6 +201,8 @@ export const cancelOrderItemService = async (
     throw new Error("This item cannot be cancelled");
   }
 
+  const refundableAmount = getDiscountAdjustedRefund(order, Number(item.total || 0));
+
   item.item_status = "cancelled";
   item.cancel_reason = reason?.trim() || "";
 
@@ -174,6 +231,20 @@ export const cancelOrderItemService = async (
 
   await order.save();
 
+  if (!hasActiveItems) {
+    await releaseCouponUsage(order);
+  }
+
+
+  if (refundableAmount > 0) {
+    await creditWalletService({
+      userId,
+      amount: refundableAmount,
+      description: `Refund for cancelled item in order ${order.order_id}`,
+      source: "order_cancel",
+      orderId: order._id,
+    });
+  }
 
   return order;
 };
@@ -201,26 +272,20 @@ export const returnOrderService = async (userId, orderId, reason) => {
 
   for (const item of order.items) {
     if (item.item_status === "active") {
-      item.item_status = "returned";
+      item.item_status = "return_requested";
       item.return_reason = trimmedReason;
-
-      const variant = await Variant.findById(item.variant_id);
-      if (variant) {
-        variant.stock_qty += item.quantity;
-        await variant.save();
-      }
+      item.return_reject_reason = "";
     }
   }
 
-
-  order.order_status = "returned";
+  order.order_status = "return_requested";
   order.status_history.push({
-    status: "returned",
+    status: "return_requested",
     changed_at: new Date(),
     note: trimmedReason,
   });
 
-  await syncOrderPaymentState(order, "refunded", "refunded");
+  order.return_reject_reason = "";
 
   await order.save();
 
@@ -264,28 +329,23 @@ export const returnOrderItemService = async (
     throw new Error("This item cannot be returned");
   }
 
-  item.item_status = "returned";
+  item.item_status = "return_requested";
   item.return_reason = trimmedReason;
 
-  const variant = await Variant.findById(item.variant_id);
-  if (variant) {
-    variant.stock_qty += item.quantity;
-    await variant.save();
-  }
-
+  item.return_reject_reason = "";
 
   const hasActiveItems = order.items.some((entry) => entry.item_status === "active");
 
   if (!hasActiveItems) {
-    order.order_status = "returned";
+    order.order_status = "return_requested";
+    item.return_reject_reason = "";
     order.status_history.push({
-      status: "returned",
+      status: "return_requested",
       changed_at: new Date(),
-      note: "All order items were returned",
+      note: "All order items were marked for return request",
     });
-
-    await syncOrderPaymentState(order, "refunded", "refunded");
   }
+
 
   await order.save();
 

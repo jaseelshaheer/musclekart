@@ -1,4 +1,4 @@
-import { createUser, verifySignupOTPService, loginUser, resendSignupOTPService, forgotPasswordService, resetPasswordService } from "../../services/auth.service.js";
+import { createUser, verifySignupOTPService, loginUser, resendSignupOTPService, forgotPasswordService, resetPasswordService, resolveReferralTokenService } from "../../services/auth.service.js";
 import { generateToken } from "../../utils/jwt.js";
 import HTTP_STATUS from "../../constants/httpStatus.js";
 import { AUTH_MESSAGES } from "../../constants/messages.js";
@@ -173,3 +173,31 @@ export const googleCallback = async (req, res) => {
     return res.redirect("/login");
   }
 };
+
+
+
+export const resolveReferralToken = async (req, res) => {
+  try {
+    const { ref } = req.query;
+
+    if (!ref) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        success: false,
+        message: "Referral token is required"
+      });
+    }
+
+    const data = await resolveReferralTokenService(ref);
+
+    return res.status(HTTP_STATUS.OK).json({
+      success: true,
+      data
+    });
+  } catch (error) {
+    return res.status(HTTP_STATUS.BAD_REQUEST).json({
+      success: false,
+      message: error.message || "Invalid referral link"
+    });
+  }
+};
+

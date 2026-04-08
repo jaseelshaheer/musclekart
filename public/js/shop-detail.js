@@ -176,24 +176,25 @@ thumbnailButtons.forEach((button) => {
 function updateVariantUI(variant, clickedButton) {
   if (!variant) return;
 
-  const price = Number(variant.price || 0);
-  const originalPrice = Math.round(price * 1.12);
-  const discountPercent = Math.max(
-    0,
-    Math.round(((originalPrice - price) / originalPrice) * 100)
-  );
+  const finalPrice = Number(variant.final_price || variant.price || 0);
+  const originalPrice = Number(variant.original_price || variant.price || 0);
+  const discountAmount = Number(variant.discount_amount || 0);
+  const hasOffer = Boolean(variant.has_offer);
 
   if (detailPriceValue) {
-    detailPriceValue.textContent = `₹${price}`;
+    detailPriceValue.textContent = `Rs. ${finalPrice.toFixed(2)}`;
   }
 
   if (detailOriginalPrice) {
-    detailOriginalPrice.textContent = `₹${originalPrice}`;
+    detailOriginalPrice.textContent = `Rs. ${originalPrice.toFixed(2)}`;
+    detailOriginalPrice.classList.toggle("hidden", !hasOffer);
   }
 
   if (detailDiscountBadge) {
-    detailDiscountBadge.textContent = `${discountPercent}% OFF`;
+    detailDiscountBadge.textContent = `Save Rs. ${discountAmount.toFixed(2)}`;
+    detailDiscountBadge.classList.toggle("hidden", !hasOffer);
   }
+
 
   if (detailStockLabel && detailStockMeta && detailActionRow) {
     if (variant.stock_qty > 0) {

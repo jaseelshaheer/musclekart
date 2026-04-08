@@ -72,4 +72,19 @@ router.get("/addresses/:id/edit", (req, res) => {
   });
 });
 
+
+router.get("/payment/success", (req, res) => {
+  res.render("user/payment/payment-success", {
+    layout: "layouts/user",
+    orderId: req.query.orderId || ""
+  });
+});
+
+router.get("/payment/failure", (req, res) => {
+  res.render("user/payment/payment-failure", {
+    layout: "layouts/user"
+  });
+});
+
+
 export default router;

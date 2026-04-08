@@ -50,6 +50,16 @@ const productNameCount = document.getElementById("productNameCount");
 const descriptionCount = document.getElementById("descriptionCount");
 const specificationsCount = document.getElementById("specificationsCount");
 
+const toggleProductOfferBtn = document.getElementById("toggleProductOfferBtn");
+const clearProductOfferBtn = document.getElementById("clearProductOfferBtn");
+const productOfferFields = document.getElementById("productOfferFields");
+const productOfferDiscountType = document.getElementById("productOfferDiscountType");
+const productOfferDiscountValue = document.getElementById("productOfferDiscountValue");
+const productOfferStartDate = document.getElementById("productOfferStartDate");
+const productOfferExpiryDate = document.getElementById("productOfferExpiryDate");
+const productOfferMinFinalPrice = document.getElementById("productOfferMinFinalPrice");
+
+
 
 
 function updateProductCounts() {
@@ -93,6 +103,7 @@ function clearProductErrors() {
   clearFieldError(categorySelect, document.getElementById("categoryError"));
   clearFieldError(brandSelect, document.getElementById("brandError"));
   document.getElementById("variantsError").textContent = "";
+  clearProductOfferErrors();
 }
 
 function clearVariantErrors() {
@@ -103,10 +114,6 @@ function clearVariantErrors() {
   document.getElementById("variantGalleryError").textContent = "";
 }
 
-
-productName.addEventListener("input", () => {
-  clearFieldError(productName, document.getElementById("productNameError"));
-});
 
 categorySelect.addEventListener("change", () => {
   clearFieldError(categorySelect, document.getElementById("categoryError"));
@@ -126,6 +133,31 @@ stockInput.addEventListener("input", () => {
 });
 
 
+
+productOfferDiscountType?.addEventListener("change", () => {
+  productOfferDiscountType.classList.remove("input-error");
+  document.getElementById("productOfferDiscountTypeError").textContent = "";
+});
+
+productOfferDiscountValue?.addEventListener("input", () => {
+  productOfferDiscountValue.classList.remove("input-error");
+  document.getElementById("productOfferDiscountValueError").textContent = "";
+});
+
+productOfferStartDate?.addEventListener("input", () => {
+  productOfferStartDate.classList.remove("input-error");
+  document.getElementById("productOfferStartDateError").textContent = "";
+});
+
+productOfferExpiryDate?.addEventListener("input", () => {
+  productOfferExpiryDate.classList.remove("input-error");
+  document.getElementById("productOfferExpiryDateError").textContent = "";
+});
+
+productOfferMinFinalPrice?.addEventListener("input", () => {
+  productOfferMinFinalPrice.classList.remove("input-error");
+  document.getElementById("productOfferMinFinalPriceError").textContent = "";
+});
 
 
 function showConfirm(message, onConfirm){
@@ -167,6 +199,12 @@ mainImageInput.addEventListener("change", (e) => {
   const file = e.target.files[0];
   if (!file) return;
 
+  const ok = /\.(jpg|jpeg|png)$/i.test(file.name);
+  if (!ok) {
+    showAlertModal("Only .jpg, .jpeg and .png files are allowed");
+    return;
+  }
+
   openCropModal(file, "main");
 
   // reset input so same file can be selected again
@@ -182,8 +220,14 @@ galleryInput.addEventListener("change", (e) => {
 
   if(!files.length) return;
 
-  files.forEach(file=>{
-    openCropModal(file,"gallery");
+  files.forEach((file) => {
+    const ok = /\.(jpg|jpeg|png)$/i.test(file.name);
+    if (!ok) {
+      showAlertModal("Only .jpg, .jpeg and .png files are allowed");
+      return;
+    }
+
+    openCropModal(file, "gallery");
   });
 
   // reset input
@@ -467,6 +511,93 @@ async function loadBrands() {
 }
 
 
+function isProductOfferConfigured() {
+  return (
+    !!productOfferDiscountType.value ||
+    !!productOfferDiscountValue.value ||
+    !!productOfferStartDate.value ||
+    !!productOfferExpiryDate.value
+  );
+}
+
+function setProductOfferExpanded(expanded) {
+  if (!productOfferFields) return;
+
+  productOfferFields.classList.toggle("hidden", !expanded);
+
+  if (toggleProductOfferBtn) {
+    toggleProductOfferBtn.textContent = expanded ? "Hide Offer" : "Configure Offer";
+  }
+
+  if (clearProductOfferBtn) {
+    clearProductOfferBtn.classList.toggle("hidden", !expanded);
+  }
+}
+
+
+function clearProductOfferFields() {
+  productOfferDiscountType.value = "";
+  productOfferDiscountValue.value = "";
+  productOfferStartDate.value = "";
+  productOfferExpiryDate.value = "";
+  clearProductOfferErrors();
+}
+
+toggleProductOfferBtn?.addEventListener("click", () => {
+  const isHidden = productOfferFields.classList.contains("hidden");
+  setProductOfferExpanded(isHidden);
+});
+
+clearProductOfferBtn?.addEventListener("click", () => {
+  showConfirm("Remove this product offer?", () => {
+    clearProductOfferFields();
+    setProductOfferExpanded(false);
+  });
+});
+
+
+function formatDateTimeLocal(value) {
+  if (!value) return "";
+
+  const date = new Date(value);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+
+  return `${year}-${month}-${day}T${hours}:${minutes}`;
+}
+
+function clearProductOfferErrors() {
+  [
+    "productOfferDiscountTypeError",
+    "productOfferDiscountValueError",
+    "productOfferStartDateError",
+    "productOfferExpiryDateError",
+    "productOfferMinFinalPriceError"
+  ].forEach((id) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = "";
+  });
+
+  productOfferDiscountType?.classList.remove("input-error");
+  productOfferDiscountValue?.classList.remove("input-error");
+  productOfferStartDate?.classList.remove("input-error");
+  productOfferExpiryDate?.classList.remove("input-error");
+  productOfferMinFinalPrice?.classList.remove("input-error");
+}
+
+function showProductOfferFieldError(input, errorId, message) {
+  input?.classList.add("input-error");
+
+  const errorEl = document.getElementById(errorId);
+  if (errorEl) {
+    errorEl.textContent = message;
+  }
+}
+
+
 async function loadProductForEdit() {
   const productId = productIdInput.value;
 
@@ -474,8 +605,8 @@ async function loadProductForEdit() {
 
   const res = await fetch(`/admin/products/${productId}`, {
     headers: {
-      Authorization: `Bearer ${token}`
-    }
+      Authorization: `Bearer ${token}`,
+    },
   });
 
   const data = await res.json();
@@ -492,6 +623,17 @@ async function loadProductForEdit() {
   specifications.value = product.specifications || "";
   categorySelect.value = product.category_id ? String(product.category_id) : "";
   brandSelect.value = product.brand_id ? String(product.brand_id) : "";
+  productOfferDiscountType.value = product.offer_discount_type || "";
+  productOfferDiscountValue.value = product.offer_discount_value
+    ? String(product.offer_discount_value)
+    : "";
+  productOfferStartDate.value = formatDateTimeLocal(product.offer_start_date);
+  productOfferExpiryDate.value = formatDateTimeLocal(product.offer_expiry_date);
+  productOfferMinFinalPrice.value = product.offer_min_final_price
+    ? String(product.offer_min_final_price)
+    : "";
+
+  setProductOfferExpanded(Boolean(product.offer_is_active));
 
   updateProductCounts();
 
@@ -873,6 +1015,84 @@ saveProductBtn.onclick = async () => {
     isValid = false;
   }
 
+  const hasProductOffer =
+   !productOfferFields.classList.contains("hidden") || isProductOfferConfigured();
+
+  if (hasProductOffer) {
+
+    if (!["flat", "percentage"].includes(productOfferDiscountType.value)) {
+      showProductOfferFieldError(
+        productOfferDiscountType,
+        "productOfferDiscountTypeError",
+        "Select a valid offer type",
+      );
+      isValid = false;
+    }
+
+    if (Number(productOfferDiscountValue.value || 0) <= 0) {
+      showProductOfferFieldError(
+        productOfferDiscountValue,
+        "productOfferDiscountValueError",
+        "Offer value must be greater than 0",
+      );
+      isValid = false;
+    }
+
+    if (
+      productOfferDiscountType.value === "percentage" &&
+      Number(productOfferDiscountValue.value || 0) > 100
+    ) {
+      showProductOfferFieldError(
+        productOfferDiscountValue,
+        "productOfferDiscountValueError",
+        "Percentage offer cannot exceed 100",
+      );
+      isValid = false;
+    }
+
+    if (!productOfferStartDate.value) {
+      showProductOfferFieldError(
+        productOfferStartDate,
+        "productOfferStartDateError",
+        "Offer start date is required",
+      );
+      isValid = false;
+    }
+
+    if (!productOfferExpiryDate.value) {
+      showProductOfferFieldError(
+        productOfferExpiryDate,
+        "productOfferExpiryDateError",
+        "Offer expiry date is required",
+      );
+      isValid = false;
+    }
+
+    if (
+      productOfferStartDate.value &&
+      productOfferExpiryDate.value &&
+      new Date(productOfferExpiryDate.value) <=
+        new Date(productOfferStartDate.value)
+    ) {
+      showProductOfferFieldError(
+        productOfferExpiryDate,
+        "productOfferExpiryDateError",
+        "Expiry date must be after start date",
+      );
+      isValid = false;
+    }
+
+    if (Number(productOfferMinFinalPrice.value || 0) < 0) {
+      showProductOfferFieldError(
+        productOfferMinFinalPrice,
+        "productOfferMinFinalPriceError",
+        "Minimum final price cannot be negative",
+      );
+      isValid = false;
+    }
+  }
+
+
 
   if (!variants.length) {
     document.getElementById("variantsError").textContent =
@@ -893,6 +1113,33 @@ saveProductBtn.onclick = async () => {
   formData.append("specifications", specifications.value);
   formData.append("category_id", categorySelect.value);
   formData.append("brand_id", brandSelect.value);
+  const shouldActivateProductOffer =
+    !!productOfferDiscountType.value &&
+    !!productOfferDiscountValue.value &&
+    !!productOfferStartDate.value &&
+    !!productOfferExpiryDate.value;
+
+  formData.append("offer_is_active", shouldActivateProductOffer ? "true" : "false");
+  formData.append(
+    "offer_discount_type",
+    shouldActivateProductOffer ? productOfferDiscountType.value : ""
+  );
+  formData.append(
+    "offer_discount_value",
+    shouldActivateProductOffer ? productOfferDiscountValue.value || "0" : "0"
+  );
+  formData.append(
+    "offer_start_date",
+    shouldActivateProductOffer ? productOfferStartDate.value : ""
+  );
+  formData.append(
+    "offer_expiry_date",
+    shouldActivateProductOffer ? productOfferExpiryDate.value : ""
+  );
+  formData.append(
+    "offer_min_final_price",
+    productOfferMinFinalPrice.value || "0",
+  );
 
 
   if (isEditMode) {
@@ -1029,6 +1276,7 @@ async function initProductForm() {
   await loadBrands();
   renderGallery();
   updateProductCounts();
+  setProductOfferExpanded(false);
   await loadProductForEdit();
 }
 

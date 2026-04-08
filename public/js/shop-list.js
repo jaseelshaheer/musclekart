@@ -20,53 +20,131 @@ const shopVariantAddToCartBtn = document.getElementById(
 );
 
 let wishlistedProductIds = new Set();
+let cartVariantQuantities = new Map();
 
 let selectedVariantForModal = null;
 let selectedProductForModal = null;
 
-function openShopVariantModal(productId, productName, variants) {
-  if (!shopVariantModal || !shopVariantOptions || !shopVariantModalTitle)
-    return;
+async function loadCartVariantQuantities() {
+  const token = localStorage.getItem("token");
 
-  selectedProductForModal = productId;
-  selectedVariantForModal = null;
-  shopVariantModalTitle.textContent = `Choose Variant - ${productName}`;
+  if (!token) {
+    cartVariantQuantities = new Map();
+    return;
+  }
+
+  try {
+    const res = await fetch("/cart/data", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const data = await res.json();
+
+    if (!res.ok || !data.success) {
+      cartVariantQuantities = new Map();
+      return;
+    }
+
+    cartVariantQuantities = new Map(
+      (data.data.items || []).map((item) => [
+        String(item.variant_id),
+        Number(item.quantity) || 0,
+      ]),
+    );
+  } catch {
+    cartVariantQuantities = new Map();
+  }
+}
+
+function getCartQuantityForVariant(variantId) {
+  return cartVariantQuantities.get(String(variantId)) || 0;
+}
+
+function renderShopVariantOptions(variants) {
+  if (!shopVariantOptions) return;
 
   shopVariantOptions.innerHTML = variants
-    .map((variant, index) => {
+    .map((variant) => {
       const attrs = variant.attributes?.length
         ? variant.attributes
             .map((attr) => `${attr.type}: ${attr.value}`)
             .join(" / ")
         : "Standard Variant";
+      const cartQty = getCartQuantityForVariant(variant._id);
+      const remainingQty = Math.max((variant.stock_qty || 0) - cartQty, 0);
+      const reachedCartLimit = cartQty > 0 && remainingQty <= 0;
+      const isSelectable = remainingQty > 0;
+
+      let stockText = "Out of stock";
+      let stockClass = "out-stock";
+
+      if (reachedCartLimit) {
+        stockText = `Already in cart. Only ${variant.stock_qty} unit${variant.stock_qty > 1 ? "s" : ""} available`;
+        stockClass = "cart-limit";
+      } else if (remainingQty > 0) {
+        stockText = `${remainingQty} in stock`;
+        stockClass = "in-stock";
+      }
 
       return `
         <button
           type="button"
-          class="shop-variant-option-card ${variant.stock_qty > 0 ? "" : "disabled"}"
+          class="shop-variant-option-card ${isSelectable ? "" : "disabled"}"
           data-variant-id="${variant._id}"
-          ${variant.stock_qty > 0 ? "" : "disabled"}
+          ${isSelectable ? "" : "disabled"}
         >
           <img src="${variant.main_image || "/images/no-image.png"}" alt="${attrs}">
           <div class="shop-variant-option-content">
             <strong>${attrs}</strong>
-            <span>Rs. ${variant.price}</span>
-            <small class="${variant.stock_qty > 0 ? "in-stock" : "out-stock"}">
-              ${variant.stock_qty > 0 ? `${variant.stock_qty} in stock` : "Out of stock"}
+            <div class="shop-variant-price-stack">
+              ${
+                variant.has_offer
+                  ? `<span class="shop-price-original">${formatCurrency(variant.original_price)}</span>`
+                  : ""
+              }
+              <span class="shop-price-final">${formatCurrency(variant.final_price || variant.price)}</span>
+            </div>
+            <small class="${stockClass}">
+              ${stockText}
             </small>
           </div>
         </button>
       `;
     })
     .join("");
+}
 
-  const firstAvailable = variants.find((variant) => variant.stock_qty > 0);
+function syncShopVariantAddToCartBtnState() {
+  if (!shopVariantAddToCartBtn) return;
+
+  shopVariantAddToCartBtn.disabled = !selectedVariantForModal;
+}
+
+async function openShopVariantModal(productId, productName, variants) {
+  if (!shopVariantModal || !shopVariantOptions || !shopVariantModalTitle)
+    return;
+
+  await loadCartVariantQuantities();
+
+  selectedProductForModal = productId;
+  selectedVariantForModal = null;
+  shopVariantModalTitle.textContent = `Choose Variant - ${productName}`;
+
+  renderShopVariantOptions(variants);
+
+  const firstAvailable = variants.find(
+    (variant) =>
+      Math.max((variant.stock_qty || 0) - getCartQuantityForVariant(variant._id), 0) > 0,
+  );
   if (firstAvailable) {
     selectedVariantForModal = firstAvailable._id;
   }
 
   shopVariantModal.classList.remove("hidden");
   highlightSelectedVariantCard();
+  syncShopVariantAddToCartBtnState();
 }
 
 function closeShopVariantModal() {
@@ -76,6 +154,7 @@ function closeShopVariantModal() {
 
   selectedVariantForModal = null;
   selectedProductForModal = null;
+  syncShopVariantAddToCartBtnState();
 }
 
 function highlightSelectedVariantCard() {
@@ -85,6 +164,8 @@ function highlightSelectedVariantCard() {
       card.dataset.variantId === String(selectedVariantForModal),
     );
   });
+
+  syncShopVariantAddToCartBtnState();
 }
 
 async function loadWishlistState() {
@@ -210,6 +291,9 @@ async function addProductToCart(productId, variantId) {
     return false;
   }
 
+  const currentQty = getCartQuantityForVariant(variantId);
+  cartVariantQuantities.set(String(variantId), currentQty + 1);
+
   wishlistedProductIds.delete(String(productId));
   syncWishlistIcons();
   loadWishlistState();
@@ -249,6 +333,45 @@ function buildQueryString(filters) {
   return params.toString();
 }
 
+function formatCurrency(value) {
+  return `Rs. ${Number(value || 0).toFixed(2)}`;
+}
+
+function renderShopPriceBlock(product) {
+  const hasOffer = Boolean(product.has_offer);
+
+  const isRange =
+    Number(product.min_final_price || 0) !== Number(product.max_final_price || 0);
+
+  const finalPriceText = isRange
+    ? `${formatCurrency(product.min_final_price)} - ${formatCurrency(product.max_final_price)}`
+    : formatCurrency(product.min_final_price);
+
+  const originalPriceText =
+    Number(product.min_original_price || 0) !== Number(product.max_original_price || 0)
+      ? `${formatCurrency(product.min_original_price)} - ${formatCurrency(product.max_original_price)}`
+      : formatCurrency(product.min_original_price);
+
+  return `
+    <div class="shop-price-block">
+      <span class="shop-offer-badge ${hasOffer ? "" : "is-placeholder"}">
+        ${hasOffer ? "Offer Applied" : "&nbsp;"}
+      </span>
+
+      <div class="shop-price-stack">
+        ${
+          hasOffer
+            ? `<span class="shop-price-original">${originalPriceText}</span>`
+            : ""
+        }
+        <strong class="shop-price-final">${finalPriceText}</strong>
+      </div>
+    </div>
+  `;
+}
+
+
+
 function renderProducts(products) {
   if (!shopResults) return;
 
@@ -266,10 +389,6 @@ function renderProducts(products) {
     <div class="shop-grid">
       ${products
         .map((product) => {
-          const priceRange =
-            product.max_price && product.max_price !== product.min_price
-              ? `₹${product.min_price} - ₹${product.max_price}`
-              : `₹${product.min_price}`;
 
           const brandPart = product.brand_name
             ? ` • ${product.brand_name}`
@@ -301,7 +420,7 @@ function renderProducts(products) {
                 <p class="shop-meta">
                   ${product.category_name || "Category"}${brandPart}
                 </p>
-                <p class="shop-price">${priceRange}</p>
+                ${renderShopPriceBlock(product)}
                 <div class="shop-card-footer">
                   <p class="shop-stock ${stockClass}">
                     ${stockText}
@@ -325,7 +444,7 @@ function renderProducts(products) {
                             data-product-name="${product.product_name}"
                             data-variants='${JSON.stringify(product.variant_options)}'
                           >
-                            Add to Cart
+                            View All Variants
                           </button>`
                         : `<button type="button" class="shop-add-cart-btn" disabled>
                             Out of Stock
@@ -530,7 +649,7 @@ if (shopResults) {
       const productName = chooseBtn.dataset.productName;
       const variants = JSON.parse(chooseBtn.dataset.variants || "[]");
 
-      openShopVariantModal(productId, productName, variants);
+      await openShopVariantModal(productId, productName, variants);
       return;
     }
   });

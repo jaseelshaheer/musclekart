@@ -85,9 +85,11 @@
 
 <div id="categoryModal" class="modal hidden">
 
-  <div class="modal-card">
+  <div class="modal-card category-modal-card">
 
     <h3 id="modalTitle">Add Category</h3>
+
+    <br>
 
     <form id="categoryForm">
 
@@ -116,6 +118,57 @@
         ></textarea>
 
         <small class="char-count" id="categoryDescriptionCount">0 / 200</small>
+
+        <br><br>
+
+        <div class="form-check" style="margin-bottom:12px;">
+          <label style="display:flex; align-items:center; gap:8px;">
+            <input type="checkbox" id="categoryOfferIsActive">
+            <span>Enable Category Offer</span>
+          </label>
+        </div>
+
+        <div id="categoryOfferFields" class="hidden">
+          <div class="category-offer-grid">
+            <div>
+              <select id="categoryOfferDiscountType" class="modal-input">
+                <option value="">Select Offer Type</option>
+                <option value="flat">Flat Discount</option>
+                <option value="percentage">Percentage Discount</option>
+              </select>
+              <small class="field-error" id="categoryOfferDiscountTypeError"></small>
+            </div>
+
+            <div>
+              <input
+                type="number"
+                id="categoryOfferDiscountValue"
+                class="modal-input"
+                placeholder="Offer Value"
+                min="0"
+              >
+              <small class="field-error" id="categoryOfferDiscountValueError"></small>
+            </div>
+
+            <div>
+              <input
+                type="datetime-local"
+                id="categoryOfferStartDate"
+                class="modal-input"
+              >
+              <small class="field-error" id="categoryOfferStartDateError"></small>
+            </div>
+
+            <div>
+              <input
+                type="datetime-local"
+                id="categoryOfferExpiryDate"
+                class="modal-input"
+              >
+              <small class="field-error" id="categoryOfferExpiryDateError"></small>
+            </div>
+          </div>
+        </div>
 
       </div>
 

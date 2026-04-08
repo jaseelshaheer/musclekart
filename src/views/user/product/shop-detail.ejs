@@ -63,27 +63,29 @@
 
       <div class="detail-price-row" id="detailPriceRow">
         <strong class="detail-price" id="detailPriceValue">
-          ₹<%= selectedVariant.price %>
+          Rs. <%= Number(selectedVariant.final_price || 0).toFixed(2) %>
         </strong>
 
         <div class="detail-price-extra">
-          <span class="detail-original-price" id="detailOriginalPrice">
-            ₹<%= Math.round(selectedVariant.price * 1.12) %>
+          <span
+            class="detail-original-price <%= selectedVariant.has_offer ? '' : 'hidden' %>"
+            id="detailOriginalPrice"
+          >
+            Rs. <%= Number(selectedVariant.original_price || 0).toFixed(2) %>
           </span>
 
-
-          <span class="detail-discount-badge" id="detailDiscountBadge">
-            <%= Math.max(0, Math.round((((Math.round(selectedVariant.price * 1.12)) - selectedVariant.price) /
-              Math.round(selectedVariant.price * 1.12)) * 100)) %>% OFF
+          <span
+            class="detail-discount-badge <%= selectedVariant.has_offer ? '' : 'hidden' %>"
+            id="detailDiscountBadge"
+          >
+            Save Rs. <%= Number(selectedVariant.discount_amount || 0).toFixed(2) %>
           </span>
-
         </div>
 
-        <% if (product.max_price> product.min_price) { %>
+        <% if (product.max_price > product.min_price) { %>
           <span class="detail-price-note">Multiple variant prices available</span>
-          <% } %>
+        <% } %>
       </div>
-
 
       <div class="detail-stock-row" id="detailStockRow">
         <% if (selectedVariant.stock_qty> 0) { %>
@@ -221,8 +223,23 @@
                 <h3>
                   <%= item.product_name %>
                 </h3>
-                <p class="shop-price">₹<%= item.min_price %>
-                </p>
+                <div class="shop-price-block">
+                  <span class="shop-offer-badge <%= item.has_offer ? '' : 'is-placeholder' %>">
+                    <%= item.has_offer ? 'Offer Applied' : '' %>
+                  </span>
+
+                  <div class="shop-price-stack">
+                    <% if (item.has_offer) { %>
+                      <span class="shop-price-original">
+                        Rs. <%= Number(item.min_original_price || 0).toFixed(2) %>
+                      </span>
+                    <% } %>
+
+                    <strong class="shop-price-final">
+                      Rs. <%= Number(item.min_final_price || 0).toFixed(2) %>
+                    </strong>
+                  </div>
+                </div>
                 <p class="shop-stock <%= item.total_stock > 0 ? 'in-stock' : 'out-stock' %>">
                   <%= item.total_stock> 0 ? "In stock" : "Out of stock" %>
                 </p>
@@ -282,6 +299,13 @@
       _id: variant._id,
       product_id: variant.product_id,
       price: variant.price,
+      original_price: variant.original_price,
+      final_price: variant.final_price,
+      discount_amount: variant.discount_amount,
+      has_offer: variant.has_offer,
+      offer_source: variant.offer_source,
+      offer_discount_type: variant.offer_discount_type,
+      offer_discount_value: variant.offer_discount_value,
       stock_qty: variant.stock_qty,
       attributes: variant.attributes || [],
       main_image: variant.main_image || "",

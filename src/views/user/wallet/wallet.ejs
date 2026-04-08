@@ -1,0 +1,23 @@
+<section class="account-layout wallet-account-layout">
+  <%- include("../profile/_sidebar") %>
+
+  <main class="content wallet-page-content">
+    <section class="wallet-page-shell">
+      <div class="wallet-page-header">
+        <div>
+          <h1>My Wallet</h1>
+          <p>Track your current balance and wallet transactions.</p>
+        </div>
+      </div>
+
+      <div id="walletContent">
+        <div class="shop-empty">
+          <h3>Loading wallet...</h3>
+          <p>Please wait while we fetch your wallet details.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+</section>
+
+<script src="/js/wallet.js"></script>

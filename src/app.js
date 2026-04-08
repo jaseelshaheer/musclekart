@@ -23,7 +23,11 @@ import checkoutRoutes from "./routes/user/checkout.routes.js";
 import orderRoutes from "./routes/user/order.routes.js";
 import adminOrderRoutes from "./routes/admin/adminOrder.routes.js";
 import wishlistRoutes from "./routes/user/wishlist.routes.js";
-
+import adminCouponRoutes from "./routes/admin/adminCoupon.routes.js";
+import couponRoutes from "./routes/user/coupon.routes.js";
+import walletRoutes from "./routes/user/wallet.routes.js";
+import paymentRoutes from "./routes/user/payment.routes.js";
+import adminReportRoutes from "./routes/admin/adminReport.routes.js";
 
 
 
@@ -64,6 +68,8 @@ app.use("/admin", adminCategoryRoutes);
 app.use("/admin", adminBrandRoutes);
 app.use("/admin", adminProductRoutes);
 app.use("/admin", adminOrderRoutes);
+app.use("/admin", adminCouponRoutes);
+app.use("/admin", adminReportRoutes);
 
 app.use("/user", userProfileRoutes);
 app.use("/", userProductRoutes);
@@ -72,7 +78,9 @@ app.use("/", cartRoutes);
 app.use("/", checkoutRoutes);
 app.use("/", orderRoutes);
 app.use("/", wishlistRoutes);
-
+app.use("/", couponRoutes);
+app.use("/", paymentRoutes);
+app.use("/", walletRoutes);
 
 
 

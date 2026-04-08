@@ -2,9 +2,10 @@ import bcrypt from "bcrypt";
 import User from "../models/user.model.js";
 import { generateOTPService, verifyOTPService } from "./otp.service.js";
 import { sendEmail } from "../utils/email.js";
+import { generateUniqueReferralCode, findReferrerByCode, resolveReferrerFromToken } from "./user/referral.service.js";
 
 export const createUser = async (userData) => {
-  const { firstName, lastName, email, password, phone } = userData;
+  const { firstName, lastName, email, password, phone, referralCode, referralToken } = userData;
 
   const strongPasswordRegex =
   /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/;
@@ -20,7 +21,22 @@ export const createUser = async (userData) => {
     throw new Error("User already exists");
   }
 
+  let referredByUser = null;
+
+  if (referralToken?.trim()) {
+    const { referrer } = await resolveReferrerFromToken(referralToken);
+    referredByUser = referrer;
+  } else if (referralCode?.trim()) {
+    referredByUser = await findReferrerByCode(referralCode);
+
+    if (!referredByUser) {
+      throw new Error("Invalid referral code");
+    }
+  }
+
   const hashedPassword = await bcrypt.hash(password, 10);
+
+  const referralCodeForUser = await generateUniqueReferralCode(firstName);
 
   const user = await User.create({
     firstName,
@@ -29,6 +45,8 @@ export const createUser = async (userData) => {
     phone,
     password: hashedPassword,
     isEmailVerified: false,
+    referral_code: referralCodeForUser,
+    referred_by: referredByUser ? referredByUser._id : null
   });
 
   const otp = await generateOTPService(user._id);
@@ -195,3 +213,15 @@ export const adminLogin = async (email, password) => {
 
   return admin;
 };
+
+
+export const resolveReferralTokenService = async (token) => {
+  const { referrer, referralCode } = await resolveReferrerFromToken(token);
+
+  return {
+    referralCode,
+    referrerName: `${referrer.firstName || ""} ${referrer.lastName || ""}`.trim() || "Friend"
+  };
+};
+
+

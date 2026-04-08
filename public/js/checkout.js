@@ -1,5 +1,6 @@
 const checkoutContent = document.getElementById("checkoutContent");
 const token = localStorage.getItem("token");
+let selectedPaymentMethod = "cod";
 
 if (!token) {
   window.location.href = "/login";
@@ -26,28 +27,33 @@ function renderCheckout(data) {
   if (!checkoutContent) return;
 
   const {
-    items,
-    addresses,
-    defaultAddress,
-    subtotal,
-    shipping,
-    tax,
-    discount,
-    finalTotal,
-    canCheckout,
-    hasUnavailableItems
-  } = data;
+  items,
+  addresses,
+  defaultAddress,
+  subtotal,
+  shipping,
+  tax,
+  discount,
+  itemOfferSavings,
+  totalSavings,
+  finalTotal,
+  appliedCoupon,
+  walletBalance,
+  canCheckout,
+  hasUnavailableItems,
+} = data;
+
+
+  if (appliedCoupon) {
+    selectedCoupon = null;
+  }
+
 
   if (!items.length) {
-    checkoutContent.innerHTML = `
-      <div class="shop-empty">
-        <h3>Your cart is empty</h3>
-        <p>Add products before proceeding to checkout.</p>
-        <a href="/shop" class="btn-primary">Continue Shopping</a>
-      </div>
-    `;
+    window.location.replace("/cart");
     return;
   }
+
 
   checkoutContent.innerHTML = `
     <div class="checkout-layout checkout-layout-expanded">
@@ -122,7 +128,9 @@ function renderCheckout(data) {
                 : `
                 <div class="checkout-empty-block">
                     <p>No address found. Add an address to continue.</p>
-                    <a href="/user/addresses" class="btn-primary">Add Address</a>
+                    <button type="button" class="btn-primary checkout-add-address-btn" id="openAddressModalBtn">
+                      Add New Address
+                    </button>
                 </div>
                 `
             }
@@ -134,29 +142,66 @@ function renderCheckout(data) {
             </div>
 
             <div class="checkout-payment-list">
-            <label class="checkout-payment-option disabled">
-                <input type="radio" disabled>
-                <span>Debit Card / Credit Card</span>
-                <small>Coming soon</small>
-            </label>
+                <label class="checkout-payment-option disabled">
+                    <input type="radio" name="paymentMethod" value="card" disabled>
+                    <span>Debit Card / Credit Card</span>
+                    <small>Coming soon</small>
+                </label>
 
-            <label class="checkout-payment-option disabled">
-                <input type="radio" disabled>
-                <span>Bank</span>
-                <small>Coming soon</small>
-            </label>
+                <label class="checkout-payment-option disabled">
+                    <input type="radio" name="paymentMethod" value="bank" disabled>
+                    <span>Bank</span>
+                    <small>Coming soon</small>
+                </label>
 
-            <label class="checkout-payment-option disabled">
-                <input type="radio" disabled>
-                <span>UPI Method</span>
-                <small>Coming soon</small>
-            </label>
+                <label class="checkout-payment-option disabled">
+                    <input type="radio" name="paymentMethod" value="upi" disabled>
+                    <span>UPI Method</span>
+                    <small>Coming soon</small>
+                </label>
 
-            <label class="checkout-payment-option active">
-                <input type="radio" checked disabled>
-                <span>Cash on Delivery</span>
-            </label>
+                <label class="checkout-payment-option active">
+                    <input
+                        type="radio"
+                        name="paymentMethod"
+                        value="cod"
+                        ${selectedPaymentMethod === "cod" ? "checked" : ""}
+                    />
+                    <span>Cash on Delivery</span>
+                </label>
+
+                <label class="checkout-payment-option ${walletBalance >= finalTotal ? "active" : "disabled"}">
+                    <input
+                        type="radio"
+                        name="paymentMethod"
+                        value="wallet"
+                        ${selectedPaymentMethod === "wallet" && walletBalance >= finalTotal ? "checked" : ""}
+                        ${walletBalance >= finalTotal ? "" : "disabled"}
+                    >
+                    <span>Wallet</span>
+                    <small>
+                    Balance: Rs. ${Number(walletBalance || 0).toFixed(2)}
+                    ${
+                        walletBalance < finalTotal
+                        ? " • Insufficient balance"
+                        : ""
+                    }
+                    </small>
+                </label>
+
+                <label class="checkout-payment-option active">
+                  <input
+                    type="radio"
+                    name="paymentMethod"
+                    value="razorpay"
+                    ${selectedPaymentMethod === "razorpay" ? "checked" : ""}
+                  />
+                  <span>Online Payment</span>
+                  <small>Pay securely with Razorpay</small>
+                </label>
+
             </div>
+
         </section>
         </div>
 
@@ -193,8 +238,23 @@ function renderCheckout(data) {
                     </div>
 
                     <div class="checkout-summary-item-price">
-                        Rs. ${item.itemTotal}
+                      ${
+                        item.hasOffer
+                          ? `<span class="checkout-summary-item-original">Rs. ${Number((item.originalPrice || 0) * (item.quantity || 0)).toFixed(2)}</span>`
+                          : ""
+                      }
+
+                      <strong class="checkout-summary-item-final">
+                        Rs. ${Number(item.itemTotal || 0).toFixed(2)}
+                      </strong>
+
+                      ${
+                        item.hasOffer
+                          ? `<span class="checkout-summary-item-save">You save Rs. ${Number((item.discountAmount || 0) * (item.quantity || 0)).toFixed(2)}</span>`
+                          : ""
+                      }
                     </div>
+
                     </article>
                 `,
               )
@@ -202,36 +262,88 @@ function renderCheckout(data) {
             </div>
 
             <div class="checkout-summary-breakdown">
-            <div class="checkout-summary-row">
-                <span>Subtotal</span>
-                <strong>Rs. ${subtotal}</strong>
-            </div>
+                <div class="checkout-summary-row">
+                    <span>Subtotal</span>
+                    <strong>Rs. ${subtotal}</strong>
+                </div>
 
-            <div class="checkout-summary-row">
-                <span>Shipping</span>
-                <strong>${shipping === 0 ? "Free" : `Rs. ${shipping}`}</strong>
-            </div>
+                <div class="checkout-summary-row">
+                    <span>Shipping</span>
+                    <strong>${shipping === 0 ? "Free" : `Rs. ${shipping}`}</strong>
+                </div>
 
-            <div class="checkout-summary-row">
-                <span>Tax</span>
-                <strong>Rs. ${tax}</strong>
-            </div>
+                ${
+                    discount > 0
+                        ? `
+                        <div class="checkout-summary-row">
+                            <span>Discount</span>
+                            <strong>- Rs. ${discount}</strong>
+                        </div>
+                        `
+                        : ""
+                }
 
-            <div class="checkout-summary-row total">
-                <span>Total</span>
-                <strong>Rs. ${finalTotal}</strong>
-            </div>
+
+                <div class="checkout-summary-row">
+                    <span>Tax</span>
+                    <strong>Rs. ${tax}</strong>
+                </div>
+
+                <div class="checkout-summary-row total">
+                  <span>Total</span>
+                  <strong>Rs. ${Number(finalTotal || 0).toFixed(2)}</strong>
+                </div>
+
+                ${
+                  Number(totalSavings || 0) > 0
+                    ? `
+                    <div class="checkout-summary-row checkout-summary-savings-row">
+                      <span>Your Total Savings</span>
+                      <strong>Rs. ${Number(totalSavings || 0).toFixed(2)}</strong>
+                    </div>
+                    `
+                    : ""
+                }
             </div>
 
             <div class="checkout-coupon-row">
-            <button type="button" class="checkout-coupon-secondary" id="showCouponsBtn">
-                Show Coupons
-            </button>
+              <button
+                  type="button"
+                  class="checkout-coupon-secondary ${appliedCoupon ? "is-disabled" : ""}"
+                  id="showCouponsBtn"
+                  ${appliedCoupon ? "disabled" : ""}
+              >
+                  ${
+                      appliedCoupon
+                          ? appliedCoupon.coupon_code
+                          : selectedCoupon?.coupon_code || "Show Coupons"
+                  }
+              </button>
 
-            <button type="button" class="checkout-coupon-primary" id="applyCouponBtn">
-                Apply Coupon
-            </button>
+                ${
+                    appliedCoupon
+                    ? `<button type="button" class="checkout-coupon-primary" id="removeCouponBtn">
+                        Remove Coupon
+                        </button>`
+                    : `<button type="button" class="checkout-coupon-primary" id="applyCouponBtn">
+                        Apply Coupon
+                        </button>`
+                }
+
+                ${
+                    appliedCoupon
+                        ? `<p class="checkout-selected-coupon-note">
+                            Applied coupon: <strong>${appliedCoupon.coupon_code}</strong>
+                        </p>`
+                        : selectedCoupon
+                        ? `<p class="checkout-selected-coupon-note">
+                            Selected coupon: <strong>${selectedCoupon.coupon_code}</strong>
+                            </p>`
+                        : ""
+                }
+
             </div>
+
 
             ${
               hasUnavailableItems
@@ -243,6 +355,14 @@ function renderCheckout(data) {
               !defaultAddress
                 ? `<p class="checkout-warning">Add a delivery address to continue.</p>`
                 : ""
+            }
+
+            ${
+                selectedPaymentMethod === "wallet" && walletBalance < finalTotal
+                    ? `<p class="checkout-wallet-warning">
+                        Wallet balance is lower than the payable amount.
+                    </p>`
+                    : ""
             }
 
             <button
@@ -335,6 +455,23 @@ function renderCheckout(data) {
                 </button>
             </div>
             </form>
+        </div>
+    </div>
+
+    <div class="checkout-address-modal hidden" id="checkoutCouponModal">
+        <div class="checkout-address-modal-backdrop" id="checkoutCouponModalBackdrop"></div>
+
+        <div class="checkout-address-modal-card checkout-coupon-modal-card">
+            <div class="checkout-address-modal-head">
+            <h3>Available Coupons</h3>
+            <button type="button" id="closeCouponListModalBtn" class="checkout-address-close-btn">✕</button>
+            </div>
+
+            <div id="checkoutCouponList" class="checkout-coupon-list">
+            <div class="shop-empty">
+                <p>Loading coupons...</p>
+            </div>
+            </div>
         </div>
     </div>
   `;
@@ -536,6 +673,253 @@ function bindCheckoutAddressFieldValidation() {
 }
 
 
+let selectedCoupon = null;
+
+function openCouponModal() {
+  const modal = document.getElementById("checkoutCouponModal");
+  if (modal) modal.classList.remove("hidden");
+}
+
+function closeCouponModal() {
+  const modal = document.getElementById("checkoutCouponModal");
+  if (modal) modal.classList.add("hidden");
+}
+
+async function loadAvailableCoupons() {
+  const couponList = document.getElementById("checkoutCouponList");
+  if (!couponList) return;
+
+  couponList.innerHTML = `
+    <div class="shop-empty">
+      <p>Loading coupons...</p>
+    </div>
+  `;
+
+  const res = await fetch("/coupons/data", {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
+
+  const data = await res.json();
+
+  if (!res.ok || !data.success) {
+    couponList.innerHTML = `
+      <div class="shop-empty">
+        <h3>Unable to load coupons</h3>
+        <p>${data.message || "Something went wrong."}</p>
+      </div>
+    `;
+    return;
+  }
+
+  renderAvailableCoupons(data.data);
+}
+
+function renderAvailableCoupons(coupons) {
+  const couponList = document.getElementById("checkoutCouponList");
+  if (!couponList) return;
+
+  if (!coupons.length) {
+    couponList.innerHTML = `
+      <div class="shop-empty">
+        <h3>No coupons available</h3>
+        <p>No coupon is applicable for your current cart.</p>
+      </div>
+    `;
+    return;
+  }
+
+  couponList.innerHTML = `
+    <div class="checkout-coupon-cards">
+      ${coupons
+        .map(
+          (coupon) => `
+            <label class="checkout-coupon-card ${selectedCoupon?.coupon_code === coupon.coupon_code ? "selected" : ""}">
+              <input
+                type="radio"
+                name="selectedCoupon"
+                class="checkout-coupon-radio"
+                value="${coupon.coupon_code}"
+                data-coupon-code="${coupon.coupon_code}"
+                data-description="${coupon.description}"
+                data-min-purchase="${coupon.min_purchase}"
+                data-discount-type="${coupon.discount_type}"
+                data-discount-value="${coupon.discount_value}"
+                ${selectedCoupon?.coupon_code === coupon.coupon_code ? "checked" : ""}
+              />
+
+              <div class="checkout-coupon-card-content">
+                <div class="checkout-coupon-card-top">
+                  <div>
+                    <h4>${coupon.coupon_code}</h4>
+                    <p>${coupon.description}</p>
+                  </div>
+                </div>
+
+                <div class="checkout-coupon-card-meta">
+                  <span>Min Purchase: Rs. ${coupon.min_purchase}</span>
+                  <span>
+                    ${
+                      coupon.discount_type === "percentage"
+                        ? `${coupon.discount_value}% off`
+                        : `Rs. ${coupon.discount_value} off`
+                    }
+                  </span>
+                  <span>Valid till: ${new Date(coupon.expiry_date).toLocaleDateString("en-IN")}</span>
+                </div>
+              </div>
+            </label>
+          `
+        )
+        .join("")}
+    </div>
+  `;
+}
+
+async function applySelectedCoupon() {
+  if (!selectedCoupon?.coupon_code) {
+    showAlertModal("Please choose a coupon");
+    return;
+  }
+
+  const res = await fetch("/checkout/coupon/apply", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`
+    },
+    body: JSON.stringify({ code: selectedCoupon.coupon_code})
+  });
+
+  const data = await res.json();
+
+  if (!res.ok || !data.success) {
+    showAlertModal(data.message || "Failed to apply coupon");
+    return;
+  }
+
+  closeCouponModal();
+  selectedCoupon = null;
+  showToast(data.message || "Coupon applied successfully", "success");
+  await loadCheckout();
+}
+
+async function removeCoupon() {
+  const res = await fetch("/checkout/coupon", {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
+
+  const data = await res.json();
+
+  if (!res.ok || !data.success) {
+    showAlertModal(data.message || "Failed to remove coupon");
+    return;
+  }
+
+  selectedCoupon = null;
+  showToast(data.message || "Coupon removed successfully", "success");
+  await loadCheckout();
+}
+
+
+async function createRazorpayOrder(addressId) {
+  const res = await fetch("/payments/razorpay/order", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`
+    },
+    body: JSON.stringify({ addressId })
+  });
+
+  const data = await res.json();
+
+  if (!res.ok || !data.success) {
+    showAlertModal(data.message || "Failed to initiate online payment");
+    return null;
+  }
+
+  return data.data;
+}
+
+async function verifyRazorpayPayment({
+  addressId,
+  razorpay_order_id,
+  razorpay_payment_id,
+  razorpay_signature
+}) {
+  const res = await fetch("/payments/razorpay/verify", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`
+    },
+    body: JSON.stringify({
+      addressId,
+      razorpay_order_id,
+      razorpay_payment_id,
+      razorpay_signature
+    })
+  });
+
+  const data = await res.json();
+
+  if (!res.ok || !data.success) {
+    showAlertModal(data.message || "Payment verification failed");
+    return null;
+  }
+
+  return data.data;
+}
+
+async function startRazorpayPayment(addressId) {
+  const paymentData = await createRazorpayOrder(addressId);
+  if (!paymentData) return;
+
+  const options = {
+    key: paymentData.key,
+    amount: paymentData.amount,
+    currency: paymentData.currency,
+    name: "MuscleKart",
+    description: "Order Payment",
+    order_id: paymentData.razorpayOrderId,
+    handler: async function (response) {
+      const verified = await verifyRazorpayPayment({
+        addressId,
+        razorpay_order_id: response.razorpay_order_id,
+        razorpay_payment_id: response.razorpay_payment_id,
+        razorpay_signature: response.razorpay_signature
+      });
+
+      if (!verified) return;
+
+      window.location.href = `/payment/success?orderId=${encodeURIComponent(verified.orderId)}`;
+    },
+    modal: {
+      ondismiss: function () {
+        window.location.href = "/payment/failure";
+      }
+    },
+    theme: {
+      color: "#1b7f79"
+    }
+  };
+
+  const razorpayInstance = new Razorpay(options);
+  razorpayInstance.open();
+}
+
+
+window.addEventListener("pageshow", async (event) => {
+  if (event.persisted) {
+    await loadCheckout();
+  }
+});
+
 
 async function loadCheckout() {
   const res = await fetch("/checkout/data", {
@@ -557,7 +941,7 @@ async function loadCheckout() {
 if (checkoutContent) {
   checkoutContent.addEventListener("click", async (e) => {
 
-        if (e.target.id === "openAddressModalBtn") {
+    if (e.target.id === "openAddressModalBtn") {
       openAddressModal();
       return;
     }
@@ -573,14 +957,29 @@ if (checkoutContent) {
 
 
     if (e.target.id === "showCouponsBtn") {
-      showAlertModal("Coupon list will be added after order placement flow.");
+      openCouponModal();
+      await loadAvailableCoupons();
       return;
     }
 
     if (e.target.id === "applyCouponBtn") {
-      showAlertModal("Coupon apply flow will be implemented later.");
+      await applySelectedCoupon();
       return;
     }
+
+    if (e.target.id === "removeCouponBtn") {
+      await removeCoupon();
+      return;
+    }
+
+    if (
+      e.target.id === "closeCouponListModalBtn" ||
+      e.target.id === "checkoutCouponModalBackdrop"
+    ) {
+      closeCouponModal();
+      return;
+    }
+
 
     if (e.target.id === "placeOrderBtn") {
       if (e.target.disabled) return;
@@ -594,6 +993,14 @@ if (checkoutContent) {
 
       const addressId = selectedAddressCard.dataset.addressId;
 
+      const chosenPaymentMethod =
+        document.querySelector('input[name="paymentMethod"]:checked')?.value || "cod";
+
+      if (chosenPaymentMethod === "razorpay") {
+        await startRazorpayPayment(addressId);
+        return;
+      }
+
       const res = await fetch("/checkout", {
         method: "POST",
         headers: {
@@ -602,9 +1009,10 @@ if (checkoutContent) {
         },
         body: JSON.stringify({
           addressId,
-          paymentMethod: "cod"
+          paymentMethod: chosenPaymentMethod
         })
       });
+
 
       const data = await res.json();
 
@@ -632,6 +1040,58 @@ if (checkoutContent) {
       if (dot) dot.classList.add("active");
     }
   });
+
+  checkoutContent.addEventListener("change", async (e) => {
+
+    if (e.target.name === "paymentMethod") {
+      selectedPaymentMethod = e.target.value;
+
+      const checkoutRes = await fetch("/checkout/data", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const checkoutData = await checkoutRes.json();
+
+      if (!checkoutData.success) {
+        showAlertModal(checkoutData.message || "Failed to refresh checkout");
+        return;
+      }
+
+      renderCheckout(checkoutData.data);
+      return;
+    }
+
+    if (e.target.classList.contains("checkout-coupon-radio")) {
+        selectedCoupon = {
+        coupon_code: e.target.dataset.couponCode,
+        description: e.target.dataset.description,
+        min_purchase: Number(e.target.dataset.minPurchase || 0),
+        discount_type: e.target.dataset.discountType,
+        discount_value: Number(e.target.dataset.discountValue || 0)
+        };
+
+        closeCouponModal();
+
+        const checkoutRes = await fetch("/checkout/data", {
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+        });
+
+        const checkoutData = await checkoutRes.json();
+
+        if (!checkoutData.success) {
+        showAlertModal(checkoutData.message || "Failed to refresh checkout");
+        return;
+        }
+
+        renderCheckout(checkoutData.data);
+    }
+  });
+
+
 
   if (checkoutContent) {
     checkoutContent.addEventListener("submit", async (e) => {
