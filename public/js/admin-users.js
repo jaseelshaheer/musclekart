@@ -21,14 +21,11 @@ async function loadUsers() {
 
   const search = searchInput.value;
 
-  const res = await fetch(
-    `/admin/users?page=${page}&limit=${limit}&search=${search}`,
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+  const res = await fetch(`/admin/users?page=${page}&limit=${limit}&search=${search}`, {
+    headers: {
+      Authorization: `Bearer ${token}`
     }
-  );
+  });
 
   const data = await res.json();
 
@@ -36,7 +33,7 @@ async function loadUsers() {
 
   table.innerHTML = "";
 
-  data.data.users.forEach(user => {
+  data.data.users.forEach((user) => {
     const tr = document.createElement("tr");
 
     tr.innerHTML = `
@@ -49,9 +46,7 @@ async function loadUsers() {
       <td>${user.phone || "-"}</td>
 
       <td>
-        <span class="${
-          user.isBlocked ? "status-blocked" : "status-active"
-        }">
+        <span class="${user.isBlocked ? "status-blocked" : "status-active"}">
           ${user.isBlocked ? "Blocked" : "Active"}
         </span>
       </td>
@@ -69,42 +64,33 @@ async function loadUsers() {
     table.appendChild(tr);
   });
 
-
   pageInfo.textContent = `Page ${data.data.currentPage} of ${data.data.totalPages}`;
   totalPages = data.data.totalPages;
 }
 
 function toggleBlock(userId, isBlocked) {
-  showConfirm(
-    isBlocked ? "Unblock this user?" : "Block this user?",
-    async () => {
-      const res = await fetch(`/admin/users/${userId}/status`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
-        },
-        body: JSON.stringify({ isBlocked: !isBlocked }),
-      });
+  showConfirm(isBlocked ? "Unblock this user?" : "Block this user?", async () => {
+    const res = await fetch(`/admin/users/${userId}/status`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("adminToken")}`
+      },
+      body: JSON.stringify({ isBlocked: !isBlocked })
+    });
 
-      const data = await res.json();
+    const data = await res.json();
 
-      if (!data.success) {
-        showAlertModal(data.message || "Failed to update user status");
-        return;
-      }
-
-      showToast(
-        isBlocked ? "User unblocked successfully." : "User blocked successfully.",
-        "success"
-      );
-
-      loadUsers();
+    if (!data.success) {
+      showAlertModal(data.message || "Failed to update user status");
+      return;
     }
-  );
+
+    showToast(isBlocked ? "User unblocked successfully." : "User blocked successfully.", "success");
+
+    loadUsers();
+  });
 }
-
-
 
 document.getElementById("prevBtn").onclick = () => {
   if (page > 1) {
@@ -120,7 +106,6 @@ document.getElementById("nextBtn").onclick = () => {
   }
 };
 
-
 searchInput.addEventListener("input", () => {
   page = 1;
   loadUsers();
@@ -133,4 +118,3 @@ document.getElementById("clearSearch").onclick = () => {
 };
 
 loadUsers();
-

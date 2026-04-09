@@ -4,13 +4,7 @@ import Payment from "../../models/payment.model.js";
 import { creditWalletService } from "../user/wallet.service.js";
 import Coupon from "../../models/coupon.model.js";
 
-
-export const getAdminOrdersService = async ({
-  page = 1,
-  limit = 10,
-  search = "",
-  status = ""
-}) => {
+export const getAdminOrdersService = async ({ page = 1, limit = 10, search = "", status = "" }) => {
   const pageNumber = parseInt(page, 10) || 1;
   const limitNumber = parseInt(limit, 10) || 10;
   const skip = (pageNumber - 1) * limitNumber;
@@ -33,7 +27,6 @@ export const getAdminOrdersService = async ({
     .limit(limitNumber)
     .populate("user_id", "firstName lastName email phone")
     .lean();
-    
 
   return {
     orders,
@@ -55,7 +48,6 @@ export const getAdminOrderDetailService = async (orderId) => {
   return order;
 };
 
-
 async function restoreStockForActiveItems(order) {
   for (const item of order.items) {
     if (item.item_status === "active") {
@@ -72,22 +64,21 @@ async function restoreStockForActiveItems(order) {
   }
 }
 
-async function restoreStockForReturnedItems(order) {
-  for (const item of order.items) {
-    if (item.item_status === "active") {
-      const variant = await Variant.findById(item.variant_id);
+// async function restoreStockForReturnedItems(order) {
+//   for (const item of order.items) {
+//     if (item.item_status === "active") {
+//       const variant = await Variant.findById(item.variant_id);
 
-      if (variant) {
-        variant.stock_qty += item.quantity;
-        await variant.save();
-      }
+//       if (variant) {
+//         variant.stock_qty += item.quantity;
+//         await variant.save();
+//       }
 
-      item.item_status = "returned";
-      item.return_reason = item.return_reason || "Returned by admin";
-    }
-  }
-}
-
+//       item.item_status = "returned";
+//       item.return_reason = item.return_reason || "Returned by admin";
+//     }
+//   }
+// }
 
 async function finalizeRequestedReturnItems(order) {
   for (const item of order.items) {
@@ -104,7 +95,6 @@ async function finalizeRequestedReturnItems(order) {
   }
 }
 
-
 function rejectRequestedReturnItems(order) {
   for (const item of order.items) {
     if (item.item_status === "return_requested") {
@@ -112,7 +102,6 @@ function rejectRequestedReturnItems(order) {
     }
   }
 }
-
 
 function isValidAdminStatusTransition(currentStatus, nextStatus) {
   const allowedTransitions = {
@@ -132,8 +121,6 @@ function isValidAdminStatusTransition(currentStatus, nextStatus) {
   return allowedTransitions[currentStatus]?.includes(nextStatus) || false;
 }
 
-
-
 async function syncAdminOrderPaymentState(order, nextOrderPaymentStatus, nextPaymentStatus) {
   order.payment_status = nextOrderPaymentStatus;
 
@@ -150,7 +137,6 @@ async function syncAdminOrderPaymentState(order, nextOrderPaymentStatus, nextPay
   }
 }
 
-
 async function releaseCouponUsage(order) {
   if (!order.coupon_id) return;
 
@@ -160,7 +146,6 @@ async function releaseCouponUsage(order) {
   coupon.used_count = Math.max((coupon.used_count || 0) - 1, 0);
   await coupon.save();
 }
-
 
 function roundMoney(value) {
   return Math.round((Number(value) + Number.EPSILON) * 100) / 100;
@@ -189,7 +174,6 @@ function getRefundableAmountForActiveItems(order) {
   return getDiscountAdjustedRefund(order, activeItemsTotal);
 }
 
-
 function getRefundableAmountForReturn(order) {
   const requestedItemsTotal = order.items.reduce((sum, item) => {
     if (item.item_status === "return_requested") {
@@ -200,8 +184,6 @@ function getRefundableAmountForReturn(order) {
 
   return getDiscountAdjustedRefund(order, requestedItemsTotal);
 }
-
-
 
 export const updateAdminOrderStatusService = async (orderId, status) => {
   const allowedStatuses = [
@@ -230,12 +212,10 @@ export const updateAdminOrderStatusService = async (orderId, status) => {
 
   const refundableAmount =
     status === "cancelled"
-        ? getRefundableAmountForActiveItems(order)
-        : status === "returned"
+      ? getRefundableAmountForActiveItems(order)
+      : status === "returned"
         ? getRefundableAmountForReturn(order)
         : 0;
-
-
 
   if (status === "cancelled") {
     await restoreStockForActiveItems(order);
@@ -270,7 +250,7 @@ export const updateAdminOrderStatusService = async (orderId, status) => {
   order.status_history.push({
     status,
     changed_at: new Date(),
-    note: `Order status changed to ${status.replaceAll("_", " ")} by admin`,
+    note: `Order status changed to ${status.replaceAll("_", " ")} by admin`
   });
 
   await order.save();
@@ -285,24 +265,22 @@ export const updateAdminOrderStatusService = async (orderId, status) => {
       amount: refundableAmount,
       description: `Refund for cancelled order ${order.order_id}`,
       source: "order_cancel",
-      orderId: order._id,
+      orderId: order._id
     });
   }
 
   if (status === "returned" && refundableAmount > 0) {
     await creditWalletService({
-        userId: order.user_id,
-        amount: refundableAmount,
-        description: `Refund for returned order ${order.order_id}`,
-        source: "order_return",
-        orderId: order._id
+      userId: order.user_id,
+      amount: refundableAmount,
+      description: `Refund for returned order ${order.order_id}`,
+      source: "order_return",
+      orderId: order._id
     });
   }
 
-
   return order;
 };
-
 
 export const approveReturnRequestService = async (orderId) => {
   const order = await Order.findOne({ order_id: orderId });
@@ -394,5 +372,3 @@ export const rejectReturnRequestService = async (orderId, reason) => {
 
   return order;
 };
-
-

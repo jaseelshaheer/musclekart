@@ -21,79 +21,73 @@ const orderItemSchema = new mongoose.Schema(
     product_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Product",
-      required: true,
+      required: true
     },
     variant_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Variant",
-      required: true,
+      required: true
     },
     product_name: {
       type: String,
       required: true,
-      trim: true,
+      trim: true
     },
     main_image: {
       type: String,
-      default: "",
+      default: ""
     },
     quantity: {
       type: Number,
       required: true,
-      min: 1,
+      min: 1
     },
     price: {
       type: Number,
       required: true,
-      min: 0,
+      min: 0
     },
     original_price: {
       type: Number,
       default: 0,
-      min: 0,
+      min: 0
     },
     discount_amount: {
       type: Number,
       default: 0,
-      min: 0,
+      min: 0
     },
     total: {
       type: Number,
       required: true,
-      min: 0,
+      min: 0
     },
     item_status: {
       type: String,
-      enum: [
-        "active",
-        "cancelled",
-        "return_requested",
-        "return_rejected",
-        "returned",
-      ],
-      default: "active",
+      enum: ["active", "cancelled", "return_requested", "return_rejected", "returned"],
+      default: "active"
     },
     cancel_reason: {
       type: String,
       trim: true,
-      default: "",
+      default: ""
     },
     return_reason: {
       type: String,
       trim: true,
-      default: "",
+      default: ""
     },
     return_reject_reason: {
       type: String,
       trim: true,
-      default: "",
+      default: ""
     },
     attributes: {
       type: [orderItemAttributeSchema],
-      default: [],
-    },
+      default: []
+    }
   },
-  { _id: false },
+  { _id: false }
 );
 
 const addressSnapshotSchema = new mongoose.Schema(
@@ -174,17 +168,17 @@ const orderSchema = new mongoose.Schema(
       required: true,
       unique: true,
       index: true,
-      trim: true,
+      trim: true
     },
     user_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
-      index: true,
+      index: true
     },
     order_date: {
       type: Date,
-      default: Date.now,
+      default: Date.now
     },
     order_status: {
       type: String,
@@ -199,60 +193,60 @@ const orderSchema = new mongoose.Schema(
         "return_requested",
         "return_rejected",
         "cancelled",
-        "returned",
+        "returned"
       ],
       default: "order_placed",
-      index: true,
+      index: true
     },
     payment_method: {
       type: String,
       enum: ["cod", "card", "upi", "wallet"],
-      required: true,
+      required: true
     },
     payment_status: {
       type: String,
       enum: ["pending", "paid", "failed", "cancelled", "refunded"],
-      default: "pending",
+      default: "pending"
     },
 
     subtotal: {
       type: Number,
       required: true,
-      min: 0,
+      min: 0
     },
     delivery_charge: {
       type: Number,
       default: 0,
-      min: 0,
+      min: 0
     },
     discount: {
       type: Number,
       default: 0,
-      min: 0,
+      min: 0
     },
     grand_total: {
       type: Number,
       required: true,
-      min: 0,
+      min: 0
     },
     address_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Address",
-      required: true,
+      required: true
     },
     coupon_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Coupon",
-      default: null,
+      default: null
     },
     return_reject_reason: {
       type: String,
       trim: true,
-      default: "",
+      default: ""
     },
     address_snapshot: {
       type: addressSnapshotSchema,
-      required: true,
+      required: true
     },
     items: {
       type: [orderItemSchema],
@@ -261,20 +255,20 @@ const orderSchema = new mongoose.Schema(
         validator: function (value) {
           return Array.isArray(value) && value.length > 0;
         },
-        message: "Order must contain at least one item",
-      },
+        message: "Order must contain at least one item"
+      }
     },
     status_history: {
       type: [statusHistorySchema],
-      default: [],
-    },
+      default: []
+    }
   },
   {
     timestamps: {
       createdAt: false,
-      updatedAt: "updated_at",
-    },
-  },
+      updatedAt: "updated_at"
+    }
+  }
 );
 
 const Order = mongoose.model("Order", orderSchema);

@@ -1,7 +1,7 @@
 import HTTP_STATUS from "../constants/httpStatus.js";
-import { COMMON_MESSAGES, AUTH_MESSAGES } from "../constants/messages.js";
+import { COMMON_MESSAGES } from "../constants/messages.js";
 
-export const errorHandler = (err, req, res, next) => {
+export const errorHandler = (err, req, res, _next) => {
   console.error(err);
 
   if (err.code === 11000) {
@@ -9,18 +9,15 @@ export const errorHandler = (err, req, res, next) => {
 
     return res.status(HTTP_STATUS.BAD_REQUEST).json({
       success: false,
-      field, 
-      message: `${field} already exists`,
+      field,
+      message: `${field} already exists`
     });
   }
 
-  const statusCode =
-    err.statusCode || HTTP_STATUS.INTERNAL_SERVER_ERROR;
+  const statusCode = err.statusCode || HTTP_STATUS.INTERNAL_SERVER_ERROR;
 
   res.status(statusCode).json({
     success: false,
-    message:
-      err.message || COMMON_MESSAGES.SOMETHING_WENT_WRONG,
+    message: err.message || COMMON_MESSAGES.SOMETHING_WENT_WRONG
   });
 };
-

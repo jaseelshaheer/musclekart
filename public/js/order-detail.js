@@ -4,7 +4,6 @@ const token = localStorage.getItem("token");
 let pendingReturnAction = null;
 let pendingCancelAction = null;
 
-
 if (!token) {
   window.location.href = "/login";
 }
@@ -13,13 +12,11 @@ function renderOrderDetail(order) {
   if (!orderDetailContent) return;
 
   const itemOfferSavings = (order.items || []).reduce(
-    (sum, item) =>
-      sum + Number((item.discount_amount || 0) * (item.quantity || 0)),
-    0,
+    (sum, item) => sum + Number((item.discount_amount || 0) * (item.quantity || 0)),
+    0
   );
 
   const totalSavings = itemOfferSavings + Number(order.discount || 0);
-
 
   orderDetailContent.innerHTML = `
     <div class="order-detail-header">
@@ -36,13 +33,13 @@ function renderOrderDetail(order) {
             </button>
 
             ${
-                ["order_placed", "pending", "confirmed", "packed"].includes(order.order_status)
+              ["order_placed", "pending", "confirmed", "packed"].includes(order.order_status)
                 ? `<button type="button" class="btn-danger-soft" id="cancelOrderBtn">Cancel Order</button>`
                 : ""
             }
 
             ${
-                order.order_status === "delivered"
+              order.order_status === "delivered"
                 ? `<button type="button" class="order-item-return-btn" id="returnOrderBtn">Return Order</button>`
                 : ""
             }
@@ -79,17 +76,17 @@ function renderOrderDetail(order) {
               <span>Order Status</span>
               <strong>
                 ${order.order_status
-                    .replaceAll("_", " ")
-                    .replace(/\b\w/g, (char) => char.toUpperCase())}
+                  .replaceAll("_", " ")
+                  .replace(/\b\w/g, (char) => char.toUpperCase())}
               </strong>
             </div>
 
             ${
-                order.order_status === "return_rejected" && order.return_reject_reason
-                    ? `<p class="order-return-reject-note">
+              order.order_status === "return_rejected" && order.return_reject_reason
+                ? `<p class="order-return-reject-note">
                         Return request rejected: ${order.return_reject_reason}
                     </p>`
-                    : ""
+                : ""
             }
 
           </div>
@@ -101,7 +98,9 @@ function renderOrderDetail(order) {
           </div>
 
           <div class="checkout-item-list">
-            ${order.items.map((item, index) => `
+            ${order.items
+              .map(
+                (item, index) => `
               <article class="checkout-item">
                 <div class="checkout-item-image">
                   <img src="${item.main_image || "/images/no-image.png"}" alt="${item.product_name}">
@@ -143,47 +142,51 @@ function renderOrderDetail(order) {
                     }
                     <span class="${item.item_status === "active" ? "checkout-status-good" : "checkout-status-bad"}">
                         ${item.item_status
-                            .replaceAll("_", " ")
-                            .replace(/\b\w/g, (char) => char.toUpperCase())}
+                          .replaceAll("_", " ")
+                          .replace(/\b\w/g, (char) => char.toUpperCase())}
                     </span>
 
                     ${
-                        item.item_status === "return_rejected" && item.return_reject_reason
-                            ? `<p class="order-item-reject-note">
+                      item.item_status === "return_rejected" && item.return_reject_reason
+                        ? `<p class="order-item-reject-note">
                                 Rejected: ${item.return_reject_reason}
                             </p>`
-                            : ""
+                        : ""
                     }
 
                     ${
-                        item.item_status === "active" &&
-                        ["order_placed", "pending", "confirmed", "packed"].includes(order.order_status)
-                            ? `<button
+                      item.item_status === "active" &&
+                      ["order_placed", "pending", "confirmed", "packed"].includes(
+                        order.order_status
+                      )
+                        ? `<button
                                 type="button"
                                 class="order-item-cancel-btn"
                                 data-item-index="${index}"
                             >
                                 Cancel Item
                             </button>`
-                            : ""
+                        : ""
                     }
 
                     ${
-                        item.item_status === "active" && order.order_status === "delivered"
-                            ? `<button
+                      item.item_status === "active" && order.order_status === "delivered"
+                        ? `<button
                                 type="button"
                                 class="order-item-return-btn"
                                 data-item-index="${index}"
                             >
                                 Return Item
                             </button>`
-                            : ""
+                        : ""
                     }
 
                 </div>
 
               </article>
-            `).join("")}
+            `
+              )
+              .join("")}
           </div>
         </section>
       </div>
@@ -327,7 +330,6 @@ async function returnSingleItem(orderId, itemIndex, reason) {
   await loadOrderDetail();
 }
 
-
 function openReturnReasonModal() {
   const modal = document.getElementById("returnReasonModal");
   const input = document.getElementById("returnReasonInput");
@@ -366,8 +368,6 @@ function getReturnReasonValue() {
   return reason;
 }
 
-
-
 function openCancelReasonModal() {
   const modal = document.getElementById("cancelReasonModal");
   const input = document.getElementById("cancelReasonInput");
@@ -381,7 +381,6 @@ function openCancelReasonModal() {
   input.focus();
 }
 
-
 function closeCancelReasonModal() {
   const modal = document.getElementById("cancelReasonModal");
   const input = document.getElementById("cancelReasonInput");
@@ -392,15 +391,10 @@ function closeCancelReasonModal() {
   if (error) error.textContent = "";
 }
 
-
 function getCancelReasonValue() {
   const input = document.getElementById("cancelReasonInput");
   return input?.value?.trim() || "";
 }
-
-
-
-
 
 if (orderDetailContent) {
   orderDetailContent.addEventListener("click", async (e) => {
@@ -410,7 +404,7 @@ if (orderDetailContent) {
     if (e.target.id === "cancelOrderBtn") {
       pendingCancelAction = {
         type: "order",
-        orderId,
+        orderId
       };
       openCancelReasonModal();
       return;
@@ -420,17 +414,16 @@ if (orderDetailContent) {
       pendingCancelAction = {
         type: "item",
         orderId,
-        itemIndex: e.target.dataset.itemIndex,
+        itemIndex: e.target.dataset.itemIndex
       };
       openCancelReasonModal();
       return;
     }
 
-
     if (e.target.id === "returnOrderBtn") {
       pendingReturnAction = {
         type: "order",
-        orderId,
+        orderId
       };
       openReturnReasonModal();
       return;
@@ -440,18 +433,17 @@ if (orderDetailContent) {
       pendingReturnAction = {
         type: "item",
         orderId,
-        itemIndex: e.target.dataset.itemIndex,
+        itemIndex: e.target.dataset.itemIndex
       };
       openReturnReasonModal();
       return;
     }
 
-
     if (e.target.id === "downloadInvoiceBtn") {
       const response = await fetch(`/orders/${orderId}/invoice`, {
         headers: {
-          Authorization: `Bearer ${token}`,
-        },
+          Authorization: `Bearer ${token}`
+        }
       });
 
       if (!response.ok) {
@@ -470,7 +462,6 @@ if (orderDetailContent) {
         return;
       }
 
-
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
@@ -482,12 +473,8 @@ if (orderDetailContent) {
       window.URL.revokeObjectURL(url);
       return;
     }
-
-
-
   });
 }
-
 
 async function cancelSingleItem(orderId, itemIndex, reason = "") {
   const res = await fetch(`/orders/${orderId}/items/${itemIndex}/cancel`, {
@@ -512,7 +499,6 @@ async function cancelSingleItem(orderId, itemIndex, reason = "") {
   await loadOrderDetail();
 }
 
-
 const returnReasonCancelBtn = document.getElementById("returnReasonCancelBtn");
 const returnReasonSubmitBtn = document.getElementById("returnReasonSubmitBtn");
 
@@ -533,18 +519,13 @@ if (returnReasonSubmitBtn) {
     }
 
     if (pendingReturnAction.type === "item") {
-      await returnSingleItem(
-        pendingReturnAction.orderId,
-        pendingReturnAction.itemIndex,
-        reason
-      );
+      await returnSingleItem(pendingReturnAction.orderId, pendingReturnAction.itemIndex, reason);
     }
 
     pendingReturnAction = null;
     closeReturnReasonModal();
   });
 }
-
 
 const cancelReasonCancelBtn = document.getElementById("cancelReasonCancelBtn");
 const cancelReasonSubmitBtn = document.getElementById("cancelReasonSubmitBtn");
@@ -567,19 +548,12 @@ if (cancelReasonSubmitBtn) {
     }
 
     if (pendingCancelAction.type === "item") {
-      await cancelSingleItem(
-        pendingCancelAction.orderId,
-        pendingCancelAction.itemIndex,
-        reason
-      );
+      await cancelSingleItem(pendingCancelAction.orderId, pendingCancelAction.itemIndex, reason);
     }
 
     pendingCancelAction = null;
     closeCancelReasonModal();
   });
 }
-
-
-
 
 loadOrderDetail();

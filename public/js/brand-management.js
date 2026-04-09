@@ -17,18 +17,15 @@ const clearBtn = document.getElementById("clearSearch");
 const brandNameError = document.getElementById("brandNameError");
 const brandNameCount = document.getElementById("brandNameCount");
 
-
 /* MODAL */
 
-const modal=document.getElementById("brandModal");
-const form=document.getElementById("brandForm");
+const modal = document.getElementById("brandModal");
+const form = document.getElementById("brandForm");
 
-const idInput=document.getElementById("brandId");
-const nameInput=document.getElementById("brandName");
+const idInput = document.getElementById("brandId");
+const nameInput = document.getElementById("brandName");
 
-const modalTitle=document.getElementById("modalTitle");
-
-
+const modalTitle = document.getElementById("modalTitle");
 
 function clearBrandValidation() {
   nameInput.classList.remove("input-error");
@@ -51,36 +48,28 @@ nameInput.addEventListener("input", () => {
   updateBrandCount();
 });
 
-
 function getAdminToken() {
   return localStorage.getItem("adminToken");
 }
 
-
-
-async function loadBrands(){
-
+async function loadBrands() {
   const token = getAdminToken();
 
   const search = searchInput.value;
 
-  const res = await fetch(
-    `/admin/brands?page=${page}&limit=${limit}&search=${search}`,
-    {
-      headers:{
-        Authorization:`Bearer ${token}`
-      }
+  const res = await fetch(`/admin/brands?page=${page}&limit=${limit}&search=${search}`, {
+    headers: {
+      Authorization: `Bearer ${token}`
     }
-  );
+  });
 
   const data = await res.json();
 
-  if(!data.success) return;
+  if (!data.success) return;
 
   table.innerHTML = "";
 
-  data.data.brands.forEach((brand,index)=>{
-
+  data.data.brands.forEach((brand, index) => {
     const tr = document.createElement("tr");
 
     tr.innerHTML = `
@@ -89,18 +78,18 @@ async function loadBrands(){
       <td>${brand.name}</td>
 
       <td>
-        <span class="${brand.status ? "status-active":"status-blocked"}">
-          ${brand.status ? "Active":"Inactive"}
+        <span class="${brand.status ? "status-active" : "status-blocked"}">
+          ${brand.status ? "Active" : "Inactive"}
         </span>
       </td>
 
       <td>
 
         <button
-          class="${brand.status ? "btn-deactivate":"btn-activate"}"
+          class="${brand.status ? "btn-deactivate" : "btn-activate"}"
           onclick="toggleBrandStatus('${brand._id}',${brand.status})"
         >
-          ${brand.status ? "Deactivate":"Activate"}
+          ${brand.status ? "Deactivate" : "Activate"}
         </button>
 
         <button
@@ -121,56 +110,45 @@ async function loadBrands(){
     `;
 
     table.appendChild(tr);
-
   });
 
-  pageInfo.textContent =
-    `Page ${data.data.currentPage} of ${data.data.totalPages}`;
+  pageInfo.textContent = `Page ${data.data.currentPage} of ${data.data.totalPages}`;
 
   totalPages = data.data.totalPages;
-
 }
-
-
 
 function toggleBrandStatus(brandId, status) {
-  showConfirm(
-    status ? "Deactivate this brand?" : "Activate this brand?",
-    async () => {
-      const res = await fetch(`/admin/brands/${brandId}/status`, {
-        method: "PATCH",
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("adminToken")}`
-        }
-      });
-
-      const data = await res.json();
-
-      if (!data.success) {
-        showAlertModal(data.message || "Failed to update brand status");
-        return;
+  showConfirm(status ? "Deactivate this brand?" : "Activate this brand?", async () => {
+    const res = await fetch(`/admin/brands/${brandId}/status`, {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("adminToken")}`
       }
+    });
 
-      showToast(
-        status ? "Brand deactivated successfully." : "Brand activated successfully.",
-        "success"
-      );
+    const data = await res.json();
 
-      loadBrands();
+    if (!data.success) {
+      showAlertModal(data.message || "Failed to update brand status");
+      return;
     }
-  );
+
+    showToast(
+      status ? "Brand deactivated successfully." : "Brand activated successfully.",
+      "success"
+    );
+
+    loadBrands();
+  });
 }
-
-
-
 
 function deleteBrand(brandId) {
   showConfirm("Delete this brand?", async () => {
     const res = await fetch(`/admin/brands/${brandId}`, {
       method: "DELETE",
       headers: {
-        Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
-      },
+        Authorization: `Bearer ${localStorage.getItem("adminToken")}`
+      }
     });
 
     const data = await res.json();
@@ -185,56 +163,46 @@ function deleteBrand(brandId) {
   });
 }
 
-
-
 /* SEARCH */
 
-searchInput.addEventListener("input",()=>{
-  page=1;
+searchInput.addEventListener("input", () => {
+  page = 1;
   loadBrands();
 });
 
-clearBtn.onclick=()=>{
-  searchInput.value="";
-  page=1;
+clearBtn.onclick = () => {
+  searchInput.value = "";
+  page = 1;
   loadBrands();
 };
 
-
-
 /* PAGINATION */
 
-prevBtn.onclick=()=>{
-  if(page>1){
+prevBtn.onclick = () => {
+  if (page > 1) {
     page--;
     loadBrands();
   }
 };
 
-nextBtn.onclick=()=>{
-  if(page<totalPages){
+nextBtn.onclick = () => {
+  if (page < totalPages) {
     page++;
     loadBrands();
   }
 };
 
-
-
-document.getElementById("addBrandBtn").onclick=()=>{
-
+document.getElementById("addBrandBtn").onclick = () => {
   modal.classList.remove("hidden");
 
-  modalTitle.textContent="Add Brand";
+  modalTitle.textContent = "Add Brand";
 
-  idInput.value="";
-  nameInput.value="";
+  idInput.value = "";
+  nameInput.value = "";
 
   clearBrandValidation();
   updateBrandCount();
-
 };
-
-
 
 document.getElementById("closeModalBtn").onclick = () => {
   modal.classList.add("hidden");
@@ -242,24 +210,17 @@ document.getElementById("closeModalBtn").onclick = () => {
   updateBrandCount();
 };
 
-
-
-
-function openEditModal(id,name){
-
+function openEditModal(id, name) {
   modal.classList.remove("hidden");
 
-  modalTitle.textContent="Edit Brand";
+  modalTitle.textContent = "Edit Brand";
 
-  idInput.value=id;
-  nameInput.value=name;
+  idInput.value = id;
+  nameInput.value = name;
 
   clearBrandValidation();
   updateBrandCount();
-
 }
-
-
 
 /* CREATE / UPDATE */
 
@@ -279,7 +240,6 @@ form.addEventListener("submit", async (e) => {
   const payload = { name };
 
   let res;
-
 
   if (id) {
     res = await fetch(`/admin/brands/${id}`, {
@@ -310,16 +270,9 @@ form.addEventListener("submit", async (e) => {
 
   modal.classList.add("hidden");
 
-  showToast(
-    id ? "Brand updated successfully." : "Brand created successfully.",
-    "success"
-  );
+  showToast(id ? "Brand updated successfully." : "Brand created successfully.", "success");
 
   loadBrands();
-
 });
-
-
-
 
 loadBrands();

@@ -4,13 +4,8 @@ import Payment from "../../models/payment.model.js";
 import Coupon from "../../models/coupon.model.js";
 import { creditWalletService } from "./wallet.service.js";
 
-
 export const getUserOrdersService = async (userId, query = {}) => {
-  const {
-    search = "",
-    page = 1,
-    limit = 3
-  } = query;
+  const { search = "", page = 1, limit = 3 } = query;
 
   const pageNumber = parseInt(page, 10) || 1;
   const limitNumber = parseInt(limit, 10) || 3;
@@ -53,8 +48,6 @@ export const getUserOrderByOrderIdService = async (userId, orderId) => {
   return order;
 };
 
-
-
 async function syncOrderPaymentState(order, nextOrderPaymentStatus, nextPaymentStatus) {
   order.payment_status = nextOrderPaymentStatus;
 
@@ -71,7 +64,6 @@ async function syncOrderPaymentState(order, nextOrderPaymentStatus, nextPaymentS
   }
 }
 
-
 async function releaseCouponUsage(order) {
   if (!order.coupon_id) return;
 
@@ -81,7 +73,6 @@ async function releaseCouponUsage(order) {
   coupon.used_count = Math.max((coupon.used_count || 0) - 1, 0);
   await coupon.save();
 }
-
 
 function roundMoney(value) {
   return Math.round((Number(value) + Number.EPSILON) * 100) / 100;
@@ -109,9 +100,6 @@ function getRefundableAmountForActiveItems(order) {
 
   return getDiscountAdjustedRefund(order, activeItemsTotal);
 }
-
-
-
 
 export const cancelOrderService = async (userId, orderId, reason = "") => {
   const order = await Order.findOne({
@@ -146,7 +134,7 @@ export const cancelOrderService = async (userId, orderId, reason = "") => {
   order.status_history.push({
     status: "cancelled",
     changed_at: new Date(),
-    note: reason?.trim() || "Order cancelled by user",
+    note: reason?.trim() || "Order cancelled by user"
   });
 
   if (order.payment_status === "paid") {
@@ -164,20 +152,14 @@ export const cancelOrderService = async (userId, orderId, reason = "") => {
       amount: refundableAmount,
       description: `Refund for cancelled order ${order.order_id}`,
       source: "order_cancel",
-      orderId: order._id,
+      orderId: order._id
     });
   }
 
   return order;
 };
 
-
-export const cancelOrderItemService = async (
-  userId,
-  orderId,
-  itemIndex,
-  reason = ""
-) => {
+export const cancelOrderItemService = async (userId, orderId, itemIndex, reason = "") => {
   const order = await Order.findOne({
     user_id: userId,
     order_id: orderId
@@ -219,7 +201,7 @@ export const cancelOrderItemService = async (
     order.status_history.push({
       status: "cancelled",
       changed_at: new Date(),
-      note: "All order items were cancelled",
+      note: "All order items were cancelled"
     });
 
     if (order.payment_status === "paid") {
@@ -235,20 +217,18 @@ export const cancelOrderItemService = async (
     await releaseCouponUsage(order);
   }
 
-
   if (refundableAmount > 0) {
     await creditWalletService({
       userId,
       amount: refundableAmount,
       description: `Refund for cancelled item in order ${order.order_id}`,
       source: "order_cancel",
-      orderId: order._id,
+      orderId: order._id
     });
   }
 
   return order;
 };
-
 
 export const returnOrderService = async (userId, orderId, reason) => {
   const trimmedReason = reason?.trim();
@@ -282,7 +262,7 @@ export const returnOrderService = async (userId, orderId, reason) => {
   order.status_history.push({
     status: "return_requested",
     changed_at: new Date(),
-    note: trimmedReason,
+    note: trimmedReason
   });
 
   order.return_reject_reason = "";
@@ -292,14 +272,7 @@ export const returnOrderService = async (userId, orderId, reason) => {
   return order;
 };
 
-
-
-export const returnOrderItemService = async (
-  userId,
-  orderId,
-  itemIndex,
-  reason
-) => {
+export const returnOrderItemService = async (userId, orderId, itemIndex, reason) => {
   const trimmedReason = reason?.trim();
 
   if (!trimmedReason) {
@@ -342,17 +315,14 @@ export const returnOrderItemService = async (
     order.status_history.push({
       status: "return_requested",
       changed_at: new Date(),
-      note: "All order items were marked for return request",
+      note: "All order items were marked for return request"
     });
   }
 
-
   await order.save();
-
 
   return order;
 };
-
 
 export const getUserOrderInvoiceService = async (userId, orderId) => {
   const order = await Order.findOne({
@@ -366,10 +336,6 @@ export const getUserOrderInvoiceService = async (userId, orderId) => {
 
   return order;
 };
-
-
-
-
 
 function isCancellableOrderStatus(status) {
   return ["order_placed", "pending", "confirmed", "packed"].includes(status);
@@ -386,4 +352,3 @@ function isReturnableOrderStatus(status) {
 function isReturnableItemStatus(status) {
   return status === "active";
 }
-

@@ -43,7 +43,6 @@ function computeColumnWidths(doc, headers, rows, maxTableWidth) {
   return adjusted;
 }
 
-
 export function generateSalesReportPdf(reportData, res) {
   const doc = new PDFDocument({ margin: 30, size: "A4", layout: "landscape" });
 
@@ -67,12 +66,16 @@ export function generateSalesReportPdf(reportData, res) {
   });
 
   doc.moveDown(0.2);
-  doc.font("Helvetica").fontSize(9.5).fillColor("#475569").text(
-    `Period: ${String(reportData.filter.period || "").toUpperCase()} | From: ${formatDate(
-      reportData.filter.from
-    )} | To: ${formatDate(reportData.filter.to)}`,
-    { width: contentWidth, align: "center" }
-  );
+  doc
+    .font("Helvetica")
+    .fontSize(9.5)
+    .fillColor("#475569")
+    .text(
+      `Period: ${String(reportData.filter.period || "").toUpperCase()} | From: ${formatDate(
+        reportData.filter.from
+      )} | To: ${formatDate(reportData.filter.to)}`,
+      { width: contentWidth, align: "center" }
+    );
 
   doc.moveDown(0.7);
   doc.font("Helvetica-Bold").fontSize(11).fillColor("#0f172a").text("Summary");
@@ -100,18 +103,20 @@ export function generateSalesReportPdf(reportData, res) {
     "Grand Total"
   ];
 
-  const rows = reportData.rows.slice(0, 30).map((row) => [
-    row.orderId,
-    formatDate(row.orderDate),
-    sanitizeStatus(row.orderStatus),
-    String(row.paymentMethod || "").toUpperCase(),
-    String(row.paymentStatus || "").toUpperCase(),
-    formatCurrency(row.subtotal),
-    formatCurrency(row.couponDiscount),
-    formatCurrency(row.offerDiscount),
-    formatCurrency(row.totalDiscount),
-    formatCurrency(row.grandTotal)
-  ]);
+  const rows = reportData.rows
+    .slice(0, 30)
+    .map((row) => [
+      row.orderId,
+      formatDate(row.orderDate),
+      sanitizeStatus(row.orderStatus),
+      String(row.paymentMethod || "").toUpperCase(),
+      String(row.paymentStatus || "").toUpperCase(),
+      formatCurrency(row.subtotal),
+      formatCurrency(row.couponDiscount),
+      formatCurrency(row.offerDiscount),
+      formatCurrency(row.totalDiscount),
+      formatCurrency(row.grandTotal)
+    ]);
 
   const tableX = leftMargin;
   let y = doc.y + 8;
@@ -171,7 +176,7 @@ export function generateSalesReportPdf(reportData, res) {
     y += rowHeight;
   });
 
-    // Totals row
+  // Totals row
   const totals = [
     "TOTAL",
     "",
@@ -198,19 +203,26 @@ export function generateSalesReportPdf(reportData, res) {
   let totalX = tableX + 3;
   totals.forEach((cell, i) => {
     const alignRight = i >= 5;
-    doc.font("Helvetica-Bold").fontSize(8.5).fillColor("#0f172a").text(String(cell), totalX, y + 6, {
-      width: colWidths[i] - 6,
-      align: alignRight ? "right" : "left",
-      lineBreak: false,
-      ellipsis: true
-    });
+    doc
+      .font("Helvetica-Bold")
+      .fontSize(8.5)
+      .fillColor("#0f172a")
+      .text(String(cell), totalX, y + 6, {
+        width: colWidths[i] - 6,
+        align: alignRight ? "right" : "left",
+        lineBreak: false,
+        ellipsis: true
+      });
     totalX += colWidths[i];
   });
 
   y += rowHeight;
 
-  doc.moveTo(tableX, y + 1).lineTo(tableX + tableWidth, y + 1).strokeColor("#d9e6e3").stroke();
+  doc
+    .moveTo(tableX, y + 1)
+    .lineTo(tableX + tableWidth, y + 1)
+    .strokeColor("#d9e6e3")
+    .stroke();
 
   doc.end();
 }
-

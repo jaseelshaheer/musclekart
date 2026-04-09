@@ -10,7 +10,7 @@ export const loginAdmin = async (req, res) => {
 
     const token = generateToken({
       userId: admin._id,
-      role: admin.role,
+      role: admin.role
     });
 
     res.status(HTTP_STATUS.OK).json({
@@ -19,15 +19,14 @@ export const loginAdmin = async (req, res) => {
         token,
         admin: {
           id: admin._id,
-          email: admin.email,
-        },
-      },
+          email: admin.email
+        }
+      }
     });
-
   } catch (err) {
     res.status(HTTP_STATUS.UNAUTHORIZED).json({
       success: false,
-      message: err.message,
+      message: err.message
     });
   }
 };

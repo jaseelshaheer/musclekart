@@ -10,7 +10,6 @@ import {
 } from "../../services/user/order.service.js";
 import { generateInvoicePdf } from "../../utils/generateInvoice.js";
 
-
 export const getOrderSuccessPage = async (req, res) => {
   const { orderId } = req.params;
 
@@ -55,13 +54,9 @@ export const getOrderDetailPage = async (req, res) => {
   });
 };
 
-
 export const getOrderDetailData = async (req, res) => {
   try {
-    const order = await getUserOrderByOrderIdService(
-      req.user.id,
-      req.params.orderId
-    );
+    const order = await getUserOrderByOrderIdService(req.user.id, req.params.orderId);
 
     res.status(HTTP_STATUS.OK).json({
       success: true,
@@ -75,15 +70,9 @@ export const getOrderDetailData = async (req, res) => {
   }
 };
 
-
-
 export const cancelOrder = async (req, res) => {
   try {
-    const result = await cancelOrderService(
-      req.user.id,
-      req.params.orderId,
-      req.body.reason
-    );
+    const result = await cancelOrderService(req.user.id, req.params.orderId, req.body.reason);
 
     res.status(HTTP_STATUS.OK).json({
       success: true,
@@ -120,15 +109,9 @@ export const cancelOrderItem = async (req, res) => {
   }
 };
 
-
-
 export const returnOrder = async (req, res) => {
   try {
-    const result = await returnOrderService(
-      req.user.id,
-      req.params.orderId,
-      req.body.reason
-    );
+    const result = await returnOrderService(req.user.id, req.params.orderId, req.body.reason);
 
     res.status(HTTP_STATUS.OK).json({
       success: true,
@@ -165,8 +148,6 @@ export const returnOrderItem = async (req, res) => {
   }
 };
 
-
-
 export const downloadInvoice = async (req, res) => {
   try {
     const order = await getUserOrderInvoiceService(req.user.id, req.params.orderId);
@@ -178,6 +159,3 @@ export const downloadInvoice = async (req, res) => {
     });
   }
 };
-
-
-

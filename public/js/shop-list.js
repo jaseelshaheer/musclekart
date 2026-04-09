@@ -15,9 +15,7 @@ const shopNoticeData = document.getElementById("shopNoticeData");
 const shopVariantModal = document.getElementById("shopVariantModal");
 const shopVariantOptions = document.getElementById("shopVariantOptions");
 const shopVariantModalTitle = document.getElementById("shopVariantModalTitle");
-const shopVariantAddToCartBtn = document.getElementById(
-  "shopVariantAddToCartBtn",
-);
+const shopVariantAddToCartBtn = document.getElementById("shopVariantAddToCartBtn");
 
 let wishlistedProductIds = new Set();
 let cartVariantQuantities = new Map();
@@ -36,8 +34,8 @@ async function loadCartVariantQuantities() {
   try {
     const res = await fetch("/cart/data", {
       headers: {
-        Authorization: `Bearer ${token}`,
-      },
+        Authorization: `Bearer ${token}`
+      }
     });
 
     const data = await res.json();
@@ -48,10 +46,7 @@ async function loadCartVariantQuantities() {
     }
 
     cartVariantQuantities = new Map(
-      (data.data.items || []).map((item) => [
-        String(item.variant_id),
-        Number(item.quantity) || 0,
-      ]),
+      (data.data.items || []).map((item) => [String(item.variant_id), Number(item.quantity) || 0])
     );
   } catch {
     cartVariantQuantities = new Map();
@@ -68,9 +63,7 @@ function renderShopVariantOptions(variants) {
   shopVariantOptions.innerHTML = variants
     .map((variant) => {
       const attrs = variant.attributes?.length
-        ? variant.attributes
-            .map((attr) => `${attr.type}: ${attr.value}`)
-            .join(" / ")
+        ? variant.attributes.map((attr) => `${attr.type}: ${attr.value}`).join(" / ")
         : "Standard Variant";
       const cartQty = getCartQuantityForVariant(variant._id);
       const remainingQty = Math.max((variant.stock_qty || 0) - cartQty, 0);
@@ -123,8 +116,7 @@ function syncShopVariantAddToCartBtnState() {
 }
 
 async function openShopVariantModal(productId, productName, variants) {
-  if (!shopVariantModal || !shopVariantOptions || !shopVariantModalTitle)
-    return;
+  if (!shopVariantModal || !shopVariantOptions || !shopVariantModalTitle) return;
 
   await loadCartVariantQuantities();
 
@@ -135,8 +127,7 @@ async function openShopVariantModal(productId, productName, variants) {
   renderShopVariantOptions(variants);
 
   const firstAvailable = variants.find(
-    (variant) =>
-      Math.max((variant.stock_qty || 0) - getCartQuantityForVariant(variant._id), 0) > 0,
+    (variant) => Math.max((variant.stock_qty || 0) - getCartQuantityForVariant(variant._id), 0) > 0
   );
   if (firstAvailable) {
     selectedVariantForModal = firstAvailable._id;
@@ -159,10 +150,7 @@ function closeShopVariantModal() {
 
 function highlightSelectedVariantCard() {
   document.querySelectorAll(".shop-variant-option-card").forEach((card) => {
-    card.classList.toggle(
-      "active",
-      card.dataset.variantId === String(selectedVariantForModal),
-    );
+    card.classList.toggle("active", card.dataset.variantId === String(selectedVariantForModal));
   });
 
   syncShopVariantAddToCartBtnState();
@@ -180,8 +168,8 @@ async function loadWishlistState() {
   try {
     const res = await fetch("/wishlist/data", {
       headers: {
-        Authorization: `Bearer ${token}`,
-      },
+        Authorization: `Bearer ${token}`
+      }
     });
 
     const data = await res.json();
@@ -192,9 +180,7 @@ async function loadWishlistState() {
       return;
     }
 
-    wishlistedProductIds = new Set(
-      (data.data.items || []).map((item) => String(item.product_id)),
-    );
+    wishlistedProductIds = new Set((data.data.items || []).map((item) => String(item.product_id)));
 
     syncWishlistIcons();
   } catch {
@@ -209,10 +195,7 @@ function syncWishlistIcons() {
     const isActive = wishlistedProductIds.has(productId);
 
     button.classList.toggle("active", isActive);
-    button.setAttribute(
-      "aria-label",
-      isActive ? "Remove from wishlist" : "Add to wishlist",
-    );
+    button.setAttribute("aria-label", isActive ? "Remove from wishlist" : "Add to wishlist");
   });
 }
 
@@ -226,21 +209,18 @@ async function toggleWishlist(productId) {
 
   const isWishlisted = wishlistedProductIds.has(String(productId));
 
-  const res = await fetch(
-    isWishlisted ? `/wishlist/${productId}` : "/wishlist",
-    {
-      method: isWishlisted ? "DELETE" : "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      ...(isWishlisted
-        ? {}
-        : {
-            body: JSON.stringify({ productId }),
-          }),
+  const res = await fetch(isWishlisted ? `/wishlist/${productId}` : "/wishlist", {
+    method: isWishlisted ? "DELETE" : "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`
     },
-  );
+    ...(isWishlisted
+      ? {}
+      : {
+          body: JSON.stringify({ productId })
+        })
+  });
 
   const data = await res.json();
 
@@ -257,9 +237,8 @@ async function toggleWishlist(productId) {
 
   syncWishlistIcons();
   showToast(
-    data.message ||
-      (isWishlisted ? "Removed from wishlist" : "Added to wishlist"),
-    "success",
+    data.message || (isWishlisted ? "Removed from wishlist" : "Added to wishlist"),
+    "success"
   );
 }
 
@@ -275,13 +254,13 @@ async function addProductToCart(productId, variantId) {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
+      Authorization: `Bearer ${token}`
     },
     body: JSON.stringify({
       productId,
       variantId,
-      quantity: 1,
-    }),
+      quantity: 1
+    })
   });
 
   const data = await res.json();
@@ -315,7 +294,7 @@ function getCurrentFilters() {
     brand: brandSelect?.value || "",
     minPrice: minPriceInput?.value || "",
     maxPrice: maxPriceInput?.value || "",
-    page: currentPage,
+    page: currentPage
   };
 }
 
@@ -340,8 +319,7 @@ function formatCurrency(value) {
 function renderShopPriceBlock(product) {
   const hasOffer = Boolean(product.has_offer);
 
-  const isRange =
-    Number(product.min_final_price || 0) !== Number(product.max_final_price || 0);
+  const isRange = Number(product.min_final_price || 0) !== Number(product.max_final_price || 0);
 
   const finalPriceText = isRange
     ? `${formatCurrency(product.min_final_price)} - ${formatCurrency(product.max_final_price)}`
@@ -359,18 +337,12 @@ function renderShopPriceBlock(product) {
       </span>
 
       <div class="shop-price-stack">
-        ${
-          hasOffer
-            ? `<span class="shop-price-original">${originalPriceText}</span>`
-            : ""
-        }
+        ${hasOffer ? `<span class="shop-price-original">${originalPriceText}</span>` : ""}
         <strong class="shop-price-final">${finalPriceText}</strong>
       </div>
     </div>
   `;
 }
-
-
 
 function renderProducts(products) {
   if (!shopResults) return;
@@ -389,14 +361,10 @@ function renderProducts(products) {
     <div class="shop-grid">
       ${products
         .map((product) => {
-
-          const brandPart = product.brand_name
-            ? ` • ${product.brand_name}`
-            : "";
+          const brandPart = product.brand_name ? ` • ${product.brand_name}` : "";
 
           const stockClass = product.total_stock > 0 ? "in-stock" : "out-stock";
-          const stockText =
-            product.total_stock > 0 ? "In stock" : "Out of stock";
+          const stockText = product.total_stock > 0 ? "In stock" : "Out of stock";
 
           return `
             <article class="shop-card" data-product-id="${product._id}">
@@ -530,8 +498,8 @@ async function loadShopProducts() {
   try {
     const res = await fetch(`/shop/data?${queryString}`, {
       headers: {
-        Accept: "application/json",
-      },
+        Accept: "application/json"
+      }
     });
 
     const data = await res.json();
@@ -668,9 +636,7 @@ if (shopVariantOptions) {
 document
   .getElementById("closeShopVariantModalBtn")
   ?.addEventListener("click", closeShopVariantModal);
-document
-  .getElementById("shopVariantCancelBtn")
-  ?.addEventListener("click", closeShopVariantModal);
+document.getElementById("shopVariantCancelBtn")?.addEventListener("click", closeShopVariantModal);
 document
   .getElementById("shopVariantModalBackdrop")
   ?.addEventListener("click", closeShopVariantModal);
@@ -681,10 +647,7 @@ shopVariantAddToCartBtn?.addEventListener("click", async () => {
     return;
   }
 
-  const success = await addProductToCart(
-    selectedProductForModal,
-    selectedVariantForModal,
-  );
+  const success = await addProductToCart(selectedProductForModal, selectedVariantForModal);
   if (success) {
     closeShopVariantModal();
   }
@@ -701,9 +664,7 @@ window.addEventListener("load", () => {
 
   const cleanUrl =
     window.location.pathname +
-    window.location.search
-      .replace(/([?&])notice=[^&]*&?/, "$1")
-      .replace(/[?&]$/, "");
+    window.location.search.replace(/([?&])notice=[^&]*&?/, "$1").replace(/[?&]$/, "");
 
   window.history.replaceState({}, "", cleanUrl || "/shop");
 });

@@ -3,13 +3,12 @@ document.addEventListener("DOMContentLoaded", () => {
   if (!form) return;
 
   // password visibility
-  document.querySelectorAll(".toggle-password").forEach(icon => {
+  document.querySelectorAll(".toggle-password").forEach((icon) => {
     icon.addEventListener("click", () => {
       const input = icon.previousElementSibling;
       input.type = input.type === "password" ? "text" : "password";
     });
   });
-  
 
   const passwordInput = form.querySelector("input[name='password']");
   const confirmInput = form.querySelector("input[name='confirmPassword']");
@@ -51,7 +50,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-
   passwordInput.addEventListener("input", () => {
     const value = passwordInput.value.trim();
 
@@ -88,7 +86,7 @@ document.addEventListener("DOMContentLoaded", () => {
       window.location.href = "/forgot-password";
       return;
     }
-    
+
     if (!password || !confirmPassword) {
       showFieldError(confirmInput, "*Required");
       showFieldError(passwordInput, "*Required");
@@ -100,8 +98,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    const strongPasswordRegex =
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/;
+    const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/;
 
     if (!strongPasswordRegex.test(password)) {
       showFieldError(
@@ -117,8 +114,8 @@ document.addEventListener("DOMContentLoaded", () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email,
-          newPassword: password,
-        }),
+          newPassword: password
+        })
       });
 
       const data = await res.json();
@@ -132,7 +129,6 @@ document.addEventListener("DOMContentLoaded", () => {
       sessionStorage.removeItem("resetVerified");
 
       window.location.href = "/login";
-
     } catch {
       showFormError("Something went wrong. Please try again.");
     }
@@ -168,7 +164,6 @@ function showFormError(message) {
 }
 
 function clearErrors() {
-  document.querySelectorAll(".field-error").forEach(el => el.remove());
-  document.querySelectorAll(".input-error").forEach(el => el.classList.remove("input-error"));
+  document.querySelectorAll(".field-error").forEach((el) => el.remove());
+  document.querySelectorAll(".input-error").forEach((el) => el.classList.remove("input-error"));
 }
-

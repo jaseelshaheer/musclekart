@@ -19,9 +19,7 @@ function fillYearOptions() {
   const current = new Date().getFullYear();
   const years = Array.from({ length: 6 }, (_, i) => current - i);
 
-  yearFilter.innerHTML = years
-    .map((year) => `<option value="${year}">${year}</option>`)
-    .join("");
+  yearFilter.innerHTML = years.map((year) => `<option value="${year}">${year}</option>`).join("");
 }
 
 function renderBarChart(rows) {
@@ -32,10 +30,11 @@ function renderBarChart(rows) {
 
   const maxAmount = Math.max(...rows.map((item) => Number(item.orderAmount || 0)), 1);
 
-  chartList.innerHTML = rows.map((row) => {
-    const width = Math.max(6, Math.round((Number(row.orderAmount || 0) / maxAmount) * 100));
+  chartList.innerHTML = rows
+    .map((row) => {
+      const width = Math.max(6, Math.round((Number(row.orderAmount || 0) / maxAmount) * 100));
 
-    return `
+      return `
       <div class="dashboard-chart-row">
         <span class="dashboard-chart-label">${row.label}</span>
         <div class="dashboard-chart-bar-wrap">
@@ -44,7 +43,8 @@ function renderBarChart(rows) {
         <span class="dashboard-chart-value">${formatCurrency(row.orderAmount)}</span>
       </div>
     `;
-  }).join("");
+    })
+    .join("");
 }
 
 function renderRankList(container, rows, metricKey) {
@@ -53,7 +53,9 @@ function renderRankList(container, rows, metricKey) {
     return;
   }
 
-  container.innerHTML = rows.map((row, index) => `
+  container.innerHTML = rows
+    .map(
+      (row, index) => `
     <div class="dashboard-rank-row">
       <span class="dashboard-rank-index">${index + 1}</span>
       <span class="dashboard-rank-name">${row.name}</span>
@@ -61,7 +63,9 @@ function renderRankList(container, rows, metricKey) {
         ${metricKey === "revenue" ? formatCurrency(row[metricKey]) : row[metricKey]}
       </span>
     </div>
-  `).join("");
+  `
+    )
+    .join("");
 }
 
 async function loadDashboardData() {

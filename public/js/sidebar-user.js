@@ -5,8 +5,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   try {
     const res = await fetch("/user/profile", {
       headers: {
-        Authorization: `Bearer ${token}`,
-      },
+        Authorization: `Bearer ${token}`
+      }
     });
 
     const data = await res.json();
@@ -15,9 +15,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const user = data.data;
 
     if (user.authProvider === "google") {
-      const changePasswordItem = document.querySelector(
-        'a[href="/profile/change-password"]'
-      );
+      const changePasswordItem = document.querySelector('a[href="/profile/change-password"]');
 
       if (changePasswordItem) {
         changePasswordItem.closest("li").style.display = "none";
@@ -34,13 +32,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (nameEl) {
       nameEl.textContent = `${user.firstName || ""} ${user.lastName || ""}`.trim() || "User";
     }
-
   } catch (err) {
     console.error("Sidebar user load failed");
   }
 });
-
-
 
 // Sidebar logout
 const sidebarLogout = document.getElementById("sidebarLogout");

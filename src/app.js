@@ -1,4 +1,4 @@
-import express from "express"
+import express from "express";
 // import { attachUserToViews } from "./middlewares/view.middleware.js";
 import authRoutes from "./routes/user/auth.routes.js";
 import adminUserRoutes from "./routes/admin/user.routes.js";
@@ -14,10 +14,10 @@ import { errorHandler } from "./middlewares/error.middleware.js";
 import passport from "./config/passport.js";
 import nocache from "nocache";
 // import helmet from "helmet";
-import adminCategoryRoutes from "./routes/admin/adminCategory.routes.js"
-import adminBrandRoutes from "./routes/admin/adminBrand.routes.js"
-import adminProductRoutes from "./routes/admin/product.routes.js"
-import userProductRoutes from "./routes/user/shop.routes.js"
+import adminCategoryRoutes from "./routes/admin/adminCategory.routes.js";
+import adminBrandRoutes from "./routes/admin/adminBrand.routes.js";
+import adminProductRoutes from "./routes/admin/product.routes.js";
+import userProductRoutes from "./routes/user/shop.routes.js";
 import cartRoutes from "./routes/user/cart.routes.js";
 import checkoutRoutes from "./routes/user/checkout.routes.js";
 import orderRoutes from "./routes/user/order.routes.js";
@@ -29,12 +29,9 @@ import walletRoutes from "./routes/user/wallet.routes.js";
 import paymentRoutes from "./routes/user/payment.routes.js";
 import adminReportRoutes from "./routes/admin/adminReport.routes.js";
 
-
-
 const app = express();
 
 // app.use(helmet());
-
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -52,7 +49,7 @@ app.use(express.static(path.join(__dirname, "..", "public")));
 app.set("trust proxy", 1);
 
 app.use(express.json({ limit: "10kb" }));
-app.use(express.urlencoded({extended: true, limit: "10kb" }));
+app.use(express.urlencoded({ extended: true, limit: "10kb" }));
 app.use(nocache());
 
 app.use((req, res, next) => {
@@ -60,7 +57,7 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use('/auth', authRoutes);
+app.use("/auth", authRoutes);
 app.use("/admin", adminUserRoutes);
 app.use("/admin", adminPagesRoutes);
 app.use("/admin", adminAuthRoutes);
@@ -81,8 +78,6 @@ app.use("/", wishlistRoutes);
 app.use("/", couponRoutes);
 app.use("/", paymentRoutes);
 app.use("/", walletRoutes);
-
-
 
 app.use("/", userPageRoutes);
 

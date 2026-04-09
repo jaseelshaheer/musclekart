@@ -23,12 +23,11 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-
     try {
       const res = await fetch("/auth/forgot-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email })
       });
 
       const result = await res.json();
@@ -41,13 +40,11 @@ document.addEventListener("DOMContentLoaded", () => {
       sessionStorage.setItem("resetEmail", email);
 
       window.location.href = "/verify-otp?type=reset";
-
     } catch {
       showFormError("Something went wrong. Please try again.");
     }
   });
 });
-
 
 function showFieldError(input, message) {
   input.classList.add("input-error");
@@ -76,6 +73,6 @@ function showFormError(message) {
 }
 
 function clearErrors() {
-  document.querySelectorAll(".field-error").forEach(el => el.remove());
-  document.querySelectorAll(".input-error").forEach(el => el.classList.remove("input-error"));
+  document.querySelectorAll(".field-error").forEach((el) => el.remove());
+  document.querySelectorAll(".input-error").forEach((el) => el.classList.remove("input-error"));
 }

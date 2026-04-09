@@ -22,7 +22,6 @@ function renderCart(data) {
     return;
   }
 
-
   cartContent.innerHTML = `
     <div class="cart-layout">
       <div class="cart-items" id="cartItems">
@@ -191,7 +190,6 @@ function renderCart(data) {
   `;
 }
 
-
 async function loadCart() {
   const res = await fetch("/cart/data", {
     headers: {
@@ -208,9 +206,6 @@ async function loadCart() {
 
   renderCart(data.data);
 }
-
-
-
 
 const cartContent = document.getElementById("cartContent");
 
@@ -318,10 +313,7 @@ if (cartContent) {
 
       return;
     }
-
   });
 }
-
-
 
 loadCart();

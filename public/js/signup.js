@@ -3,7 +3,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (!signupForm) return;
 
   // password visibility
-  document.querySelectorAll(".toggle-password").forEach(icon => {
+  document.querySelectorAll(".toggle-password").forEach((icon) => {
     icon.addEventListener("click", () => {
       const input = icon.previousElementSibling;
       input.type = input.type === "password" ? "text" : "password";
@@ -17,7 +17,7 @@ document.addEventListener("DOMContentLoaded", () => {
     phone: signupForm.querySelector('input[name="phone"]'),
     password: signupForm.querySelector('input[name="password"]'),
     confirmPassword: signupForm.querySelector('input[name="confirmPassword"]'),
-    referralCode: signupForm.querySelector('input[name="referralCode"]'),
+    referralCode: signupForm.querySelector('input[name="referralCode"]')
   };
 
   let referralTokenFromUrl = "";
@@ -29,9 +29,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!refToken || !fields.referralCode) return;
 
     try {
-      const res = await fetch(
-        `/auth/referral/resolve?ref=${encodeURIComponent(refToken)}`,
-      );
+      const res = await fetch(`/auth/referral/resolve?ref=${encodeURIComponent(refToken)}`);
       const data = await res.json();
 
       if (!res.ok || !data.success) {
@@ -47,7 +45,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   applyReferralTokenFromUrl();
-  
+
   function removeStrengthMessage(input) {
     const existing = input.parentElement.querySelector(".password-strength");
     if (existing) existing.remove();
@@ -74,7 +72,10 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log(score);
 
     if (!lengthValid || score <= 1) {
-      return { level: "weak", text: "Weak password - Must contain 8+ characters, uppercase, lowercase, number & special character" };
+      return {
+        level: "weak",
+        text: "Weak password - Must contain 8+ characters, uppercase, lowercase, number & special character"
+      };
     }
 
     if (score === 2 || score === 3) {
@@ -85,7 +86,6 @@ document.addEventListener("DOMContentLoaded", () => {
       return { level: "strong", text: "Strong password ✓" };
     }
   }
-
 
   function showFieldError(input, message) {
     removeFieldError(input);
@@ -105,7 +105,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function clearErrors() {
-    Object.values(fields).forEach(input => removeFieldError(input));
+    Object.values(fields).forEach((input) => removeFieldError(input));
   }
 
   fields.password.addEventListener("input", () => {
@@ -130,7 +130,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-
   function validate(payload) {
     clearErrors();
     let valid = true;
@@ -153,8 +152,7 @@ document.addEventListener("DOMContentLoaded", () => {
       valid = false;
     }
 
-    const strongPasswordRegex =
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/;
+    const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/;
 
     if (!strongPasswordRegex.test(payload.password)) {
       showFieldError(
@@ -171,8 +169,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     return valid;
   }
-  
-  
 
   signupForm.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -185,7 +181,7 @@ document.addEventListener("DOMContentLoaded", () => {
       password: fields.password.value,
       confirmPassword: fields.confirmPassword.value,
       referralCode: fields.referralCode?.value.trim() || "",
-      referralToken: referralTokenFromUrl,
+      referralToken: referralTokenFromUrl
     };
 
     if (!validate(payload)) return;
@@ -194,9 +190,9 @@ document.addEventListener("DOMContentLoaded", () => {
       const res = await fetch("/auth/signup", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
+          "Content-Type": "application/json"
         },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(payload)
       });
 
       const data = await res.json();
@@ -219,7 +215,6 @@ document.addEventListener("DOMContentLoaded", () => {
       sessionStorage.setItem("signupEmail", payload.email);
       sessionStorage.setItem("signupReferralUsed", payload.referralCode ? "true" : "false");
       window.location.href = "/verify-otp?type=signup";
-
     } catch (err) {
       showFieldError(fields.firstName, "Something went wrong. Please try again.");
     }

@@ -21,7 +21,6 @@ document.addEventListener("DOMContentLoaded", () => {
   let emailOtpTimeLeft = 30;
   let emailOtpInterval = null;
 
-
   if (openBtn) {
     openBtn.addEventListener("click", () => {
       emailModal.classList.remove("hidden");
@@ -34,18 +33,19 @@ document.addEventListener("DOMContentLoaded", () => {
     newEmailInput.value = "";
   };
 
-  window.closeOtpModal = function () {
+  function closeOtpModal() {
     otpModal.classList.add("hidden");
     stopTimer();
     otpInput.value = "";
     otpError.textContent = "";
-  };
+  }
+
+  window.closeOtpModal = closeOtpModal;
 
   function openOtpModal() {
     otpModal.classList.remove("hidden");
     startTimer();
   }
-
 
   function startTimer() {
     clearInterval(emailOtpInterval);
@@ -70,7 +70,6 @@ document.addEventListener("DOMContentLoaded", () => {
       clearInterval(emailOtpInterval);
     }
   }
-
 
   window.requestEmailChange = async function () {
     emailError.textContent = "";
@@ -97,9 +96,9 @@ document.addEventListener("DOMContentLoaded", () => {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${token}`
         },
-        body: JSON.stringify({ newEmail: email }),
+        body: JSON.stringify({ newEmail: email })
       });
 
       const data = await res.json();
@@ -111,66 +110,62 @@ document.addEventListener("DOMContentLoaded", () => {
 
       emailModal.classList.add("hidden");
       openOtpModal();
-
     } catch {
       emailError.textContent = "Something went wrong. Try again.";
     }
   };
 
-verifyBtn.addEventListener("click", async () => {
+  verifyBtn.addEventListener("click", async () => {
     otpError.textContent = "";
 
     const otp = otpInput.value.trim();
 
     if (!/^\d{6}$/.test(otp)) {
-        otpError.textContent = "Enter valid 6-digit OTP";
-        return;
+      otpError.textContent = "Enter valid 6-digit OTP";
+      return;
     }
 
     try {
-        const res = await fetch("/user/profile/email/verify", {
+      const res = await fetch("/user/profile/email/verify", {
         method: "POST",
         headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
         },
-        body: JSON.stringify({ otp }),
-        });
+        body: JSON.stringify({ otp })
+      });
 
-        const data = await res.json();
+      const data = await res.json();
 
-        if (!data.success) {
+      if (!data.success) {
         otpError.textContent = data.message;
         return;
-        }
+      }
 
-        const editEmailInput = document.getElementById("currentEmail");
-        const editEmailMessage = document.getElementById("editEmailMessage");
+      const editEmailInput = document.getElementById("currentEmail");
+      const editEmailMessage = document.getElementById("editEmailMessage");
 
-        const updatedEmail = newEmailInput.value.trim();
+      const updatedEmail = newEmailInput.value.trim();
 
-        if (currentEmail) {
-            currentEmail.textContent = updatedEmail;
-        }
+      if (currentEmail) {
+        currentEmail.textContent = updatedEmail;
+      }
 
-        if (editEmailInput) {
-            editEmailInput.value = updatedEmail;
-        }
+      if (editEmailInput) {
+        editEmailInput.value = updatedEmail;
+      }
 
-        if (editEmailMessage) {
-            editEmailMessage.textContent = "Email updated successfully";
+      if (editEmailMessage) {
+        editEmailMessage.textContent = "Email updated successfully";
         editEmailMessage.style.color = "#16a34a";
-        }
+      }
 
-
-        closeOtpModal();
-        newEmailInput.value = "";
-
+      closeOtpModal();
+      newEmailInput.value = "";
     } catch {
-        otpError.textContent = "Verification failed. Try again.";
+      otpError.textContent = "Verification failed. Try again.";
     }
-});
-
+  });
 
   resendBtn.addEventListener("click", async () => {
     otpError.textContent = "";
@@ -182,9 +177,9 @@ verifyBtn.addEventListener("click", async () => {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${token}`
         },
-        body: JSON.stringify({ newEmail }),
+        body: JSON.stringify({ newEmail })
       });
 
       const data = await res.json();
@@ -192,11 +187,8 @@ verifyBtn.addEventListener("click", async () => {
 
       startTimer();
       otpInput.value = "";
-
     } catch (err) {
       otpError.textContent = err.message;
     }
   });
-
 });
-

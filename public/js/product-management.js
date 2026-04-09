@@ -2,7 +2,6 @@ if (!localStorage.getItem("adminToken")) {
   window.location.href = "/admin/login";
 }
 
-
 let page = 1;
 let totalPages = 1;
 const limit = 10;
@@ -12,11 +11,9 @@ const searchInput = document.getElementById("searchInput");
 const pageInfo = document.getElementById("pageInfo");
 const addProductBtn = document.getElementById("addProductBtn");
 
-
 function getAdminToken() {
   return localStorage.getItem("adminToken");
 }
-
 
 addProductBtn.onclick = () => {
   const token = getAdminToken();
@@ -30,7 +27,6 @@ addProductBtn.onclick = () => {
 };
 
 async function loadProducts() {
-
   const token = getAdminToken();
 
   if (!token) {
@@ -41,14 +37,11 @@ async function loadProducts() {
 
   const search = searchInput.value;
 
-  const res = await fetch(
-  `/admin/products?page=${page}&limit=${limit}&search=${search}`,
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+  const res = await fetch(`/admin/products?page=${page}&limit=${limit}&search=${search}`, {
+    headers: {
+      Authorization: `Bearer ${token}`
     }
-  );
+  });
 
   // if (!res.ok) {
   //   const text = await res.text();
@@ -62,8 +55,7 @@ async function loadProducts() {
 
   table.innerHTML = "";
 
-  data.data.products.forEach(product => {
-
+  data.data.products.forEach((product) => {
     const tr = document.createElement("tr");
 
     tr.innerHTML = `
@@ -85,9 +77,7 @@ async function loadProducts() {
       <td>${product.total_stock || 0}</td>
 
       <td>
-        <span class="${
-          product.isActive ? "status-active" : "status-blocked"
-        }">
+        <span class="${product.isActive ? "status-active" : "status-blocked"}">
           ${product.isActive ? "Listed" : "Unlisted"}
         </span>
       </td>
@@ -121,59 +111,42 @@ async function loadProducts() {
     `;
 
     table.appendChild(tr);
-
   });
 
-  pageInfo.textContent =
-    `Page ${data.data.currentPage} of ${data.data.totalPages}`;
+  pageInfo.textContent = `Page ${data.data.currentPage} of ${data.data.totalPages}`;
 
   totalPages = data.data.totalPages;
 }
-
-
-
-
-
 
 /* -----------------------------
    TOGGLE PRODUCT STATUS
 ------------------------------ */
 
 async function toggleProductStatus(productId, isActive) {
-  showConfirm(
-    isActive ? "Unlist this product?" : "List this product?",
-    async () => {
-      const res = await fetch(`/admin/products/${productId}/status`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${getAdminToken()}`,
-        },
-      });
-
-      const data = await res.json();
-
-      if (!data.success) {
-        showAlertModal(data.message || "Failed to update product status");
-        return;
+  showConfirm(isActive ? "Unlist this product?" : "List this product?", async () => {
+    const res = await fetch(`/admin/products/${productId}/status`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${getAdminToken()}`
       }
+    });
 
-      showToast(
-        isActive
-          ? "Product unlisted successfully."
-          : "Product listed successfully.",
-        "success",
-      );
+    const data = await res.json();
 
-      loadProducts();
-    },
-  );
+    if (!data.success) {
+      showAlertModal(data.message || "Failed to update product status");
+      return;
+    }
+
+    showToast(
+      isActive ? "Product unlisted successfully." : "Product listed successfully.",
+      "success"
+    );
+
+    loadProducts();
+  });
 }
-
-
-
-
-
 
 /* -----------------------------
    DELETE PRODUCT
@@ -184,8 +157,8 @@ async function deleteProduct(productId) {
     const res = await fetch(`/admin/products/${productId}`, {
       method: "DELETE",
       headers: {
-        Authorization: `Bearer ${getAdminToken()}`,
-      },
+        Authorization: `Bearer ${getAdminToken()}`
+      }
     });
 
     const data = await res.json();
@@ -200,10 +173,6 @@ async function deleteProduct(productId) {
   });
 }
 
-
-
-
-
 /* -----------------------------
    EDIT PRODUCT
 ------------------------------ */
@@ -211,9 +180,6 @@ async function deleteProduct(productId) {
 function editProduct(productId) {
   window.location.href = `/admin/products/${productId}/edit`;
 }
-
-
-
 
 /* -----------------------------
    PAGINATION
@@ -233,10 +199,6 @@ document.getElementById("nextBtn").onclick = () => {
   }
 };
 
-
-
-
-
 /* -----------------------------
    SEARCH
 ------------------------------ */
@@ -251,7 +213,5 @@ document.getElementById("clearSearch").onclick = () => {
   page = 1;
   loadProducts();
 };
-
-
 
 loadProducts();

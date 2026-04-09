@@ -48,7 +48,6 @@ export const createCoupon = async (req, res) => {
   }
 };
 
-
 export const getCouponById = async (req, res) => {
   try {
     const coupon = await getCouponByIdService(req.params.couponId);
@@ -82,8 +81,6 @@ export const updateCoupon = async (req, res) => {
   }
 };
 
-
-
 export const toggleCouponStatus = async (req, res) => {
   try {
     const coupon = await toggleCouponStatusService(req.params.couponId);
@@ -100,7 +97,6 @@ export const toggleCouponStatus = async (req, res) => {
     });
   }
 };
-
 
 export const deleteCoupon = async (req, res) => {
   try {

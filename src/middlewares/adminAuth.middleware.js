@@ -8,7 +8,7 @@ export const adminAuth = (req, res, next) => {
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
       return res.status(HTTP_STATUS.UNAUTHORIZED).json({
         success: false,
-        message: "Authorization token missing",
+        message: "Authorization token missing"
       });
     }
 
@@ -19,18 +19,17 @@ export const adminAuth = (req, res, next) => {
     if (decoded.role !== "admin") {
       return res.status(HTTP_STATUS.FORBIDDEN).json({
         success: false,
-        message: "Admin access denied",
+        message: "Admin access denied"
       });
     }
 
-    req.admin = decoded; 
+    req.admin = decoded;
 
     next();
-
-  } catch (error) {
+  } catch{
     return res.status(HTTP_STATUS.UNAUTHORIZED).json({
       success: false,
-      message: "Invalid or expired token",
+      message: "Invalid or expired token"
     });
   }
 };

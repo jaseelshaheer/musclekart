@@ -19,29 +19,19 @@ import {
 
 const router = express.Router();
 
-
-
 router.get("/products-list", renderProductsPage);
 router.get("/products/create", renderCreateProductPage);
 router.get("/products/:productId/edit", renderEditProductPage);
 
-
 router.get("/products", adminAuth, getProducts);
 router.get("/products/:productId", adminAuth, getProductById);
-
 
 const uploadFields = upload.fields([
   { name: "main_images", maxCount: 10 },
   { name: "gallery_images", maxCount: 30 }
 ]);
 
-router.post(
-  "/products",
-  adminAuth,
-  uploadFields,
-  validateProductPayload,
-  createProduct
-);
+router.post("/products", adminAuth, uploadFields, validateProductPayload, createProduct);
 
 router.patch(
   "/products/:productId",
@@ -51,16 +41,8 @@ router.patch(
   updateProduct
 );
 
-router.delete(
-  "/products/:productId",
-  adminAuth,
-  deleteProduct
-);
+router.delete("/products/:productId", adminAuth, deleteProduct);
 
-router.patch(
-  "/products/:productId/status",
-  adminAuth,
-  toggleProductStatus
-);
+router.patch("/products/:productId/status", adminAuth, toggleProductStatus);
 
 export default router;

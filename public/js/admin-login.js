@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (!form) return;
 
-  document.querySelectorAll(".toggle-password").forEach(icon => {
+  document.querySelectorAll(".toggle-password").forEach((icon) => {
     icon.addEventListener("click", () => {
       const input = icon.previousElementSibling;
       input.type = input.type === "password" ? "text" : "password";
@@ -32,9 +32,9 @@ document.addEventListener("DOMContentLoaded", () => {
       const res = await fetch("/admin/auth/login", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
+          "Content-Type": "application/json"
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, password })
       });
 
       const data = await res.json();
@@ -47,10 +47,8 @@ document.addEventListener("DOMContentLoaded", () => {
       localStorage.setItem("role", "admin");
 
       window.location.replace("/admin/dashboard");
-
     } catch (err) {
       errorEl.textContent = err.message;
     }
   });
 });
-

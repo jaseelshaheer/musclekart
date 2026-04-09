@@ -30,10 +30,6 @@ export const getOrders = async (req, res) => {
   }
 };
 
-
-
-
-
 export const getOrderDetailPage = async (req, res) => {
   res.render("admin/order-detail", {
     layout: "layouts/layout",
@@ -60,14 +56,9 @@ export const getOrderDetailData = async (req, res) => {
   }
 };
 
-
-
 export const updateOrderStatus = async (req, res) => {
   try {
-    const result = await updateAdminOrderStatusService(
-      req.params.orderId,
-      req.body.status
-    );
+    const result = await updateAdminOrderStatusService(req.params.orderId, req.body.status);
 
     res.status(HTTP_STATUS.OK).json({
       success: true,
@@ -81,7 +72,6 @@ export const updateOrderStatus = async (req, res) => {
     });
   }
 };
-
 
 export const approveReturnRequest = async (req, res) => {
   try {
@@ -102,10 +92,7 @@ export const approveReturnRequest = async (req, res) => {
 
 export const rejectReturnRequest = async (req, res) => {
   try {
-    const order = await rejectReturnRequestService(
-      req.params.orderId,
-      req.body.reason
-    );
+    const order = await rejectReturnRequestService(req.params.orderId, req.body.reason);
 
     res.status(HTTP_STATUS.OK).json({
       success: true,
@@ -119,5 +106,3 @@ export const rejectReturnRequest = async (req, res) => {
     });
   }
 };
-
-

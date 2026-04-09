@@ -2,13 +2,16 @@ import bcrypt from "bcrypt";
 import User from "../models/user.model.js";
 import { generateOTPService, verifyOTPService } from "./otp.service.js";
 import { sendEmail } from "../utils/email.js";
-import { generateUniqueReferralCode, findReferrerByCode, resolveReferrerFromToken } from "./user/referral.service.js";
+import {
+  generateUniqueReferralCode,
+  findReferrerByCode,
+  resolveReferrerFromToken
+} from "./user/referral.service.js";
 
 export const createUser = async (userData) => {
   const { firstName, lastName, email, password, phone, referralCode, referralToken } = userData;
 
-  const strongPasswordRegex =
-  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/;
+  const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/;
 
   if (!strongPasswordRegex.test(password)) {
     throw new Error(
@@ -59,7 +62,7 @@ export const createUser = async (userData) => {
       <p>Your OTP is:</p>
       <h1>${otp}</h1>
       <p>This OTP is valid for 5 minutes.</p>
-    `,
+    `
   });
 
   return user;
@@ -89,17 +92,13 @@ export const resendSignupOTPService = async (email, type) => {
       <p>Your OTP is:</p>
       <h1>${otp}</h1>
       <p>This OTP is valid for 5 minutes.</p>
-    `,
+    `
   });
 
   return true;
 };
 
-
-
-
-export const verifySignupOTPService = async (email, otp, type="signup") => {
-
+export const verifySignupOTPService = async (email, otp, type = "signup") => {
   const user = await User.findOne({ email });
 
   if (!user) {
@@ -120,7 +119,6 @@ export const verifySignupOTPService = async (email, otp, type="signup") => {
 
   return true;
 };
-
 
 export const loginUser = async (email, password) => {
   const user = await User.findOne({ email }).select("+password");
@@ -146,14 +144,15 @@ export const loginUser = async (email, password) => {
   return user;
 };
 
-
 export const forgotPasswordService = async (email) => {
   const user = await User.findOne({ email });
 
   if (!user) return true;
 
   if (user.authProvider === "google") {
-    throw new Error("Password reset is not allowed for Google accounts. Please login using Google.");
+    throw new Error(
+      "Password reset is not allowed for Google accounts. Please login using Google."
+    );
   }
 
   const otp = await generateOTPService(user._id);
@@ -166,16 +165,14 @@ export const forgotPasswordService = async (email) => {
       <p>Your OTP is:</p>
       <h1>${otp}</h1>
       <p>This OTP is valid for 5 minutes.</p>
-    `,
+    `
   });
 };
-
 
 export const resetPasswordService = async (email, newPassword) => {
   const user = await User.findOne({ email });
 
-  const strongPasswordRegex =
-  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/;
+  const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/;
 
   if (!strongPasswordRegex.test(newPassword)) {
     throw new Error(
@@ -199,9 +196,6 @@ export const resetPasswordService = async (email, newPassword) => {
   return true;
 };
 
-
-
-
 export const adminLogin = async (email, password) => {
   const admin = await User.findOne({ email }).select("+password");
 
@@ -214,7 +208,6 @@ export const adminLogin = async (email, password) => {
   return admin;
 };
 
-
 export const resolveReferralTokenService = async (token) => {
   const { referrer, referralCode } = await resolveReferrerFromToken(token);
 
@@ -223,5 +216,3 @@ export const resolveReferralTokenService = async (token) => {
     referrerName: `${referrer.firstName || ""} ${referrer.lastName || ""}`.trim() || "Friend"
   };
 };
-
-

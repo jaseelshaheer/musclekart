@@ -15,7 +15,6 @@ const attributeSchema = new mongoose.Schema(
   { _id: false }
 );
 
-
 const variantSchema = new mongoose.Schema(
   {
     product_id: {

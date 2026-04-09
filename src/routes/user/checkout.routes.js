@@ -12,5 +12,4 @@ router.get("/checkout", getCheckoutPage);
 router.get("/checkout/data", protect, getCheckoutData);
 router.post("/checkout", protect, placeOrder);
 
-
 export default router;

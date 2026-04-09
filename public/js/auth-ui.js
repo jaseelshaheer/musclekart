@@ -13,7 +13,6 @@ function showAlertAndLogout(message) {
   };
 }
 
-
 function showToast(message, type = "success") {
   const toast = document.getElementById("globalToast");
   const toastMsg = document.getElementById("toastMessage");
@@ -35,7 +34,6 @@ function showToast(message, type = "success") {
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
-  
   const toastData = sessionStorage.getItem("toast");
 
   if (toastData) {
@@ -51,7 +49,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   const guestUI = document.querySelector(".guest-only");
   const userUI = document.querySelector(".user-only");
 
-
   let isUserAuthenticated = false;
 
   if (userToken) {
@@ -61,7 +58,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           Authorization: `Bearer ${userToken}`
         }
       });
-      
+
       if (res.status === 401 || res.status === 403) {
         showAlertAndLogout("Your account has been blocked by admin.");
         return;
@@ -72,33 +69,21 @@ document.addEventListener("DOMContentLoaded", async () => {
       } else {
         localStorage.removeItem("token");
       }
-
     } catch {
       localStorage.removeItem("token");
     }
   }
 
-  const authPages = [
-    "/login",
-    "/signup",
-    "/forgot-password",
-    "/reset-password",
-    "/verify-otp"
-  ];
+  const authPages = ["/login", "/signup", "/forgot-password", "/reset-password", "/verify-otp"];
 
   if (isUserAuthenticated && authPages.includes(path)) {
     window.location.replace("/home");
     return;
   }
 
-  const protectedUserPages = [
-    "/profile",
-    "/addresses",
-    "/wishlist",
-    "/cart"
-  ];
+  const protectedUserPages = ["/profile", "/addresses", "/wishlist", "/cart"];
 
-  if (!isUserAuthenticated && protectedUserPages.some(route => path.startsWith(route))) {
+  if (!isUserAuthenticated && protectedUserPages.some((route) => path.startsWith(route))) {
     window.location.replace("/login");
     return;
   }
@@ -108,9 +93,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     return;
   }
 
-
   if (guestUI && userUI) {
-
     guestUI.classList.remove("auth-block");
     userUI.classList.remove("auth-block");
 
@@ -135,7 +118,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
     });
   }
-
 });
 
 window.addEventListener("pageshow", function (event) {
@@ -143,6 +125,3 @@ window.addEventListener("pageshow", function (event) {
     window.location.reload();
   }
 });
-
-
-

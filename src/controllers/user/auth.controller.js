@@ -1,4 +1,12 @@
-import { createUser, verifySignupOTPService, loginUser, resendSignupOTPService, forgotPasswordService, resetPasswordService, resolveReferralTokenService } from "../../services/auth.service.js";
+import {
+  createUser,
+  verifySignupOTPService,
+  loginUser,
+  resendSignupOTPService,
+  forgotPasswordService,
+  resetPasswordService,
+  resolveReferralTokenService
+} from "../../services/auth.service.js";
 import { generateToken } from "../../utils/jwt.js";
 import HTTP_STATUS from "../../constants/httpStatus.js";
 import { AUTH_MESSAGES } from "../../constants/messages.js";
@@ -12,13 +20,12 @@ export const signup = async (req, res, next) => {
     return res.status(HTTP_STATUS.CREATED).json({
       success: true,
       message: AUTH_MESSAGES.SIGNUP_SUCCESS,
-      data: newUser,
+      data: newUser
     });
   } catch (error) {
     next(error);
   }
 };
-
 
 export const resendSignupOTP = async (req, res) => {
   try {
@@ -27,7 +34,7 @@ export const resendSignupOTP = async (req, res) => {
     if (!email) {
       return res.status(HTTP_STATUS.BAD_REQUEST).json({
         success: false,
-        message: "Email is required",
+        message: "Email is required"
       });
     }
 
@@ -35,41 +42,39 @@ export const resendSignupOTP = async (req, res) => {
 
     return res.status(HTTP_STATUS.OK).json({
       success: true,
-      message: "OTP resent successfully",
+      message: "OTP resent successfully"
     });
   } catch (error) {
     return res.status(HTTP_STATUS.BAD_REQUEST).json({
       success: false,
-      message: error.message,
+      message: error.message
     });
   }
 };
 
-
 export const verifySignupOTP = async (req, res) => {
-    try{
-        const {email, otp, type} = req.body;
-        if(!email || !otp){
-            return res.status(HTTP_STATUS.BAD_REQUEST).json({
-                success: false,
-                message: "Email and OTP are required."
-            });
-        }
-
-        await verifySignupOTPService(email, otp, type);
-
-        return res.status(HTTP_STATUS.OK).json({
-            success: true,
-            message: "Email verified successfully"
-        })
-
-    }catch(err){
-        return res.status(HTTP_STATUS.BAD_REQUEST).json({
-            success: false,
-            message: err.message
-        })
+  try {
+    const { email, otp, type } = req.body;
+    if (!email || !otp) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        success: false,
+        message: "Email and OTP are required."
+      });
     }
-}
+
+    await verifySignupOTPService(email, otp, type);
+
+    return res.status(HTTP_STATUS.OK).json({
+      success: true,
+      message: "Email verified successfully"
+    });
+  } catch (err) {
+    return res.status(HTTP_STATUS.BAD_REQUEST).json({
+      success: false,
+      message: err.message
+    });
+  }
+};
 
 export const login = async (req, res) => {
   try {
@@ -77,30 +82,29 @@ export const login = async (req, res) => {
 
     const user = await loginUser(email, password);
     const token = generateToken({
-        userId: user._id,
-        role: user.role,
-    })
+      userId: user._id,
+      role: user.role
+    });
 
     return res.status(HTTP_STATUS.OK).json({
       success: true,
       message: "Login successful",
       data: {
         token,
-        user:{
-            id: user._id,
-            email: user.email,
-            user: user.role,
+        user: {
+          id: user._id,
+          email: user.email,
+          user: user.role
         }
-      },
+      }
     });
   } catch (error) {
     return res.status(HTTP_STATUS.UNAUTHORIZED).json({
       success: false,
-      message: error.message,
+      message: error.message
     });
   }
 };
-
 
 export const forgotPassword = async (req, res) => {
   try {
@@ -109,7 +113,7 @@ export const forgotPassword = async (req, res) => {
     if (!email) {
       return res.status(HTTP_STATUS.BAD_REQUEST).json({
         success: false,
-        message: "Email is required",
+        message: "Email is required"
       });
     }
 
@@ -118,7 +122,7 @@ export const forgotPassword = async (req, res) => {
     if (!emailRegex.test(email)) {
       return res.status(HTTP_STATUS.BAD_REQUEST).json({
         success: false,
-        message: "Invalid email format",
+        message: "Invalid email format"
       });
     }
 
@@ -126,16 +130,15 @@ export const forgotPassword = async (req, res) => {
 
     return res.status(HTTP_STATUS.OK).json({
       success: true,
-      message: "OTP sent to registered email",
+      message: "OTP sent to registered email"
     });
   } catch (error) {
     return res.status(HTTP_STATUS.BAD_REQUEST).json({
       success: false,
-      message: error.message,
+      message: error.message
     });
   }
 };
-
 
 export const resetPassword = async (req, res) => {
   try {
@@ -145,16 +148,15 @@ export const resetPassword = async (req, res) => {
 
     return res.status(HTTP_STATUS.OK).json({
       success: true,
-      message: "Password reset successful",
+      message: "Password reset successful"
     });
   } catch (error) {
     return res.status(HTTP_STATUS.BAD_REQUEST).json({
       success: false,
-      message: error.message,
+      message: error.message
     });
   }
 };
-
 
 export const googleCallback = async (req, res) => {
   try {
@@ -162,19 +164,15 @@ export const googleCallback = async (req, res) => {
 
     const token = generateToken({
       userId: user._id,
-      role: user.role,
+      role: user.role
     });
 
     // redirect to frontend with token
-    return res.redirect(
-      `http://localhost:3010/google-success?token=${token}`
-    );
-  } catch (error) {
+    return res.redirect(`http://localhost:3010/google-success?token=${token}`);
+  } catch{
     return res.redirect("/login");
   }
 };
-
-
 
 export const resolveReferralToken = async (req, res) => {
   try {
@@ -200,4 +198,3 @@ export const resolveReferralToken = async (req, res) => {
     });
   }
 };
-

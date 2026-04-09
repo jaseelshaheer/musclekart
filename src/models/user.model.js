@@ -5,101 +5,101 @@ const userSchema = new mongoose.Schema(
     firstName: {
       type: String,
       required: true,
-      trim: true,
+      trim: true
     },
 
     lastName: {
       type: String,
-      trim: true,
+      trim: true
     },
 
     email: {
       type: String,
       required: true,
       unique: true,
-      lowercase: true,
+      lowercase: true
     },
 
     phone: {
       type: String,
       unique: true,
-      sparse: true,
+      sparse: true
     },
 
     password: {
       type: String,
-      select: false,
+      select: false
     },
 
     profileImage: {
       type: String,
-      default: "/images/user-dp.jpg",
+      default: "/images/user-dp.jpg"
     },
 
     authProvider: {
       type: String,
       enum: ["local", "google"],
-      default: "local",
+      default: "local"
     },
 
     role: {
       type: String,
       enum: ["user", "admin"],
-      default: "user",
+      default: "user"
     },
 
     isBlocked: {
       type: Boolean,
-      default: false,
+      default: false
     },
 
     referral_code: {
       type: String,
-      unique: true,
+      unique: true
     },
 
     referred_by: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      default: null,
+      default: null
     },
 
     referral_reward_granted: {
       type: Boolean,
-      default: false,
+      default: false
     },
 
     last_login_at: {
-      type: Date,
+      type: Date
     },
 
     pendingEmail: {
-      type: String,
+      type: String
     },
 
     otpPurpose: {
       type: String,
-      enum: ["signup", "forgot_password", "email_change"],
+      enum: ["signup", "forgot_password", "email_change"]
     },
 
     otp: {
       type: String,
-      select: false,
+      select: false
     },
 
     otpExpiresAt: {
-      type: Date,
+      type: Date
     },
 
     isEmailVerified: {
       type: Boolean,
-      default: false,
-    },
+      default: false
+    }
   },
 
   {
-    timestamps: true,
-  },
+    timestamps: true
+  }
 );
 
 export default mongoose.model("User", userSchema);

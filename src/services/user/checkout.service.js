@@ -9,14 +9,11 @@ import { getOrCreateWallet, debitWalletService } from "./wallet.service.js";
 import User from "../../models/user.model.js";
 import { creditWalletService } from "./wallet.service.js";
 
-
 function generateOrderId() {
   const timestamp = Date.now();
   const randomPart = Math.floor(1000 + Math.random() * 9000);
   return `MKORD-${timestamp}-${randomPart}`;
 }
-
-
 
 export const getCheckoutPageService = async (userId) => {
   const cartData = await getCartService(userId);
@@ -25,22 +22,21 @@ export const getCheckoutPageService = async (userId) => {
     .sort({ isDefault: -1, createdAt: -1 })
     .lean();
 
-  const defaultAddress =
-    addresses.find((address) => address.isDefault) || addresses[0] || null;
+  const defaultAddress = addresses.find((address) => address.isDefault) || addresses[0] || null;
 
   const shipping = 0;
   const tax = 0;
 
   const cart = await Cart.findOne({ user_id: userId }).lean();
   let appliedCoupon = null;
-  let discount = cart?.coupon_discount || 0;
+  const discount = cart?.coupon_discount || 0;
 
   const itemOfferSavings = cartData.items.reduce(
-  (sum, item) => sum + Number((item.discountAmount || 0) * (item.quantity || 0)),
-  0
-);
+    (sum, item) => sum + Number((item.discountAmount || 0) * (item.quantity || 0)),
+    0
+  );
 
-const totalSavings = itemOfferSavings + Number(discount || 0);
+  const totalSavings = itemOfferSavings + Number(discount || 0);
 
   if (cart?.applied_coupon_id) {
     appliedCoupon = await Coupon.findById(cart.applied_coupon_id).lean();
@@ -48,11 +44,8 @@ const totalSavings = itemOfferSavings + Number(discount || 0);
 
   const finalTotal = Math.max(0, cartData.subtotal + shipping + tax - discount);
 
-
   const canCheckout =
-    cartData.items.length > 0 &&
-    !cartData.hasUnavailableItems &&
-    Boolean(defaultAddress);
+    cartData.items.length > 0 && !cartData.hasUnavailableItems && Boolean(defaultAddress);
 
   const wallet = await getOrCreateWallet(userId);
 
@@ -74,7 +67,6 @@ const totalSavings = itemOfferSavings + Number(discount || 0);
     canCheckout
   };
 };
-
 
 async function grantReferralRewardIfEligible(userId, order) {
   const user = await User.findById(userId);
@@ -105,8 +97,6 @@ async function grantReferralRewardIfEligible(userId, order) {
   user.referral_reward_granted = true;
   await user.save();
 }
-
-
 
 export const placeOrderService = async (userId, payload) => {
   const { addressId, paymentMethod = "cod" } = payload;
@@ -154,10 +144,8 @@ export const placeOrderService = async (userId, payload) => {
     }
   }
 
-  let wallet = null;
-
   if (paymentMethod === "wallet") {
-    wallet = await getOrCreateWallet(userId);
+    const wallet = await getOrCreateWallet(userId);
 
     if (wallet.balance < checkoutData.finalTotal) {
       throw new Error("Insufficient wallet balance");
@@ -220,9 +208,8 @@ export const placeOrderService = async (userId, payload) => {
     method: paymentMethod,
     status: paymentMethod === "wallet" ? "completed" : "pending",
     transaction_id: "",
-    paid_at: paymentMethod === "wallet" ? new Date() : null,
+    paid_at: paymentMethod === "wallet" ? new Date() : null
   });
-
 
   if (paymentMethod === "wallet") {
     await debitWalletService({
@@ -230,10 +217,9 @@ export const placeOrderService = async (userId, payload) => {
       amount: checkoutData.finalTotal,
       description: `Wallet payment for order ${order.order_id}`,
       source: "wallet_payment",
-      orderId: order._id,
+      orderId: order._id
     });
   }
-
 
   for (const item of checkoutData.items) {
     const variant = await Variant.findById(item.variant_id);
@@ -244,11 +230,11 @@ export const placeOrderService = async (userId, payload) => {
   await Cart.findOneAndUpdate(
     { user_id: userId },
     {
-        $set: {
+      $set: {
         cart_items: [],
         applied_coupon_id: null,
         coupon_discount: 0
-        }
+      }
     }
   );
 
@@ -257,13 +243,10 @@ export const placeOrderService = async (userId, payload) => {
       $inc: { used_count: 1 }
     });
   }
-  
+
   await grantReferralRewardIfEligible(userId, order);
 
   return {
     orderId: order.order_id
   };
-
-
 };
-

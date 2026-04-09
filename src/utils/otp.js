@@ -9,5 +9,5 @@ export const hashOTP = (otp) => {
 };
 
 export const compareOTP = (plainOTP, hashedOTP) => {
-    return hashOTP(plainOTP) === hashedOTP;
-}
+  return hashOTP(plainOTP) === hashedOTP;
+};

@@ -4,15 +4,12 @@ const token = localStorage.getItem("token");
 const clearOrderSearchBtn = document.getElementById("clearSearch");
 const ordersPagination = document.getElementById("ordersPagination");
 
-
-
 if (!token) {
   window.location.href = "/login";
 }
 
 let currentPage = 1;
 let totalPages = 1;
-
 
 function renderOrders(data) {
   if (!ordersContent) return;
@@ -29,17 +26,16 @@ function renderOrders(data) {
     `;
 
     if (ordersPagination) {
-        ordersPagination.innerHTML = "";
+      ordersPagination.innerHTML = "";
     }
 
     return;
   }
 
-
   ordersContent.innerHTML = `
     <div class="order-list-grid">
         ${orders
-        .map(
+          .map(
             (order) => `
             <article class="order-list-card">
                 <div class="order-list-card-top">
@@ -51,8 +47,8 @@ function renderOrders(data) {
                     <div class="order-list-card-side">
                     <span class="order-status-pill ${order.order_status}">
                         ${order.order_status
-                            .replaceAll("_", " ")
-                            .replace(/\b\w/g, (char) => char.toUpperCase())}
+                          .replaceAll("_", " ")
+                          .replace(/\b\w/g, (char) => char.toUpperCase())}
                     </span>
 
                     <a href="/orders/${order.order_id}" class="order-list-view-link">View Details</a>
@@ -67,8 +63,8 @@ function renderOrders(data) {
             </article>
 
             `
-        )
-        .join("")}
+          )
+          .join("")}
     </div>
   `;
 
@@ -93,8 +89,6 @@ function renderOrders(data) {
         </button>
     `;
   }
-
-
 }
 
 async function loadOrders(page = 1, search = "") {
@@ -143,7 +137,6 @@ if (clearOrderSearchBtn && orderSearchInput) {
   });
 }
 
-
 if (ordersPagination) {
   ordersPagination.addEventListener("click", (e) => {
     if (e.target.id === "prevOrdersPageBtn" && currentPage > 1) {
@@ -155,6 +148,5 @@ if (ordersPagination) {
     }
   });
 }
-
 
 loadOrders();

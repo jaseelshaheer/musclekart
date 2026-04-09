@@ -6,7 +6,6 @@ import Brand from "../../models/brand.model.js";
 import Wishlist from "../../models/wishlist.model.js";
 import { CART_MESSAGES } from "../../constants/messages.js";
 
-
 function isOfferActive(entity) {
   if (!entity?.offer_is_active) return false;
   if (!entity?.offer_discount_type) return false;
@@ -72,11 +71,7 @@ function getBestOfferForPrice({ basePrice, product, category }) {
   const productOfferResult = productHasOffer
     ? applyProductPriceFloor(
         basePrice,
-        applyOfferToPrice(
-          basePrice,
-          product.offer_discount_type,
-          product.offer_discount_value
-        ),
+        applyOfferToPrice(basePrice, product.offer_discount_type, product.offer_discount_value),
         minFinalPrice
       )
     : null;
@@ -84,11 +79,7 @@ function getBestOfferForPrice({ basePrice, product, category }) {
   const categoryOfferResult = categoryHasOffer
     ? applyProductPriceFloor(
         basePrice,
-        applyOfferToPrice(
-          basePrice,
-          category.offer_discount_type,
-          category.offer_discount_value
-        ),
+        applyOfferToPrice(basePrice, category.offer_discount_type, category.offer_discount_value),
         minFinalPrice
       )
     : null;
@@ -149,7 +140,6 @@ function getBestOfferForPrice({ basePrice, product, category }) {
   };
 }
 
-
 async function getValidCartVariant(productId, variantId) {
   const product = await Product.findOne({
     _id: productId,
@@ -200,7 +190,6 @@ async function getValidCartVariant(productId, variantId) {
 function getCartStockLimitMessage(stockQty) {
   return `Product is already in cart and only ${stockQty} unit${stockQty > 1 ? "s" : ""} available`;
 }
-
 
 export const getCartService = async (userId) => {
   const cart = await Cart.findOne({ user_id: userId }).lean();
@@ -261,7 +250,7 @@ export const getCartService = async (userId) => {
         const pricing = getBestOfferForPrice({
           basePrice: variant.price,
           product,
-          category,
+          category
         });
 
         originalPrice = pricing.originalPrice;
@@ -272,7 +261,6 @@ export const getCartService = async (userId) => {
         offerDiscountValue = pricing.discountValue;
       }
     }
-
 
     items.push({
       product_id: item.product_id,
@@ -292,15 +280,13 @@ export const getCartService = async (userId) => {
       main_image: variant?.main_image || "/images/no-image.png",
       attributes: variant?.attributes || [],
       stock_qty: variant?.stock_qty || 0,
-      isAvailable,
+      isAvailable
     });
   }
 
   const subtotal = items.reduce((sum, item) => sum + item.itemTotal, 0);
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
-  const hasUnavailableItems = items.some(
-    (item) => !item.isAvailable || item.stock_qty <= 0
-  );
+  const hasUnavailableItems = items.some((item) => !item.isAvailable || item.stock_qty <= 0);
 
   return {
     items,
@@ -310,7 +296,6 @@ export const getCartService = async (userId) => {
   };
 };
 
-
 export const addToCartService = async (userId, productId, variantId, quantity = 1) => {
   const qty = Number(quantity);
 
@@ -318,14 +303,11 @@ export const addToCartService = async (userId, productId, variantId, quantity = 
     throw new Error(CART_MESSAGES.INVALID_QUANTITY);
   }
 
-  const { product, category, variant } = await getValidCartVariant(
-    productId,
-    variantId,
-  );
+  const { product, category, variant } = await getValidCartVariant(productId, variantId);
   const pricing = getBestOfferForPrice({
     basePrice: variant.price,
     product,
-    category,
+    category
   });
 
   if (variant.stock_qty <= 0) {
@@ -355,7 +337,6 @@ export const addToCartService = async (userId, productId, variantId, quantity = 
     existingItem.quantity = nextQty;
     existingItem.unitPrice = pricing.finalPrice;
   } else {
-
     if (qty > variant.stock_qty) {
       throw new Error(CART_MESSAGES.OUT_OF_STOCK);
     }
@@ -369,16 +350,14 @@ export const addToCartService = async (userId, productId, variantId, quantity = 
   }
 
   await cart.save();
-  
+
   await Wishlist.findOneAndDelete({
     user_id: userId,
-    product_id: productId,
+    product_id: productId
   });
-
 
   return cart;
 };
-
 
 export const updateCartItemQuantityService = async (userId, variantId, action) => {
   const cart = await Cart.findOne({ user_id: userId });
@@ -387,9 +366,7 @@ export const updateCartItemQuantityService = async (userId, variantId, action) =
     throw new Error(CART_MESSAGES.ITEM_NOT_FOUND);
   }
 
-  const item = cart.cart_items.find(
-    (entry) => String(entry.variant_id) === String(variantId)
-  );
+  const item = cart.cart_items.find((entry) => String(entry.variant_id) === String(variantId));
 
   if (!item) {
     throw new Error(CART_MESSAGES.ITEM_NOT_FOUND);
@@ -405,11 +382,10 @@ export const updateCartItemQuantityService = async (userId, variantId, action) =
     throw new Error(CART_MESSAGES.VARIANT_UNAVAILABLE);
   }
 
-
   const product = await Product.findOne({
     _id: item.product_id,
     isDeleted: false,
-    isActive: true,
+    isActive: true
   }).lean();
 
   if (!product) {
@@ -419,7 +395,7 @@ export const updateCartItemQuantityService = async (userId, variantId, action) =
   const category = await Category.findOne({
     _id: product.category_id,
     isDeleted: false,
-    isActive: true,
+    isActive: true
   }).lean();
 
   if (!category) {
@@ -429,12 +405,10 @@ export const updateCartItemQuantityService = async (userId, variantId, action) =
   const pricing = getBestOfferForPrice({
     basePrice: variant.price,
     product,
-    category,
+    category
   });
 
-
   if (action === "increment") {
-
     if (item.quantity + 1 > variant.stock_qty) {
       throw new Error(getCartStockLimitMessage(variant.stock_qty));
     }
@@ -456,7 +430,6 @@ export const updateCartItemQuantityService = async (userId, variantId, action) =
   return cart;
 };
 
-
 export const removeCartItemService = async (userId, variantId) => {
   const cart = await Cart.findOne({ user_id: userId });
 
@@ -466,9 +439,7 @@ export const removeCartItemService = async (userId, variantId) => {
 
   const initialLength = cart.cart_items.length;
 
-  cart.cart_items = cart.cart_items.filter(
-    (item) => String(item.variant_id) !== String(variantId)
-  );
+  cart.cart_items = cart.cart_items.filter((item) => String(item.variant_id) !== String(variantId));
 
   if (cart.cart_items.length === initialLength) {
     throw new Error(CART_MESSAGES.ITEM_NOT_FOUND);
@@ -477,7 +448,6 @@ export const removeCartItemService = async (userId, variantId) => {
   await cart.save();
   return cart;
 };
-
 
 export const clearCartService = async (userId) => {
   const cart = await Cart.findOne({ user_id: userId });
@@ -491,4 +461,3 @@ export const clearCartService = async (userId) => {
 
   return true;
 };
-

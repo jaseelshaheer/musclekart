@@ -13,13 +13,9 @@ const couponModalTitle = document.getElementById("couponModalTitle");
 const couponIdInput = document.getElementById("couponId");
 const couponSubmitBtn = document.getElementById("couponSubmitBtn");
 
-
-
 let currentCouponPage = 1;
 let totalCouponPages = 1;
 let couponSearchDebounce;
-
-
 
 function getAdminToken() {
   return localStorage.getItem("adminToken");
@@ -42,8 +38,6 @@ function openCouponModal() {
 
   if (couponModal) couponModal.classList.remove("hidden");
 }
-
-
 
 function closeCouponModal() {
   if (couponModal) couponModal.classList.add("hidden");
@@ -68,8 +62,6 @@ function closeCouponModal() {
   clearCouponFieldErrors();
 }
 
-
-
 async function loadCoupons() {
   const token = getAdminToken();
 
@@ -87,7 +79,6 @@ async function loadCoupons() {
       Authorization: `Bearer ${token}`
     }
   });
-
 
   const data = await res.json();
 
@@ -108,7 +99,6 @@ async function loadCoupons() {
 
   renderCoupons(data.data.coupons);
   renderCouponPagination(data.data.currentPage, data.data.totalPages);
-
 }
 
 function renderCoupons(coupons) {
@@ -150,7 +140,7 @@ function renderCoupons(coupons) {
                 <td>Rs. ${coupon.min_purchase}</td>
                 <td>
                     ${
-                    coupon.discount_type === "percentage"
+                      coupon.discount_type === "percentage"
                         ? `${coupon.discount_value}%`
                         : `Rs. ${coupon.discount_value}`
                     }
@@ -162,11 +152,11 @@ function renderCoupons(coupons) {
                 </td>
                 <td>
                     <span class="${
-                    coupon.computed_status === "active"
+                      coupon.computed_status === "active"
                         ? "status-active"
                         : coupon.computed_status === "scheduled"
-                        ? "status-scheduled"
-                        : coupon.computed_status === "expired"
+                          ? "status-scheduled"
+                          : coupon.computed_status === "expired"
                             ? "status-expired"
                             : "status-blocked"
                     }">
@@ -225,7 +215,6 @@ function toggleMaxDiscountField() {
   }
 }
 
-
 function renderCouponPagination(currentPage, totalPages) {
   const pagination = document.getElementById("couponPagination");
   if (!couponPageInfo || !couponPrevBtn || !couponNextBtn || !pagination) return;
@@ -241,7 +230,6 @@ function renderCouponPagination(currentPage, totalPages) {
   couponNextBtn.disabled = currentPage >= totalPages;
 }
 
-
 function getCouponFormFields() {
   return {
     coupon_code: document.getElementById("couponCode"),
@@ -256,7 +244,6 @@ function getCouponFormFields() {
     expiry_date: document.getElementById("couponExpiryDate")
   };
 }
-
 
 function showCouponFieldError(input, message) {
   removeCouponFieldError(input);
@@ -287,7 +274,6 @@ function clearCouponFieldErrors() {
     if (input) removeCouponFieldError(input);
   });
 }
-
 
 function validateCouponForm() {
   const fields = getCouponFormFields();
@@ -338,10 +324,7 @@ function validateCouponForm() {
     valid = false;
   }
 
-  if (
-    Number(fields.usage_per_user?.value || 0) >
-    Number(fields.usage_limit?.value || 0)
-  ) {
+  if (Number(fields.usage_per_user?.value || 0) > Number(fields.usage_limit?.value || 0)) {
     showCouponFieldError(fields.usage_per_user, "Usage per user cannot exceed usage limit");
     valid = false;
   }
@@ -377,15 +360,13 @@ function validateCouponForm() {
   return valid;
 }
 
-
 function bindCouponFieldValidation() {
   const fields = getCouponFormFields();
 
   Object.values(fields).forEach((input) => {
     if (!input) return;
 
-    const eventName =
-      input.tagName === "SELECT" ? "change" : "input";
+    const eventName = input.tagName === "SELECT" ? "change" : "input";
 
     input.addEventListener(eventName, () => {
       removeCouponFieldError(input);
@@ -397,9 +378,6 @@ function bindCouponFieldValidation() {
     });
   });
 }
-
-
-
 
 function getCouponPayload() {
   const discountType = document.getElementById("couponDiscountType")?.value || "flat";
@@ -413,14 +391,11 @@ function getCouponPayload() {
     usage_limit: document.getElementById("couponUsageLimit")?.value || 0,
     usage_per_user: document.getElementById("couponUsagePerUser")?.value || 0,
     max_discount:
-      discountType === "percentage"
-        ? document.getElementById("couponMaxDiscount")?.value || 0
-        : 0,
+      discountType === "percentage" ? document.getElementById("couponMaxDiscount")?.value || 0 : 0,
     start_date: document.getElementById("couponStartDate")?.value || "",
     expiry_date: document.getElementById("couponExpiryDate")?.value || ""
   };
 }
-
 
 async function getCouponById(couponId) {
   const token = getAdminToken();
@@ -475,8 +450,6 @@ function fillCouponForm(coupon) {
   }
 }
 
-
-
 async function createCoupon(payload) {
   const token = getAdminToken();
 
@@ -503,7 +476,6 @@ async function createCoupon(payload) {
   showToast(data.message || "Coupon created successfully", "success");
   loadCoupons();
 }
-
 
 async function updateCoupon(couponId, payload) {
   const token = getAdminToken();
@@ -532,8 +504,6 @@ async function updateCoupon(couponId, payload) {
   loadCoupons();
 }
 
-
-
 async function toggleCouponStatus(couponId) {
   const token = getAdminToken();
 
@@ -554,8 +524,6 @@ async function toggleCouponStatus(couponId) {
   showToast(data.message || "Coupon status updated", "success");
   loadCoupons();
 }
-
-
 
 async function deleteCoupon(couponId) {
   const token = getAdminToken();
@@ -606,8 +574,6 @@ couponForm?.addEventListener("submit", async (e) => {
   }
 });
 
-
-
 couponTableContent?.addEventListener("click", async (e) => {
   const editBtn = e.target.closest(".btn-edit-coupon");
   if (editBtn) {
@@ -640,9 +606,6 @@ couponTableContent?.addEventListener("click", async (e) => {
   }
 });
 
-
-
-
 document.getElementById("couponDiscountType")?.addEventListener("change", toggleMaxDiscountField);
 
 if (couponSearchInput) {
@@ -664,7 +627,6 @@ if (clearCouponSearch && couponSearchInput) {
   });
 }
 
-
 couponPrevBtn?.addEventListener("click", () => {
   if (currentCouponPage > 1) {
     currentCouponPage -= 1;
@@ -678,8 +640,6 @@ couponNextBtn?.addEventListener("click", () => {
     loadCoupons();
   }
 });
-
-
 
 toggleMaxDiscountField();
 bindCouponFieldValidation();

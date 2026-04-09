@@ -6,7 +6,7 @@ export const AUTH_MESSAGES = {
   OTP_SENT: "OTP sent to your email",
   OTP_VERIFIED: "Email verified successfully",
   PHONE_EXISTS: "Phone number already registered",
-  EMAIL_EXISTS: "Email already registered",
+  EMAIL_EXISTS: "Email already registered"
 };
 
 export const USER_MESSAGES = {
@@ -14,13 +14,12 @@ export const USER_MESSAGES = {
   NOT_FOUND: "User not found",
   BLOCKED: "User blocked successfully",
   UNBLOCKED: "User unblocked successfully",
-  INVALID_STATUS: "Invalid status value",
+  INVALID_STATUS: "Invalid status value"
 };
 
 export const COMMON_MESSAGES = {
-  SOMETHING_WENT_WRONG: "Something went wrong",
+  SOMETHING_WENT_WRONG: "Something went wrong"
 };
-
 
 export const PRODUCT_MESSAGES = {
   NOT_FOUND: "Product not found",
@@ -30,20 +29,20 @@ export const PRODUCT_MESSAGES = {
   CATEGORY_REQUIRED: "Category is required",
   BRAND_REQUIRED: "Brand is required",
   AT_LEAST_ONE_VARIANT: "At least one variant is required",
-  MIN_VARIANT_IMAGES: "Each variant must include at least 3 images",
+  MIN_VARIANT_IMAGES: "Each variant must include at least 3 images"
 };
 
 export const CATEGORY_MESSAGES = {
   NOT_FOUND: "Category not found",
   NAME_REQUIRED: "Category name is required",
   NAME_EXISTS: "Category already exists",
-  NAME_EXISTS_EDIT: "Category name already exists",
+  NAME_EXISTS_EDIT: "Category name already exists"
 };
 
 export const BRAND_MESSAGES = {
   NOT_FOUND: "Brand not found",
   NAME_REQUIRED: "Brand name is required",
-  NAME_EXISTS: "Brand already exists",
+  NAME_EXISTS: "Brand already exists"
 };
 
 export const ADDRESS_MESSAGES = {
@@ -53,13 +52,13 @@ export const ADDRESS_MESSAGES = {
   DISTRICT_REQUIRED: "District is required",
   STATE_REQUIRED: "State is required",
   INVALID_PHONE: "Invalid phone number",
-  INVALID_PINCODE: "Invalid pincode",
+  INVALID_PINCODE: "Invalid pincode"
 };
 
 export const VALIDATION_MESSAGES = {
   INVALID_STATUS: "Invalid status value",
   INVALID_PRODUCT_PAYLOAD: "Invalid product payload",
-  INVALID_VARIANTS_DATA: "Invalid variants data",
+  INVALID_VARIANTS_DATA: "Invalid variants data"
 };
 
 export const CART_MESSAGES = {
@@ -74,5 +73,3 @@ export const CART_MESSAGES = {
   MAX_QTY_REACHED: "Maximum quantity limit reached",
   INVALID_QUANTITY: "Invalid quantity"
 };
-
-

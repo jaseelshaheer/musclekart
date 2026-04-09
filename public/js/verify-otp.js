@@ -19,7 +19,6 @@ otpInputs.forEach((input, index) => {
   });
 });
 
-
 const timerInterval = setInterval(() => {
   timeLeft--;
   otpTimer.textContent = timeLeft;
@@ -48,9 +47,7 @@ otpForm.addEventListener("submit", async (e) => {
   const type = params.get("type");
 
   let email =
-    type === "reset"
-      ? sessionStorage.getItem("resetEmail")
-      : sessionStorage.getItem("signupEmail");
+    type === "reset" ? sessionStorage.getItem("resetEmail") : sessionStorage.getItem("signupEmail");
 
   if (!email) {
     email = document.getElementById("otpEmail").value || null;
@@ -65,12 +62,11 @@ otpForm.addEventListener("submit", async (e) => {
     email = params.get("email");
   }
 
-
   try {
     const res = await fetch("/auth/verify-otp", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, otp, type }),
+      body: JSON.stringify({ email, otp, type })
     });
 
     const result = await res.json();
@@ -79,7 +75,7 @@ otpForm.addEventListener("submit", async (e) => {
     if (type === "reset") {
       sessionStorage.setItem("resetVerified", "true");
       window.location.href = "/reset-password";
-    }else {
+    } else {
       if (type === "signup") {
         const referralUsed = sessionStorage.getItem("signupReferralUsed") === "true";
 
@@ -89,7 +85,7 @@ otpForm.addEventListener("submit", async (e) => {
             message: referralUsed
               ? "Account created. Referral applied successfully. Welcome coupon unlocked."
               : "Account created successfully. Please login.",
-            type: "success",
+            type: "success"
           })
         );
 
@@ -103,7 +99,7 @@ otpForm.addEventListener("submit", async (e) => {
           "toast",
           JSON.stringify({
             message: "OTP verified. Please set your new password.",
-            type: "success",
+            type: "success"
           })
         );
 
@@ -123,9 +119,7 @@ resendBtn.addEventListener("click", async () => {
   const type = params.get("type");
 
   const email =
-    type === "reset"
-      ? sessionStorage.getItem("resetEmail")
-      : sessionStorage.getItem("signupEmail");
+    type === "reset" ? sessionStorage.getItem("resetEmail") : sessionStorage.getItem("signupEmail");
 
   if (!email) {
     otpError.style.color = "#dc2626";
@@ -137,13 +131,13 @@ resendBtn.addEventListener("click", async () => {
     const res = await fetch("/auth/resend-otp", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, type }),
+      body: JSON.stringify({ email, type })
     });
 
     const data = await res.json();
     if (!data.success) throw new Error(data.message);
 
-    otpInputs.forEach(input => (input.value = ""));
+    otpInputs.forEach((input) => (input.value = ""));
 
     otpInputs[0].focus();
 
@@ -163,12 +157,9 @@ resendBtn.addEventListener("click", async () => {
 
     otpError.style.color = "#16a34a";
     otpError.textContent = "OTP resent successfully";
-
   } catch (err) {
     otpError.style.color = "#dc2626";
     otpError.textContent = err.message;
     resendBtn.disabled = false;
   }
 });
-
-

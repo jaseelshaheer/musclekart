@@ -4,7 +4,6 @@ import Category from "../../models/category.model.js";
 import Brand from "../../models/brand.model.js";
 import { PRODUCT_MESSAGES } from "../../constants/messages.js";
 
-
 function isOfferActive(entity) {
   if (!entity?.offer_is_active) return false;
   if (!entity?.offer_discount_type) return false;
@@ -17,7 +16,6 @@ function isOfferActive(entity) {
 
   return now >= start && now <= expiry;
 }
-
 
 function applyOfferToPrice(basePrice, discountType, discountValue) {
   const price = Number(basePrice || 0);
@@ -62,7 +60,6 @@ function applyProductPriceFloor(basePrice, offerResult, minFinalPrice) {
   };
 }
 
-
 function getBestOfferForPrice({ basePrice, product, category }) {
   const productHasOffer = isOfferActive(product);
   const categoryHasOffer = isOfferActive(category);
@@ -72,11 +69,7 @@ function getBestOfferForPrice({ basePrice, product, category }) {
   const productOfferResult = productHasOffer
     ? applyProductPriceFloor(
         basePrice,
-        applyOfferToPrice(
-          basePrice,
-          product.offer_discount_type,
-          product.offer_discount_value
-        ),
+        applyOfferToPrice(basePrice, product.offer_discount_type, product.offer_discount_value),
         minFinalPrice
       )
     : null;
@@ -84,11 +77,7 @@ function getBestOfferForPrice({ basePrice, product, category }) {
   const categoryOfferResult = categoryHasOffer
     ? applyProductPriceFloor(
         basePrice,
-        applyOfferToPrice(
-          basePrice,
-          category.offer_discount_type,
-          category.offer_discount_value
-        ),
+        applyOfferToPrice(basePrice, category.offer_discount_type, category.offer_discount_value),
         minFinalPrice
       )
     : null;
@@ -149,7 +138,6 @@ function getBestOfferForPrice({ basePrice, product, category }) {
   };
 }
 
-
 export const getProductsPageService = async (query) => {
   const page = parseInt(query.page) || 1;
   const limit = 12;
@@ -159,8 +147,10 @@ export const getProductsPageService = async (query) => {
   const sort = (query.sort || "").trim();
   const category = (query.category || "").trim();
   const brand = (query.brand || "").trim();
-  const minPrice = query.minPrice !== undefined && query.minPrice !== "" ? Number(query.minPrice) : null;
-  const maxPrice = query.maxPrice !== undefined && query.maxPrice !== "" ? Number(query.maxPrice) : null;
+  const minPrice =
+    query.minPrice !== undefined && query.minPrice !== "" ? Number(query.minPrice) : null;
+  const maxPrice =
+    query.maxPrice !== undefined && query.maxPrice !== "" ? Number(query.maxPrice) : null;
 
   const productMatch = {
     isDeleted: false,
@@ -178,7 +168,6 @@ export const getProductsPageService = async (query) => {
   if (brand && mongoose.Types.ObjectId.isValid(brand)) {
     productMatch.brand_id = new mongoose.Types.ObjectId(brand);
   }
-
 
   const pipeline = [
     { $match: productMatch },
@@ -245,7 +234,6 @@ export const getProductsPageService = async (query) => {
             }
           }
         }
-
       }
     },
 
@@ -346,7 +334,7 @@ export const getProductsPageService = async (query) => {
       const pricing = getBestOfferForPrice({
         basePrice: variant.price,
         product,
-        category: product.category,
+        category: product.category
       });
 
       return {
@@ -357,36 +345,24 @@ export const getProductsPageService = async (query) => {
         has_offer: pricing.hasOffer,
         offer_source: pricing.source,
         offer_discount_type: pricing.discountType,
-        offer_discount_value: pricing.discountValue,
+        offer_discount_value: pricing.discountValue
       };
     });
 
     const minOriginalPrice = variantOptions.length
-      ? Math.min(
-          ...variantOptions.map((variant) =>
-            Number(variant.original_price || 0),
-          ),
-        )
+      ? Math.min(...variantOptions.map((variant) => Number(variant.original_price || 0)))
       : 0;
 
     const maxOriginalPrice = variantOptions.length
-      ? Math.max(
-          ...variantOptions.map((variant) =>
-            Number(variant.original_price || 0),
-          ),
-        )
+      ? Math.max(...variantOptions.map((variant) => Number(variant.original_price || 0)))
       : 0;
 
     const minFinalPrice = variantOptions.length
-      ? Math.min(
-          ...variantOptions.map((variant) => Number(variant.final_price || 0)),
-        )
+      ? Math.min(...variantOptions.map((variant) => Number(variant.final_price || 0)))
       : 0;
 
     const maxFinalPrice = variantOptions.length
-      ? Math.max(
-          ...variantOptions.map((variant) => Number(variant.final_price || 0)),
-        )
+      ? Math.max(...variantOptions.map((variant) => Number(variant.final_price || 0)))
       : 0;
 
     const hasOffer = variantOptions.some((variant) => variant.has_offer);
@@ -398,15 +374,11 @@ export const getProductsPageService = async (query) => {
       min_final_price: minFinalPrice,
       max_final_price: maxFinalPrice,
       has_offer: hasOffer,
-      variant_options: variantOptions,
+      variant_options: variantOptions
     };
   });
 
-
-  const totalResult = await Product.aggregate([
-    ...basePipeline,
-    { $count: "total" }
-  ]);
+  const totalResult = await Product.aggregate([...basePipeline, { $count: "total" }]);
 
   const totalProducts = totalResult[0]?.total || 0;
   const totalPages = Math.max(1, Math.ceil(totalProducts / limit));
@@ -447,8 +419,6 @@ export const getProductsPageService = async (query) => {
     errorMessage: null
   };
 };
-
-
 
 export const getProductDetailsPageService = async (productId) => {
   const product = await Product.findOne({
@@ -504,7 +474,7 @@ export const getProductDetailsPageService = async (productId) => {
     const pricing = getBestOfferForPrice({
       basePrice: variant.price,
       product,
-      category: product.category_id,
+      category: product.category_id
     });
 
     return {
@@ -515,10 +485,9 @@ export const getProductDetailsPageService = async (productId) => {
       has_offer: pricing.hasOffer,
       offer_source: pricing.source,
       offer_discount_type: pricing.discountType,
-      offer_discount_value: pricing.discountValue,
+      offer_discount_value: pricing.discountValue
     };
   });
-
 
   if (!activeVariants.length) {
     throw new Error(PRODUCT_MESSAGES.UNAVAILABLE);
@@ -533,30 +502,22 @@ export const getProductDetailsPageService = async (productId) => {
 
   const uniqueImages = [...new Set(images)].filter(Boolean);
 
-  const totalStock = offerAwareVariants.reduce(
-    (sum, variant) => sum + (variant.stock_qty || 0),
-    0,
-  );
+  const totalStock = offerAwareVariants.reduce((sum, variant) => sum + (variant.stock_qty || 0), 0);
 
   const minPrice = Math.min(...offerAwareVariants.map((v) => v.final_price));
   const maxPrice = Math.max(...offerAwareVariants.map((v) => v.final_price));
 
-  const minOriginalPrice = Math.min(
-    ...offerAwareVariants.map((v) => v.original_price),
-  );
-  const maxOriginalPrice = Math.max(
-    ...offerAwareVariants.map((v) => v.original_price),
-  );
-
+  const minOriginalPrice = Math.min(...offerAwareVariants.map((v) => v.original_price));
+  const maxOriginalPrice = Math.max(...offerAwareVariants.map((v) => v.original_price));
 
   const highlights = [];
   if (product.specifications) {
     product.specifications
       .split(/\n|,/)
-      .map(item => item.trim())
+      .map((item) => item.trim())
       .filter(Boolean)
       .slice(0, 6)
-      .forEach(item => highlights.push(item));
+      .forEach((item) => highlights.push(item));
   }
 
   if (!highlights.length) {
@@ -651,7 +612,7 @@ export const getProductDetailsPageService = async (productId) => {
     const pricing = getBestOfferForPrice({
       basePrice: item.min_price,
       product: item,
-      category: item.category,
+      category: item.category
     });
 
     return {
@@ -659,10 +620,9 @@ export const getProductDetailsPageService = async (productId) => {
       min_original_price: pricing.originalPrice,
       min_final_price: pricing.finalPrice,
       discount_amount: pricing.discountAmount,
-      has_offer: pricing.hasOffer,
+      has_offer: pricing.hasOffer
     };
   });
-
 
   return {
     product: {
@@ -721,6 +681,4 @@ export const getProductDetailsPageService = async (productId) => {
       }
     ]
   };
-
 };
-

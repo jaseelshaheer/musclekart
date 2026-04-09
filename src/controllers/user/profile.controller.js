@@ -1,4 +1,15 @@
-import { getProfileService, updateProfileService, requestEmailChangeService, verifyEmailChangeService, changePasswordService, addAddressService, updateAddressService, deleteAddressService, getAddressesService, setDefaultAddressService } from "../../services/user/profile.service.js";
+import {
+  getProfileService,
+  updateProfileService,
+  requestEmailChangeService,
+  verifyEmailChangeService,
+  changePasswordService,
+  addAddressService,
+  updateAddressService,
+  deleteAddressService,
+  getAddressesService,
+  setDefaultAddressService
+} from "../../services/user/profile.service.js";
 import { sendEmail } from "../../utils/email.js";
 import cloudinary from "../../config/cloudinary.js";
 import HTTP_STATUS from "../../constants/httpStatus.js";
@@ -12,23 +23,22 @@ export const getProfile = async (req, res) => {
 
     return res.status(HTTP_STATUS.OK).json({
       success: true,
-      data: profile,
+      data: profile
     });
   } catch (error) {
     return res.status(HTTP_STATUS.BAD_REQUEST).json({
       success: false,
-      message: error.message,
+      message: error.message
     });
   }
 };
-
 
 export const updateProfile = async (req, res) => {
   try {
     const userId = req.user._id;
 
     const updateData = {
-      ...req.body,
+      ...req.body
     };
     updateData.firstName = updateData.firstName?.trim();
     updateData.lastName = updateData.lastName?.trim();
@@ -39,9 +49,7 @@ export const updateProfile = async (req, res) => {
       const uploadResult = await cloudinary.uploader.upload_stream(
         {
           folder: "musclekart/profile",
-          transformation: [
-            { width: 400, height: 400, crop: "fill" },
-          ],
+          transformation: [{ width: 400, height: 400, crop: "fill" }]
         },
         async (error, result) => {
           if (error) {
@@ -55,7 +63,7 @@ export const updateProfile = async (req, res) => {
           return res.status(HTTP_STATUS.OK).json({
             success: true,
             message: "Profile updated successfully",
-            data: updatedUser,
+            data: updatedUser
           });
         }
       );
@@ -69,19 +77,15 @@ export const updateProfile = async (req, res) => {
     return res.status(HTTP_STATUS.OK).json({
       success: true,
       message: "Profile updated successfully",
-      data: updatedUser,
+      data: updatedUser
     });
-
   } catch (error) {
     return res.status(HTTP_STATUS.BAD_REQUEST).json({
       success: false,
-      message: error.message,
+      message: error.message
     });
   }
 };
-
-
-
 
 export const requestEmailChange = async (req, res) => {
   if (req.user.authProvider === "google") {
@@ -109,21 +113,20 @@ export const requestEmailChange = async (req, res) => {
         <p>Your OTP is:</p>
         <h1>${otp}</h1>
         <p>Valid for 5 minutes</p>
-      `,
+      `
     });
 
     return res.status(HTTP_STATUS.OK).json({
       success: true,
-      message: "OTP sent to new email address",
+      message: "OTP sent to new email address"
     });
   } catch (error) {
     return res.status(HTTP_STATUS.BAD_REQUEST).json({
       success: false,
-      message: error.message,
+      message: error.message
     });
   }
 };
-
 
 export const verifyEmailChange = async (req, res) => {
   try {
@@ -134,19 +137,18 @@ export const verifyEmailChange = async (req, res) => {
 
     return res.status(HTTP_STATUS.OK).json({
       success: true,
-      message: "Email updated successfully",
+      message: "Email updated successfully"
     });
   } catch (error) {
     return res.status(HTTP_STATUS.BAD_REQUEST).json({
       success: false,
-      message: error.message,
+      message: error.message
     });
   }
 };
 
-
 export const changePassword = async (req, res) => {
-    console.log(req.user);
+  console.log(req.user);
   if (req.user.authProvider === "google") {
     return res.status(HTTP_STATUS.FORBIDDEN).json({
       success: false,
@@ -165,12 +167,12 @@ export const changePassword = async (req, res) => {
 
     return res.status(HTTP_STATUS.OK).json({
       success: true,
-      message: "Password updated successfully",
+      message: "Password updated successfully"
     });
   } catch (error) {
     return res.status(HTTP_STATUS.BAD_REQUEST).json({
       success: false,
-      message: error.message,
+      message: error.message
     });
   }
 };
@@ -178,105 +180,117 @@ export const changePassword = async (req, res) => {
 export const addAddress = async (req, res) => {
   try {
     const userId = req.user._id;
-    const {
-      name,
-      phone,
-      house,
-      country,
-      district,
-      state,
-      pincode,
-    } = req.body;
+    const { name, phone, house, country, district, state, pincode } = req.body;
 
     // 🔒 Backend validation
     if (!name?.trim())
-      return res.status(HTTP_STATUS.BAD_REQUEST).json({ success: false, message: "Name is required" });
+      return res
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .json({ success: false, message: "Name is required" });
 
     if (!/^[0-9]{10}$/.test(phone))
-      return res.status(HTTP_STATUS.BAD_REQUEST).json({ success: false, message: "Invalid phone number" });
+      return res
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .json({ success: false, message: "Invalid phone number" });
 
     if (!house?.trim())
-      return res.status(HTTP_STATUS.BAD_REQUEST).json({ success: false, message: "House is required" });
+      return res
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .json({ success: false, message: "House is required" });
+
+    if (!country?.trim())
+      return res
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .json({ success: false, message: "Country is required" });
 
     if (!district?.trim())
-      return res.status(HTTP_STATUS.BAD_REQUEST).json({ success: false, message: "District is required" });
+      return res
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .json({ success: false, message: "District is required" });
 
     if (!state?.trim())
-      return res.status(HTTP_STATUS.BAD_REQUEST).json({ success: false, message: "State is required" });
+      return res
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .json({ success: false, message: "State is required" });
 
     if (!/^[0-9]{6}$/.test(pincode))
-      return res.status(HTTP_STATUS.BAD_REQUEST).json({ success: false, message: "Invalid pincode" });
+      return res
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .json({ success: false, message: "Invalid pincode" });
 
     const address = await addAddressService(userId, req.body);
 
     return res.status(HTTP_STATUS.CREATED).json({
       success: true,
       message: "Address added successfully",
-      data: address,
+      data: address
     });
   } catch (error) {
     return res.status(HTTP_STATUS.BAD_REQUEST).json({
       success: false,
-      message: error.message,
+      message: error.message
     });
   }
 };
-
-
 
 export const updateAddress = async (req, res) => {
   try {
     const userId = req.user._id;
     const { addressId } = req.params;
 
-    const {
-      name,
-      phone,
-      house,
-      country,
-      district,
-      state,
-      pincode,
-    } = req.body;
+    const { name, phone, house, country, district, state, pincode } = req.body;
 
     // 🔒 Backend validation
     if (!name?.trim())
-      return res.status(HTTP_STATUS.BAD_REQUEST).json({ success: false, message: "Name is required" });
+      return res
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .json({ success: false, message: "Name is required" });
 
     if (!/^[0-9]{10}$/.test(phone))
-      return res.status(HTTP_STATUS.BAD_REQUEST).json({ success: false, message: "Invalid phone number" });
+      return res
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .json({ success: false, message: "Invalid phone number" });
 
     if (!house?.trim())
-      return res.status(HTTP_STATUS.BAD_REQUEST).json({ success: false, message: "House is required" });
+      return res
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .json({ success: false, message: "House is required" });
+    
+    if (!country?.trim())
+      return res
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .json({ success: false, message: "Country is required" });
+
 
     if (!district?.trim())
-      return res.status(HTTP_STATUS.BAD_REQUEST).json({ success: false, message: "District is required" });
+      return res
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .json({ success: false, message: "District is required" });
 
     if (!state?.trim())
-      return res.status(HTTP_STATUS.BAD_REQUEST).json({ success: false, message: "State is required" });
+      return res
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .json({ success: false, message: "State is required" });
 
     if (!/^[0-9]{6}$/.test(pincode))
-      return res.status(HTTP_STATUS.BAD_REQUEST).json({ success: false, message: "Invalid pincode" });
+      return res
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .json({ success: false, message: "Invalid pincode" });
 
-    const updatedAddress = await updateAddressService(
-      userId,
-      addressId,
-      req.body
-    );
+    const updatedAddress = await updateAddressService(userId, addressId, req.body);
 
     return res.status(HTTP_STATUS.OK).json({
       success: true,
       message: "Address updated successfully",
-      data: updatedAddress,
+      data: updatedAddress
     });
   } catch (error) {
     return res.status(HTTP_STATUS.BAD_REQUEST).json({
       success: false,
-      message: error.message,
+      message: error.message
     });
   }
 };
-
 
 export const deleteAddress = async (req, res) => {
   try {
@@ -287,12 +301,12 @@ export const deleteAddress = async (req, res) => {
 
     return res.status(HTTP_STATUS.OK).json({
       success: true,
-      message: "Address deleted successfully",
+      message: "Address deleted successfully"
     });
   } catch (error) {
     return res.status(HTTP_STATUS.BAD_REQUEST).json({
       success: false,
-      message: error.message,
+      message: error.message
     });
   }
 };
@@ -307,16 +321,15 @@ export const getAddresses = async (req, res) => {
 
     return res.status(HTTP_STATUS.OK).json({
       success: true,
-      data: addresses,
+      data: addresses
     });
   } catch (error) {
     return res.status(HTTP_STATUS.BAD_REQUEST).json({
       success: false,
-      message: error.message,
+      message: error.message
     });
   }
 };
-
 
 export const setDefaultAddress = async (req, res) => {
   try {
@@ -327,17 +340,15 @@ export const setDefaultAddress = async (req, res) => {
 
     return res.status(HTTP_STATUS.OK).json({
       success: true,
-      message: "Default address updated successfully",
+      message: "Default address updated successfully"
     });
   } catch (error) {
     return res.status(HTTP_STATUS.BAD_REQUEST).json({
       success: false,
-      message: error.message,
+      message: error.message
     });
   }
 };
-
-
 
 export const getReferralLink = async (req, res) => {
   try {
@@ -363,5 +374,3 @@ export const getReferralLink = async (req, res) => {
     });
   }
 };
-
-

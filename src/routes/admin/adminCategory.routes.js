@@ -1,9 +1,15 @@
 import express from "express";
 import { adminAuth } from "../../middlewares/adminAuth.middleware.js";
-import {getCategories, createCategory, updateCategory, deleteCategory, renderCategoriesPage, toggleCategoryStatus } from "../../controllers/admin/category.controller.js";
+import {
+  getCategories,
+  createCategory,
+  updateCategory,
+  deleteCategory,
+  renderCategoriesPage,
+  toggleCategoryStatus
+} from "../../controllers/admin/category.controller.js";
 
 const router = express.Router();
-
 
 router.get("/categories-list", renderCategoriesPage);
 

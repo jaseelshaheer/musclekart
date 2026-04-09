@@ -18,7 +18,6 @@ const variantDataEl = document.getElementById("variantData");
 const productWishlistBtn = document.getElementById("productWishlistBtn");
 const productDetailMeta = document.getElementById("productDetailMeta");
 
-
 function syncProductWishlistButton(isWishlisted) {
   if (!productWishlistBtn) return;
 
@@ -77,21 +76,18 @@ async function toggleProductWishlist() {
 
   const isWishlisted = productWishlistBtn.classList.contains("active");
 
-  const res = await fetch(
-    isWishlisted ? `/wishlist/${productId}` : "/wishlist",
-    {
-      method: isWishlisted ? "DELETE" : "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`
-      },
-      ...(isWishlisted
-        ? {}
-        : {
-            body: JSON.stringify({ productId })
-          })
-    }
-  );
+  const res = await fetch(isWishlisted ? `/wishlist/${productId}` : "/wishlist", {
+    method: isWishlisted ? "DELETE" : "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`
+    },
+    ...(isWishlisted
+      ? {}
+      : {
+          body: JSON.stringify({ productId })
+        })
+  });
 
   const data = await res.json();
 
@@ -106,8 +102,6 @@ async function toggleProductWishlist() {
     "success"
   );
 }
-
-
 
 let inStock = detailActionRow?.dataset.inStock === "true";
 let variants = [];
@@ -172,7 +166,6 @@ thumbnailButtons.forEach((button) => {
   });
 });
 
-
 function updateVariantUI(variant, clickedButton) {
   if (!variant) return;
 
@@ -194,7 +187,6 @@ function updateVariantUI(variant, clickedButton) {
     detailDiscountBadge.textContent = `Save Rs. ${discountAmount.toFixed(2)}`;
     detailDiscountBadge.classList.toggle("hidden", !hasOffer);
   }
-
 
   if (detailStockLabel && detailStockMeta && detailActionRow) {
     if (variant.stock_qty > 0) {
@@ -226,7 +218,6 @@ function updateVariantUI(variant, clickedButton) {
     }
   }
 
-
   const images = buildImages(variant);
 
   if (images.length && mainProductImage) {
@@ -255,16 +246,12 @@ variantOptions.forEach((button) => {
 });
 
 if (variants.length) {
-  const initialActiveButton =
-    document.querySelector(".variant-option.active") || variantOptions[0];
+  const initialActiveButton = document.querySelector(".variant-option.active") || variantOptions[0];
 
-  const initialIndex = initialActiveButton
-    ? Number(initialActiveButton.dataset.variantIndex)
-    : 0;
+  const initialIndex = initialActiveButton ? Number(initialActiveButton.dataset.variantIndex) : 0;
 
   updateVariantUI(variants[initialIndex], initialActiveButton);
 }
-
 
 if (zoomBox && mainProductImage) {
   zoomBox.addEventListener("mousemove", (event) => {
@@ -290,9 +277,7 @@ if (addToCartBtn) {
     }
 
     const activeVariantBtn = document.querySelector(".variant-option.active");
-    const activeVariantIndex = activeVariantBtn
-      ? Number(activeVariantBtn.dataset.variantIndex)
-      : 0;
+    const activeVariantIndex = activeVariantBtn ? Number(activeVariantBtn.dataset.variantIndex) : 0;
 
     const selectedVariant = variants[activeVariantIndex];
 
@@ -328,8 +313,7 @@ if (addToCartBtn) {
 
       const normalizedMessage = message.toLowerCase();
       const shouldRedirect =
-        normalizedMessage.includes("unavailable") ||
-        normalizedMessage.includes("not found");
+        normalizedMessage.includes("unavailable") || normalizedMessage.includes("not found");
 
       if (shouldRedirect) {
         window.location.href = "/shop?notice=This product is unavailable";
@@ -340,12 +324,9 @@ if (addToCartBtn) {
       return;
     }
 
-
-
     showToast(data.message || "Item added to cart", "success");
   });
 }
-
 
 if (buyNowBtn) {
   buyNowBtn.addEventListener("click", () => {
@@ -358,8 +339,6 @@ if (buyNowBtn) {
   });
 }
 
-
-
 if (productWishlistBtn) {
   productWishlistBtn.addEventListener("click", async (e) => {
     e.preventDefault();
@@ -368,7 +347,4 @@ if (productWishlistBtn) {
   });
 }
 
-
 loadProductWishlistState();
-
-

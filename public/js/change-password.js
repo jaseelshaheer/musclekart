@@ -11,7 +11,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // password visibility
-  document.querySelectorAll(".toggle-password").forEach(icon => {
+  document.querySelectorAll(".toggle-password").forEach((icon) => {
     icon.addEventListener("click", () => {
       const input = icon.previousElementSibling;
       input.type = input.type === "password" ? "text" : "password";
@@ -76,7 +76,6 @@ document.addEventListener("DOMContentLoaded", () => {
       showStrengthMessage(form.newPassword, result.text, "password-strong");
     }
   });
-  
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -97,8 +96,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    const strongPasswordRegex =
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/;
+    const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/;
 
     if (!strongPasswordRegex.test(newPassword)) {
       showFieldError(
@@ -118,12 +116,12 @@ document.addEventListener("DOMContentLoaded", () => {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${token}`
         },
         body: JSON.stringify({
           currentPassword,
-          newPassword,
-        }),
+          newPassword
+        })
       });
 
       const data = await res.json();
@@ -136,13 +134,11 @@ document.addEventListener("DOMContentLoaded", () => {
       msg.style.color = "#16a34a";
       showToast("Password updated successfully", "success");
       form.reset();
-
     } catch {
       showFormError("Something went wrong. Please try again.");
     }
   });
 });
-
 
 function showFieldError(input, message) {
   input.classList.add("input-error");
@@ -164,7 +160,6 @@ function showFormError(message) {
 }
 
 function clearErrors() {
-  document.querySelectorAll(".field-error").forEach(el => el.remove());
-  document.querySelectorAll(".input-error").forEach(el => el.classList.remove("input-error"));
+  document.querySelectorAll(".field-error").forEach((el) => el.remove());
+  document.querySelectorAll(".input-error").forEach((el) => el.classList.remove("input-error"));
 }
-

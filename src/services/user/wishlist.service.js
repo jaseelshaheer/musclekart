@@ -4,7 +4,6 @@ import Variant from "../../models/variant.model.js";
 import Category from "../../models/category.model.js";
 import Brand from "../../models/brand.model.js";
 
-
 function isOfferActive(entity) {
   if (!entity?.offer_is_active) return false;
   if (!entity?.offer_discount_type) return false;
@@ -70,11 +69,7 @@ function getBestOfferForPrice({ basePrice, product, category }) {
   const productOfferResult = productHasOffer
     ? applyProductPriceFloor(
         basePrice,
-        applyOfferToPrice(
-          basePrice,
-          product.offer_discount_type,
-          product.offer_discount_value
-        ),
+        applyOfferToPrice(basePrice, product.offer_discount_type, product.offer_discount_value),
         minFinalPrice
       )
     : null;
@@ -82,11 +77,7 @@ function getBestOfferForPrice({ basePrice, product, category }) {
   const categoryOfferResult = categoryHasOffer
     ? applyProductPriceFloor(
         basePrice,
-        applyOfferToPrice(
-          basePrice,
-          category.offer_discount_type,
-          category.offer_discount_value
-        ),
+        applyOfferToPrice(basePrice, category.offer_discount_type, category.offer_discount_value),
         minFinalPrice
       )
     : null;
@@ -147,8 +138,6 @@ function getBestOfferForPrice({ basePrice, product, category }) {
   };
 }
 
-
-
 async function getValidWishlistProduct(productId) {
   const product = await Product.findOne({
     _id: productId,
@@ -198,9 +187,7 @@ async function getValidWishlistProduct(productId) {
 }
 
 export const getWishlistService = async (userId) => {
-  const wishlistItems = await Wishlist.find({ user_id: userId })
-    .sort({ createdAt: -1 })
-    .lean();
+  const wishlistItems = await Wishlist.find({ user_id: userId }).sort({ createdAt: -1 }).lean();
 
   if (!wishlistItems.length) {
     return {
@@ -247,7 +234,7 @@ export const getWishlistService = async (userId) => {
       const pricing = getBestOfferForPrice({
         basePrice: variant.price,
         product,
-        category,
+        category
       });
 
       return {
@@ -258,66 +245,58 @@ export const getWishlistService = async (userId) => {
         has_offer: pricing.hasOffer,
         offer_source: pricing.source,
         offer_discount_type: pricing.discountType,
-        offer_discount_value: pricing.discountValue,
+        offer_discount_value: pricing.discountValue
       };
     });
 
     const minOriginalPrice = Math.min(
-      ...offerAwareVariants.map((variant) =>
-        Number(variant.original_price || 0),
-      ),
+      ...offerAwareVariants.map((variant) => Number(variant.original_price || 0))
     );
 
     const maxOriginalPrice = Math.max(
-      ...offerAwareVariants.map((variant) =>
-        Number(variant.original_price || 0),
-      ),
+      ...offerAwareVariants.map((variant) => Number(variant.original_price || 0))
     );
 
     const minFinalPrice = Math.min(
-      ...offerAwareVariants.map((variant) => Number(variant.final_price || 0)),
+      ...offerAwareVariants.map((variant) => Number(variant.final_price || 0))
     );
 
     const maxFinalPrice = Math.max(
-      ...offerAwareVariants.map((variant) => Number(variant.final_price || 0)),
+      ...offerAwareVariants.map((variant) => Number(variant.final_price || 0))
     );
 
-    const totalStock = offerAwareVariants.reduce(
-      (sum, variant) => sum + variant.stock_qty,
-      0,
-    );
+    const totalStock = offerAwareVariants.reduce((sum, variant) => sum + variant.stock_qty, 0);
 
     const firstVariant = offerAwareVariants[0];
     const hasOffer = offerAwareVariants.some((variant) => variant.has_offer);
 
     items.push({
-        _id: entry._id,
-        product_id: product._id,
-        product_name: product.product_name,
-        category_name: category.name,
-        brand_name: brand?.name || "",
-        main_image: firstVariant?.main_image || "/images/no-image.png",
-        min_original_price: minOriginalPrice,
-        max_original_price: maxOriginalPrice,
-        min_final_price: minFinalPrice,
-        max_final_price: maxFinalPrice,
-        has_offer: hasOffer,
-        total_stock: totalStock,
-        variant_count: offerAwareVariants.length,
-        single_variant_id: offerAwareVariants.length === 1 ? offerAwareVariants[0]._id : null,
-        variant_options: offerAwareVariants.map((variant) => ({
-          _id: variant._id,
-          price: variant.price,
-          original_price: variant.original_price,
-          final_price: variant.final_price,
-          discount_amount: variant.discount_amount,
-          has_offer: variant.has_offer,
-          stock_qty: variant.stock_qty,
-          main_image: variant.main_image,
-          attributes: variant.attributes || []
-        }))
+      _id: entry._id,
+      product_id: product._id,
+      product_name: product.product_name,
+      category_name: category.name,
+      brand_name: brand?.name || "",
+      main_image: firstVariant?.main_image || "/images/no-image.png",
+      min_original_price: minOriginalPrice,
+      max_original_price: maxOriginalPrice,
+      min_final_price: minFinalPrice,
+      max_final_price: maxFinalPrice,
+      has_offer: hasOffer,
+      total_stock: totalStock,
+      variant_count: offerAwareVariants.length,
+      single_variant_id: offerAwareVariants.length === 1 ? offerAwareVariants[0]._id : null,
+      variant_options: offerAwareVariants.map((variant) => ({
+        _id: variant._id,
+        price: variant.price,
+        original_price: variant.original_price,
+        final_price: variant.final_price,
+        discount_amount: variant.discount_amount,
+        has_offer: variant.has_offer,
+        stock_qty: variant.stock_qty,
+        main_image: variant.main_image,
+        attributes: variant.attributes || []
+      }))
     });
-
   }
 
   return {

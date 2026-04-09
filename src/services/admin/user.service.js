@@ -1,10 +1,6 @@
 import User from "../../models/user.model.js";
 
-export const getUsersService = async ({
-  page = 1,
-  limit = 10,
-  search = "",
-}) => {
+export const getUsersService = async ({ page = 1, limit = 10, search = "" }) => {
   const skip = (page - 1) * limit;
 
   const searchQuery = search
@@ -12,8 +8,8 @@ export const getUsersService = async ({
         $or: [
           { firstName: { $regex: search, $options: "i" } },
           { lastName: { $regex: search, $options: "i" } },
-          { email: { $regex: search, $options: "i" } },
-        ],
+          { email: { $regex: search, $options: "i" } }
+        ]
       }
     : {};
 
@@ -23,23 +19,17 @@ export const getUsersService = async ({
     .skip(skip)
     .limit(Number(limit));
 
-  
-
   const totalUsers = await User.countDocuments(searchQuery);
 
   return {
     users,
     totalUsers,
     currentPage: Number(page),
-    totalPages: Math.ceil(totalUsers / limit),
+    totalPages: Math.ceil(totalUsers / limit)
   };
 };
 
-
-export const updateUserStatusService = async (
-  targetUserId,
-  isBlocked
-) => {
+export const updateUserStatusService = async (targetUserId, isBlocked) => {
   const user = await User.findById(targetUserId);
 
   if (!user) {
@@ -51,6 +41,6 @@ export const updateUserStatusService = async (
 
   return {
     id: user._id,
-    isBlocked: user.isBlocked,
+    isBlocked: user.isBlocked
   };
 };

@@ -8,8 +8,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   try {
     const res = await fetch("/user/profile", {
       headers: {
-        Authorization: `Bearer ${token}`,
-      },
+        Authorization: `Bearer ${token}`
+      }
     });
 
     const data = await res.json();
@@ -28,30 +28,22 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.getElementById("profileHeaderName").textContent =
       `${user.firstName || ""} ${user.lastName || ""}`.trim() || "User";
 
-
     // Update fields
-    document.getElementById("profileFirstName").textContent =
-      user.firstName || "-";
+    document.getElementById("profileFirstName").textContent = user.firstName || "-";
 
-    document.getElementById("profileLastName").textContent =
-      user.lastName || "-";
+    document.getElementById("profileLastName").textContent = user.lastName || "-";
 
-    document.getElementById("profilePhone").textContent =
-      user.phone || "-";
+    document.getElementById("profilePhone").textContent = user.phone || "-";
 
-    document.getElementById("currentEmail").textContent =
-      user.email || "-";
+    document.getElementById("currentEmail").textContent = user.email || "-";
 
-    document.getElementById("profileReferralCode").textContent =
-    user.referral_code || "-";
+    document.getElementById("profileReferralCode").textContent = user.referral_code || "-";
 
     const copyReferralCodeBtn = document.getElementById("copyReferralCodeBtn");
     const referralCodeText = user.referral_code || "";
 
     if (copyReferralCodeBtn) {
-      copyReferralCodeBtn.style.display = referralCodeText
-        ? "inline-block"
-        : "none";
+      copyReferralCodeBtn.style.display = referralCodeText ? "inline-block" : "none";
 
       copyReferralCodeBtn.addEventListener("click", async () => {
         if (!referralCodeText) return;
@@ -96,9 +88,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (profileImg && user.profileImage) {
       profileImg.src = user.profileImage;
     }
-
   } catch (err) {
     console.error(err);
   }
 });
-

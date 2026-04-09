@@ -26,7 +26,6 @@ const categoryOfferDiscountValue = document.getElementById("categoryOfferDiscoun
 const categoryOfferStartDate = document.getElementById("categoryOfferStartDate");
 const categoryOfferExpiryDate = document.getElementById("categoryOfferExpiryDate");
 
-
 /* =========================
    CATEGORY MODAL
 ========================= */
@@ -40,8 +39,6 @@ const descInput = document.getElementById("categoryDescription");
 
 const modalTitle = document.getElementById("modalTitle");
 
-
-
 function updateCategoryCounts() {
   if (categoryNameCount) {
     categoryNameCount.textContent = `${nameInput.value.length} / 50`;
@@ -52,7 +49,6 @@ function updateCategoryCounts() {
   }
 }
 
-
 nameInput.addEventListener("input", () => {
   updateCategoryCounts();
   nameInput.classList.remove("input-error");
@@ -61,13 +57,9 @@ nameInput.addEventListener("input", () => {
   }
 });
 
-
 descInput.addEventListener("input", () => {
   updateCategoryCounts();
 });
-
-
-
 
 categoryOfferDiscountType?.addEventListener("change", () => {
   categoryOfferDiscountType.classList.remove("input-error");
@@ -89,15 +81,11 @@ categoryOfferExpiryDate?.addEventListener("input", () => {
   document.getElementById("categoryOfferExpiryDateError").textContent = "";
 });
 
-
-
-
 function getAdminToken() {
   return localStorage.getItem("adminToken");
 }
 
 async function loadCategories() {
-
   const token = getAdminToken();
 
   if (!token) {
@@ -108,14 +96,11 @@ async function loadCategories() {
 
   const search = searchInput.value;
 
-  const res = await fetch(
-    `/admin/categories?page=${page}&limit=${limit}&search=${search}`,
-    {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
+  const res = await fetch(`/admin/categories?page=${page}&limit=${limit}&search=${search}`, {
+    headers: {
+      Authorization: `Bearer ${token}`
     }
-  );
+  });
 
   const data = await res.json();
 
@@ -126,7 +111,6 @@ async function loadCategories() {
   table.innerHTML = "";
 
   data.data.categories.forEach((cat, index) => {
-
     const tr = document.createElement("tr");
 
     tr.innerHTML = `
@@ -169,67 +153,51 @@ async function loadCategories() {
     `;
 
     table.appendChild(tr);
-
   });
 
-  pageInfo.textContent =
-    `Page ${data.data.currentPage} of ${data.data.totalPages}`;
+  pageInfo.textContent = `Page ${data.data.currentPage} of ${data.data.totalPages}`;
 
   totalPages = data.data.totalPages;
 }
-
-
 
 /* =========================
    TOGGLE CATEGORY STATUS
 ========================= */
 
 function toggleCategoryStatus(categoryId, isActive) {
-  showConfirm(
-    isActive ? "Deactivate this category?" : "Activate this category?",
-    async () => {
-      const res = await fetch(`/admin/categories/${categoryId}/status`, {
-        method: "PATCH",
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("adminToken")}`
-        }
-      });
-
-      const data = await res.json();
-
-      if (!data.success) {
-        showAlertModal(data.message || "Failed to update category status");
-        return;
+  showConfirm(isActive ? "Deactivate this category?" : "Activate this category?", async () => {
+    const res = await fetch(`/admin/categories/${categoryId}/status`, {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("adminToken")}`
       }
+    });
 
-      showToast(
-        isActive
-          ? "Category deactivated successfully."
-          : "Category activated successfully.",
-        "success"
-      );
+    const data = await res.json();
 
-      loadCategories();
+    if (!data.success) {
+      showAlertModal(data.message || "Failed to update category status");
+      return;
     }
-  );
-}
 
+    showToast(
+      isActive ? "Category deactivated successfully." : "Category activated successfully.",
+      "success"
+    );
+
+    loadCategories();
+  });
+}
 
 function toggleCategoryOfferFields() {
   if (!categoryOfferFields || !categoryOfferIsActive) return;
 
-  categoryOfferFields.classList.toggle(
-    "hidden",
-    !categoryOfferIsActive.checked
-  );
+  categoryOfferFields.classList.toggle("hidden", !categoryOfferIsActive.checked);
 }
-
 
 categoryOfferIsActive?.addEventListener("change", () => {
   toggleCategoryOfferFields();
 });
-
-
 
 /* =========================
    DELETE CATEGORY
@@ -240,8 +208,8 @@ function deleteCategory(categoryId) {
     const res = await fetch(`/admin/categories/${categoryId}`, {
       method: "DELETE",
       headers: {
-        Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
-      },
+        Authorization: `Bearer ${localStorage.getItem("adminToken")}`
+      }
     });
 
     const data = await res.json();
@@ -255,8 +223,6 @@ function deleteCategory(categoryId) {
     loadCategories();
   });
 }
-
-
 
 /* =========================
    SEARCH
@@ -272,8 +238,6 @@ clearBtn.onclick = () => {
   page = 1;
   loadCategories();
 };
-
-
 
 /* =========================
    PAGINATION
@@ -293,8 +257,6 @@ nextBtn.onclick = () => {
   }
 };
 
-
-
 document.getElementById("addCategoryBtn").onclick = () => {
   modal.classList.remove("hidden");
 
@@ -311,23 +273,17 @@ document.getElementById("addCategoryBtn").onclick = () => {
   categoryOfferExpiryDate.value = "";
   toggleCategoryOfferFields();
 
-
   clearValidation();
   updateCategoryCounts();
 };
 
-
-
 document.getElementById("closeModalBtn").onclick = () => {
-
   modal.classList.add("hidden");
 
   clearValidation();
 
   updateCategoryCounts();
-
 };
-
 
 function formatDateTimeLocal(value) {
   if (!value) return "";
@@ -342,7 +298,6 @@ function formatDateTimeLocal(value) {
   return `${year}-${month}-${day}T${hours}:${minutes}`;
 }
 
-
 function openEditModal(id) {
   const category = currentCategories.find((cat) => cat._id === id);
   if (!category) return;
@@ -356,18 +311,16 @@ function openEditModal(id) {
 
   categoryOfferIsActive.checked = Boolean(category.offer_is_active);
   categoryOfferDiscountType.value = category.offer_discount_type || "";
-  categoryOfferDiscountValue.value =
-    category.offer_discount_value ? String(category.offer_discount_value) : "";
+  categoryOfferDiscountValue.value = category.offer_discount_value
+    ? String(category.offer_discount_value)
+    : "";
   categoryOfferStartDate.value = formatDateTimeLocal(category.offer_start_date);
   categoryOfferExpiryDate.value = formatDateTimeLocal(category.offer_expiry_date);
-
 
   clearValidation();
   updateCategoryCounts();
   toggleCategoryOfferFields();
 }
-
-
 
 /* =========================
    VALIDATION
@@ -382,7 +335,7 @@ function clearValidation() {
     "categoryOfferDiscountTypeError",
     "categoryOfferDiscountValueError",
     "categoryOfferStartDateError",
-    "categoryOfferExpiryDateError",
+    "categoryOfferExpiryDateError"
   ].forEach((id) => {
     const el = document.getElementById(id);
     if (el) el.textContent = "";
@@ -395,8 +348,6 @@ function clearValidation() {
 
   nameInput.classList.remove("input-error");
 }
-
-
 
 function showError(input, message) {
   input.classList.add("input-error");
@@ -414,8 +365,6 @@ function showOfferFieldError(input, errorId, message) {
     errorEl.textContent = message;
   }
 }
-
-
 
 /* =========================
    CREATE / UPDATE CATEGORY
@@ -446,7 +395,7 @@ form.addEventListener("submit", async (e) => {
       showOfferFieldError(
         categoryOfferDiscountType,
         "categoryOfferDiscountTypeError",
-        "Select a valid offer type",
+        "Select a valid offer type"
       );
       isValid = false;
     }
@@ -455,7 +404,7 @@ form.addEventListener("submit", async (e) => {
       showOfferFieldError(
         categoryOfferDiscountValue,
         "categoryOfferDiscountValueError",
-        "Offer value must be greater than 0",
+        "Offer value must be greater than 0"
       );
       isValid = false;
     }
@@ -467,7 +416,7 @@ form.addEventListener("submit", async (e) => {
       showOfferFieldError(
         categoryOfferDiscountValue,
         "categoryOfferDiscountValueError",
-        "Percentage offer cannot exceed 100",
+        "Percentage offer cannot exceed 100"
       );
       isValid = false;
     }
@@ -476,7 +425,7 @@ form.addEventListener("submit", async (e) => {
       showOfferFieldError(
         categoryOfferStartDate,
         "categoryOfferStartDateError",
-        "Offer start date is required",
+        "Offer start date is required"
       );
       isValid = false;
     }
@@ -485,7 +434,7 @@ form.addEventListener("submit", async (e) => {
       showOfferFieldError(
         categoryOfferExpiryDate,
         "categoryOfferExpiryDateError",
-        "Offer expiry date is required",
+        "Offer expiry date is required"
       );
       isValid = false;
     }
@@ -493,13 +442,12 @@ form.addEventListener("submit", async (e) => {
     if (
       categoryOfferStartDate.value &&
       categoryOfferExpiryDate.value &&
-      new Date(categoryOfferExpiryDate.value) <=
-        new Date(categoryOfferStartDate.value)
+      new Date(categoryOfferExpiryDate.value) <= new Date(categoryOfferStartDate.value)
     ) {
       showOfferFieldError(
         categoryOfferExpiryDate,
         "categoryOfferExpiryDateError",
-        "Expiry date must be after start date",
+        "Expiry date must be after start date"
       );
       isValid = false;
     }
@@ -511,18 +459,12 @@ form.addEventListener("submit", async (e) => {
     name,
     description,
     offer_is_active: categoryOfferIsActive.checked,
-    offer_discount_type: categoryOfferIsActive.checked
-      ? categoryOfferDiscountType.value
-      : null,
+    offer_discount_type: categoryOfferIsActive.checked ? categoryOfferDiscountType.value : null,
     offer_discount_value: categoryOfferIsActive.checked
       ? Number(categoryOfferDiscountValue.value || 0)
       : 0,
-    offer_start_date: categoryOfferIsActive.checked
-      ? categoryOfferStartDate.value
-      : null,
-    offer_expiry_date: categoryOfferIsActive.checked
-      ? categoryOfferExpiryDate.value
-      : null,
+    offer_start_date: categoryOfferIsActive.checked ? categoryOfferStartDate.value : null,
+    offer_expiry_date: categoryOfferIsActive.checked ? categoryOfferExpiryDate.value : null
   };
 
   const token = getAdminToken();
@@ -535,18 +477,18 @@ form.addEventListener("submit", async (e) => {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${token}`
       },
-      body: JSON.stringify(payload),
+      body: JSON.stringify(payload)
     });
   } else {
     res = await fetch("/admin/categories", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${token}`
       },
-      body: JSON.stringify(payload),
+      body: JSON.stringify(payload)
     });
   }
 
@@ -559,15 +501,9 @@ form.addEventListener("submit", async (e) => {
 
   modal.classList.add("hidden");
 
-  showToast(
-    id ? "Category updated successfully." : "Category created successfully.",
-    "success",
-  );
+  showToast(id ? "Category updated successfully." : "Category created successfully.", "success");
 
   loadCategories();
 });
-
-
-
 
 loadCategories();

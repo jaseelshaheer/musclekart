@@ -2,7 +2,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const inputs = document.querySelectorAll(".otp-box");
   const timerEl = document.getElementById("otpTimer");
   const resendBtn = document.getElementById("resendBtn");
-  const errorEl = document.getElementById("otpError");
+  // const errorEl = document.getElementById("otpError");
 
   if (!inputs.length || !timerEl || !resendBtn) {
     return;
@@ -11,13 +11,14 @@ document.addEventListener("DOMContentLoaded", () => {
   // Auto focus next input
   inputs.forEach((input, index) => {
     input.addEventListener("input", () => {
-      if (input.value && inputs[index + 1]) {z
+      if (input.value && inputs[index + 1]) {
+        // z;
         inputs[index + 1].focus();
       }
     });
   });
 
-//timer
+  //timer
   let timeLeft = 30;
   timerEl.textContent = `00:${timeLeft}`;
 
@@ -32,4 +33,3 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }, 1000);
 });
-

@@ -2,10 +2,11 @@ import User from "../../models/user.model.js";
 import jwt from "jsonwebtoken";
 
 function generateReferralCode(firstName = "") {
-  const prefix = String(firstName || "MK")
-    .replace(/[^a-zA-Z0-9]/g, "")
-    .toUpperCase()
-    .slice(0, 4) || "MK";
+  const prefix =
+    String(firstName || "MK")
+      .replace(/[^a-zA-Z0-9]/g, "")
+      .toUpperCase()
+      .slice(0, 4) || "MK";
 
   const randomPart = Math.random().toString(36).slice(2, 8).toUpperCase();
   return `${prefix}${randomPart}`;
@@ -36,7 +37,6 @@ export async function findReferrerByCode(referralCode) {
   return referrer || null;
 }
 
-
 const REFERRAL_TOKEN_EXPIRY = "30d";
 
 function getReferralTokenSecret() {
@@ -44,7 +44,9 @@ function getReferralTokenSecret() {
 }
 
 export function generateReferralToken(referralCode) {
-  const normalized = String(referralCode || "").trim().toUpperCase();
+  const normalized = String(referralCode || "")
+    .trim()
+    .toUpperCase();
 
   if (!normalized) {
     throw new Error("Referral code is required");
@@ -89,5 +91,3 @@ export async function resolveReferrerFromToken(token) {
 
   return { referrer, referralCode };
 }
-
-

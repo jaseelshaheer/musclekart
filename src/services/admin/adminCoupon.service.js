@@ -79,11 +79,7 @@ function validateCouponPayload(payload) {
 }
 
 export const getAdminCouponsService = async (query = {}) => {
-  const {
-    search = "",
-    page = 1,
-    limit = 10
-  } = query;
+  const { search = "", page = 1, limit = 10 } = query;
 
   const pageNumber = parseInt(page, 10) || 1;
   const limitNumber = parseInt(limit, 10) || 10;
@@ -132,7 +128,6 @@ export const getAdminCouponsService = async (query = {}) => {
   };
 };
 
-
 export const createCouponService = async (payload) => {
   validateCouponPayload(payload);
 
@@ -161,7 +156,6 @@ export const createCouponService = async (payload) => {
   return coupon;
 };
 
-
 export const getCouponByIdService = async (couponId) => {
   const coupon = await Coupon.findById(couponId).lean();
 
@@ -171,8 +165,6 @@ export const getCouponByIdService = async (couponId) => {
 
   return coupon;
 };
-
-
 
 export const toggleCouponStatusService = async (couponId) => {
   const coupon = await Coupon.findById(couponId);
@@ -186,7 +178,6 @@ export const toggleCouponStatusService = async (couponId) => {
 
   return coupon;
 };
-
 
 export const updateCouponService = async (couponId, payload) => {
   validateCouponPayload(payload);
@@ -216,9 +207,7 @@ export const updateCouponService = async (couponId, payload) => {
   coupon.usage_limit = Number(payload.usage_limit);
   coupon.usage_per_user = Number(payload.usage_per_user);
   coupon.max_discount =
-    payload.discount_type === "percentage"
-      ? Number(payload.max_discount || 0)
-      : 0;
+    payload.discount_type === "percentage" ? Number(payload.max_discount || 0) : 0;
   coupon.start_date = new Date(payload.start_date);
   coupon.expiry_date = new Date(payload.expiry_date);
 
@@ -226,7 +215,6 @@ export const updateCouponService = async (couponId, payload) => {
 
   return coupon;
 };
-
 
 export const deleteCouponService = async (couponId) => {
   const deletedCoupon = await Coupon.findByIdAndDelete(couponId);

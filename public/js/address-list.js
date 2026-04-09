@@ -45,7 +45,9 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    container.innerHTML = addresses.map(address => `
+    container.innerHTML = addresses
+      .map(
+        (address) => `
       <div class="address-card ${address.isDefault ? "default" : ""}">
         ${address.isDefault ? `<span class="default-badge">Default</span>` : ""}
 
@@ -60,25 +62,31 @@ document.addEventListener("DOMContentLoaded", () => {
             Edit
           </a>
 
-          ${!address.isDefault ? `
+          ${
+            !address.isDefault
+              ? `
             <button class="btn-set-default" data-id="${address._id}">
               Set Default
             </button>
-          ` : ""}
+          `
+              : ""
+          }
 
           <button class="btn-delete danger-btn" data-id="${address._id}">
             Delete
           </button>
         </div>
       </div>
-    `).join("");
+    `
+      )
+      .join("");
 
     attachActionListeners();
   }
 
   function attachActionListeners() {
     // DELETE
-    document.querySelectorAll(".btn-delete").forEach(btn => {
+    document.querySelectorAll(".btn-delete").forEach((btn) => {
       btn.addEventListener("click", async () => {
         const id = btn.dataset.id;
 
@@ -107,7 +115,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     // SET DEFAULT
-    document.querySelectorAll(".btn-set-default").forEach(btn => {
+    document.querySelectorAll(".btn-set-default").forEach((btn) => {
       btn.addEventListener("click", async () => {
         const id = btn.dataset.id;
 
@@ -126,15 +134,10 @@ document.addEventListener("DOMContentLoaded", () => {
           }
           showToast("Default address updated.", "success");
           loadAddresses();
-
-          
         } catch (err) {
           showToast(err.message, "error");
         }
       });
     });
   }
-
 });
-
-

@@ -9,26 +9,32 @@ function round2(value) {
 
 function getDateRange({ period = "monthly", from, to }) {
   const now = new Date();
-  let start = null;
-  let end = new Date(now);
+  let start;
+  let end;
+
 
   if (period === "daily") {
     start = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    end = new Date(now);
   } else if (period === "weekly") {
     const day = now.getDay();
     const diff = day === 0 ? 6 : day - 1;
     start = new Date(now);
     start.setDate(now.getDate() - diff);
     start.setHours(0, 0, 0, 0);
+    end = new Date(now);
   } else if (period === "yearly") {
     start = new Date(now.getFullYear(), 0, 1);
+    end = new Date(now);
   } else if (period === "custom") {
     start = from ? new Date(from) : null;
-    end = to ? new Date(to) : end;
+    end = to ? new Date(to) : new Date(now);
     if (end) end.setHours(23, 59, 59, 999);
   } else {
     start = new Date(now.getFullYear(), now.getMonth(), 1);
+    end = new Date(now);
   }
+
 
   if (start && Number.isNaN(start.getTime())) {
     throw new Error("Invalid from date");
@@ -70,23 +76,20 @@ function getItemOfferDiscount(order) {
   );
 }
 
-function buildTrendMap(trendRows) {
-  const map = new Map();
-  trendRows.forEach((row) => {
-    map.set(row._id, {
-      label: row._id,
-      salesCount: Number(row.salesCount || 0),
-      orderAmount: round2(row.orderAmount || 0)
-    });
-  });
-  return map;
-}
+// function buildTrendMap(trendRows) {
+//   const map = new Map();
+//   trendRows.forEach((row) => {
+//     map.set(row._id, {
+//       label: row._id,
+//       salesCount: Number(row.salesCount || 0),
+//       orderAmount: round2(row.orderAmount || 0)
+//     });
+//   });
+//   return map;
+// }
 
 function getMonthLabels() {
-  return [
-    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
-  ];
+  return ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 }
 
 export async function getSalesReportService({ period = "monthly", from, to }) {
@@ -141,7 +144,9 @@ export async function getSalesReportService({ period = "monthly", from, to }) {
   ]);
 
   const orders = await Order.find(match)
-    .select("order_id order_date order_status payment_method payment_status subtotal discount grand_total items")
+    .select(
+      "order_id order_date order_status payment_method payment_status subtotal discount grand_total items"
+    )
     .sort({ order_date: -1 })
     .limit(300)
     .lean();
@@ -176,8 +181,7 @@ export async function getSalesReportService({ period = "monthly", from, to }) {
       couponDiscountAmount: round2(summaryRow?.couponDiscountAmount || 0),
       offerDiscountAmount: round2(summaryRow?.offerDiscountAmount || 0),
       totalDiscountAmount: round2(
-        Number(summaryRow?.couponDiscountAmount || 0) +
-        Number(summaryRow?.offerDiscountAmount || 0)
+        Number(summaryRow?.couponDiscountAmount || 0) + Number(summaryRow?.offerDiscountAmount || 0)
       )
     },
     trend: trendRows.map((row) => ({
@@ -197,7 +201,7 @@ export async function getDashboardAnalyticsService({ view = "monthly", year }) {
     order_status: { $nin: ["cancelled", "returned"] }
   };
 
-  let chart = [];
+  let chart;
 
   if (view === "yearly") {
     const startYear = now.getFullYear() - 4;
@@ -356,4 +360,3 @@ export async function getDashboardAnalyticsService({ view = "monthly", year }) {
     topBrands
   };
 }
-

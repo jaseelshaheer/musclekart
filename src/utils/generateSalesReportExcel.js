@@ -42,9 +42,9 @@ export async function generateSalesReportExcel(reportData, res) {
 
   sheet.mergeCells("A2:J2");
   sheet.getCell("A2").value =
-    `Period: ${String(reportData.filter?.period || "").toUpperCase()} | From: ${
-      formatDate(reportData.filter?.from)
-    } | To: ${formatDate(reportData.filter?.to)}`;
+    `Period: ${String(reportData.filter?.period || "").toUpperCase()} | From: ${formatDate(
+      reportData.filter?.from
+    )} | To: ${formatDate(reportData.filter?.to)}`;
   sheet.getCell("A2").font = { name: "Calibri", size: 10, color: { argb: "FF475569" } };
   sheet.getCell("A2").alignment = { horizontal: "center", vertical: "middle" };
   sheet.getRow(2).height = 20;
@@ -182,12 +182,17 @@ export async function generateSalesReportExcel(reportData, res) {
     currentRow += 1;
   });
 
-    // Totals row (standard report footer)
+  // Totals row (standard report footer)
   const totalsRowNumber = currentRow;
   const totalsRow = sheet.getRow(totalsRowNumber);
 
   totalsRow.getCell(1).value = "TOTAL";
-  totalsRow.getCell(1).font = { name: "Calibri", size: 11, bold: true, color: { argb: "FF0F172A" } };
+  totalsRow.getCell(1).font = {
+    name: "Calibri",
+    size: 11,
+    bold: true,
+    color: { argb: "FF0F172A" }
+  };
   totalsRow.getCell(1).alignment = { horizontal: "left", vertical: "middle" };
 
   // Merge label area A:E
@@ -221,7 +226,6 @@ export async function generateSalesReportExcel(reportData, res) {
 
   totalsRow.height = 22;
 
-
   const fileName = `sales-report-${Date.now()}.xlsx`;
   res.setHeader(
     "Content-Type",
@@ -232,5 +236,3 @@ export async function generateSalesReportExcel(reportData, res) {
   await workbook.xlsx.write(res);
   res.end();
 }
-
-

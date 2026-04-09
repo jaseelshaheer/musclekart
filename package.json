@@ -6,7 +6,11 @@
   "type": "module",
   "scripts": {
     "start": "node -r dotenv/config  src/server.js",
-    "dev": "nodemon -r dotenv/config  src/server.js"
+    "dev": "nodemon -r dotenv/config  src/server.js",
+    "lint": "eslint . --ext .js",
+    "lint:fix": "eslint . --ext .js --fix",
+    "format": "prettier . --write",
+    "format:check": "prettier . --check"
   },
   "keywords": [],
   "author": "",
@@ -33,6 +37,12 @@
     "razorpay": "^2.9.6"
   },
   "devDependencies": {
-    "nodemon": "^3.1.11"
+    "@eslint/js": "^10.0.1",
+    "editorconfig-checker": "^6.1.1",
+    "eslint": "^10.2.0",
+    "eslint-config-prettier": "^10.1.8",
+    "globals": "^17.4.0",
+    "nodemon": "^3.1.11",
+    "prettier": "^3.8.1"
   }
 }

@@ -25,7 +25,6 @@ export const getCheckoutData = async (req, res) => {
   }
 };
 
-
 export const placeOrder = async (req, res) => {
   try {
     const result = await placeOrderService(req.user.id, req.body);
@@ -42,4 +41,3 @@ export const placeOrder = async (req, res) => {
     });
   }
 };
-

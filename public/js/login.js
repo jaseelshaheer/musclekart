@@ -3,7 +3,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (!form) return;
 
   // password eye visibility
-  document.querySelectorAll(".toggle-password").forEach(icon => {
+  document.querySelectorAll(".toggle-password").forEach((icon) => {
     icon.addEventListener("click", () => {
       const input = icon.previousElementSibling;
       input.type = input.type === "password" ? "text" : "password";
@@ -61,7 +61,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!emailInput.value.trim()) {
       showFieldError(emailInput, "Email is required");
       valid = false;
-    }else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInput.value.trim())) {
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInput.value.trim())) {
       showFieldError(emailInput, "Invalid email format Ex: user@email.com");
       valid = false;
     }
@@ -83,12 +83,12 @@ document.addEventListener("DOMContentLoaded", () => {
       const res = await fetch("/auth/login", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
+          "Content-Type": "application/json"
         },
         body: JSON.stringify({
           email: emailInput.value.trim(),
-          password: passwordInput.value.trim(),
-        }),
+          password: passwordInput.value.trim()
+        })
       });
 
       const data = await res.json();
@@ -104,12 +104,11 @@ document.addEventListener("DOMContentLoaded", () => {
         "toast",
         JSON.stringify({
           message: "Welcome back!",
-          type: "success",
+          type: "success"
         })
       );
 
       window.location.replace("/home");
-
     } catch (err) {
       clearErrors();
       formMessage.textContent = "";
@@ -136,5 +135,3 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 });
-
-

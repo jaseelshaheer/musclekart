@@ -14,8 +14,7 @@ function formatCurrency(value) {
 function renderWishlistPriceBlock(item) {
   const hasOffer = Boolean(item.has_offer);
 
-  const isRange =
-    Number(item.min_final_price || 0) !== Number(item.max_final_price || 0);
+  const isRange = Number(item.min_final_price || 0) !== Number(item.max_final_price || 0);
 
   const finalPriceText = isRange
     ? `${formatCurrency(item.min_final_price)} - ${formatCurrency(item.max_final_price)}`
@@ -33,22 +32,15 @@ function renderWishlistPriceBlock(item) {
       </span>
 
       <div class="shop-price-stack">
-        ${
-          hasOffer
-            ? `<span class="shop-price-original">${originalPriceText}</span>`
-            : ""
-        }
+        ${hasOffer ? `<span class="shop-price-original">${originalPriceText}</span>` : ""}
         <strong class="shop-price-final">${finalPriceText}</strong>
       </div>
     </div>
   `;
 }
 
-
-
 let selectedWishlistVariantId = null;
 let selectedWishlistProductId = null;
-
 
 if (!token) {
   window.location.href = "/login";
@@ -106,8 +98,8 @@ function renderWishlist(data) {
 
               <div class="wishlist-card-footer">
                 ${
-                    item.total_stock > 0 && item.variant_count === 1
-                        ? `<button
+                  item.total_stock > 0 && item.variant_count === 1
+                    ? `<button
                             type="button"
                             class="wishlist-add-cart-btn"
                             data-product-id="${item.product_id}"
@@ -115,8 +107,8 @@ function renderWishlist(data) {
                         >
                             Add to Cart
                         </button>`
-                        : item.total_stock > 0 && item.variant_count > 1
-                        ? `<button
+                    : item.total_stock > 0 && item.variant_count > 1
+                      ? `<button
                             type="button"
                             class="wishlist-add-cart-btn secondary wishlist-choose-variant-btn"
                             data-product-id="${item.product_id}"
@@ -125,7 +117,7 @@ function renderWishlist(data) {
                             >
                             View All Variants
                             </button>`
-                        : `<a href="/shop/${item.product_id}" class="wishlist-add-cart-btn secondary">
+                      : `<a href="/shop/${item.product_id}" class="wishlist-add-cart-btn secondary">
                             View Details
                             </a>`
                 }
@@ -146,7 +138,6 @@ function renderWishlist(data) {
     </div>
   `;
 }
-
 
 function openWishlistVariantModal(productId, productName, variants) {
   if (!wishlistVariantModal || !wishlistVariantOptions || !wishlistVariantModalTitle) return;
@@ -208,13 +199,9 @@ function closeWishlistVariantModal() {
 
 function highlightWishlistSelectedVariant() {
   document.querySelectorAll("#wishlistVariantOptions .shop-variant-option-card").forEach((card) => {
-    card.classList.toggle(
-      "active",
-      card.dataset.variantId === String(selectedWishlistVariantId)
-    );
+    card.classList.toggle("active", card.dataset.variantId === String(selectedWishlistVariantId));
   });
 }
-
 
 async function loadWishlist() {
   const res = await fetch("/wishlist/data", {
@@ -315,7 +302,6 @@ if (wishlistContent) {
       return;
     }
 
-
     const addBtn = e.target.closest(".wishlist-add-cart-btn");
     if (addBtn && addBtn.tagName === "BUTTON") {
       const productId = addBtn.dataset.productId;
@@ -335,7 +321,6 @@ if (wishlistVariantOptions) {
   });
 }
 
-
 if (clearWishlistBtn) {
   clearWishlistBtn.addEventListener("click", () => {
     showConfirm("Remove all items from wishlist?", async () => {
@@ -344,9 +329,15 @@ if (clearWishlistBtn) {
   });
 }
 
-document.getElementById("closeWishlistVariantModalBtn")?.addEventListener("click", closeWishlistVariantModal);
-document.getElementById("wishlistVariantCancelBtn")?.addEventListener("click", closeWishlistVariantModal);
-document.getElementById("wishlistVariantModalBackdrop")?.addEventListener("click", closeWishlistVariantModal);
+document
+  .getElementById("closeWishlistVariantModalBtn")
+  ?.addEventListener("click", closeWishlistVariantModal);
+document
+  .getElementById("wishlistVariantCancelBtn")
+  ?.addEventListener("click", closeWishlistVariantModal);
+document
+  .getElementById("wishlistVariantModalBackdrop")
+  ?.addEventListener("click", closeWishlistVariantModal);
 
 wishlistVariantAddToCartBtn?.addEventListener("click", async () => {
   if (!selectedWishlistProductId || !selectedWishlistVariantId) {
@@ -357,6 +348,5 @@ wishlistVariantAddToCartBtn?.addEventListener("click", async () => {
   await addWishlistItemToCart(selectedWishlistProductId, selectedWishlistVariantId);
   closeWishlistVariantModal();
 });
-
 
 loadWishlist();

@@ -4,7 +4,6 @@ import { BRAND_MESSAGES } from "../constants/messages.js";
 /* CREATE BRAND */
 
 export const createBrandService = async (data) => {
-
   const { name } = data;
 
   if (!data.name || !data.name.trim()) {
@@ -14,7 +13,6 @@ export const createBrandService = async (data) => {
   if (data.name.trim().length > 50) {
     throw new Error("Brand name must be 50 characters or fewer");
   }
-
 
   const existing = await Brand.findOne({
     name: { $regex: `^${name}$`, $options: "i" },
@@ -30,11 +28,9 @@ export const createBrandService = async (data) => {
   return brand;
 };
 
-
 /* GET BRANDS */
 
 export const getBrandsService = async (query) => {
-
   const page = parseInt(query.page) || 1;
   const limit = 10;
 
@@ -47,10 +43,7 @@ export const getBrandsService = async (query) => {
     name: { $regex: search, $options: "i" }
   };
 
-  const brands = await Brand.find(filter)
-    .sort({ createdAt: -1 })
-    .skip(skip)
-    .limit(limit);
+  const brands = await Brand.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit);
 
   const total = await Brand.countDocuments(filter);
 
@@ -60,14 +53,11 @@ export const getBrandsService = async (query) => {
     currentPage: page,
     totalPages: Math.ceil(total / limit)
   };
-
 };
-
 
 /* UPDATE BRAND */
 
 export const updateBrandService = async (id, data) => {
-
   const { name } = data;
 
   const existing = await Brand.findOne({
@@ -75,7 +65,6 @@ export const updateBrandService = async (id, data) => {
     _id: { $ne: id },
     isDeleted: false
   });
-
 
   if (!data.name || !data.name.trim()) {
     throw new Error(BRAND_MESSAGES.NAME_REQUIRED);
@@ -88,23 +77,15 @@ export const updateBrandService = async (id, data) => {
   if (existing) {
     throw new Error(BRAND_MESSAGES.NAME_EXISTS);
   }
-  
 
-  const brand = await Brand.findByIdAndUpdate(
-    id,
-    { name },
-    { new: true }
-  );
+  const brand = await Brand.findByIdAndUpdate(id, { name }, { new: true });
 
   return brand;
-
 };
-
 
 /* SOFT DELETE BRAND */
 
 export const deleteBrandService = async (id) => {
-
   const brand = await Brand.findByIdAndUpdate(
     id,
     {
@@ -115,14 +96,11 @@ export const deleteBrandService = async (id) => {
   );
 
   return brand;
-
 };
-
 
 /* TOGGLE BRAND STATUS */
 
 export const toggleBrandStatusService = async (id) => {
-
   const brand = await Brand.findById(id);
 
   if (!brand) {
@@ -134,5 +112,4 @@ export const toggleBrandStatusService = async (id) => {
   await brand.save();
 
   return brand;
-
 };

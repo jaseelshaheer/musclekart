@@ -1,5 +1,5 @@
-import jwt from "jsonwebtoken"
-import User from "../models/user.model.js"
+// import jwt from "jsonwebtoken";
+import User from "../models/user.model.js";
 import { verifyToken } from "../utils/jwt.js";
 import HTTP_STATUS from "../constants/httpStatus.js";
 
@@ -10,7 +10,7 @@ export const protect = async (req, res, next) => {
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
       return res.status(HTTP_STATUS.UNAUTHORIZED).json({
         success: false,
-        message: "Not authorized, token missing",
+        message: "Not authorized, token missing"
       });
     }
 
@@ -23,7 +23,7 @@ export const protect = async (req, res, next) => {
     if (!user) {
       return res.status(HTTP_STATUS.UNAUTHORIZED).json({
         success: false,
-        message: "User not found",
+        message: "User not found"
       });
     }
 
@@ -37,20 +37,19 @@ export const protect = async (req, res, next) => {
     req.user = user;
     res.locals.user = user;
     next();
-  } catch (error) {
+  } catch{
     return res.status(HTTP_STATUS.UNAUTHORIZED).json({
       success: false,
-      message: "Not authorized, invalid token",
+      message: "Not authorized, invalid token"
     });
   }
 };
-
 
 export const adminOnly = (req, res, next) => {
   if (req.user.role !== "admin") {
     return res.status(HTTP_STATUS.FORBIDDEN).json({
       success: false,
-      message: "Admin access only",
+      message: "Admin access only"
     });
   }
 

@@ -42,7 +42,6 @@ export const getProductsPage = async (req, res) => {
   }
 };
 
-
 export const getProductsData = async (req, res) => {
   try {
     const result = await getProductsPageService(req.query);
@@ -59,7 +58,6 @@ export const getProductsData = async (req, res) => {
   }
 };
 
-
 export const getProductDetailsPage = async (req, res) => {
   try {
     const result = await getProductDetailsPageService(req.params.productId);
@@ -69,7 +67,7 @@ export const getProductDetailsPage = async (req, res) => {
       activePage: "shop",
       ...result
     });
-  } catch (error) {
+  } catch{
     return res.redirect("/shop?notice=This product is unavailable");
   }
 };

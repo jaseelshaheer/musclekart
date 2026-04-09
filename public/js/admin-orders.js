@@ -62,8 +62,8 @@ async function loadOrders() {
         <td>
             <span class="order-status-pill ${order.order_status}">
                 ${order.order_status
-                    .replaceAll("_", " ")
-                    .replace(/\b\w/g, (char) => char.toUpperCase())}
+                  .replaceAll("_", " ")
+                  .replace(/\b\w/g, (char) => char.toUpperCase())}
             </span>
         </td>
         <td>
@@ -72,7 +72,6 @@ async function loadOrders() {
             </button>
         </td>
     `;
-
 
     table.appendChild(tr);
   });

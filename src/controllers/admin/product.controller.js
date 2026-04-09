@@ -11,11 +11,9 @@ import {
 } from "../../services/admin/product.service.js";
 
 export const renderProductsPage = (req, res) => {
-
   res.render("admin/products", {
     activePage: "products"
   });
-
 };
 
 export const renderCreateProductPage = (req, res) => {
@@ -34,12 +32,8 @@ export const renderEditProductPage = (req, res) => {
   });
 };
 
-
-
 export const getProducts = async (req, res) => {
-
   try {
-
     const { page, limit, search } = req.query;
 
     const result = await getProductsService({
@@ -52,16 +46,12 @@ export const getProducts = async (req, res) => {
       success: true,
       data: result
     });
-
-  } catch (error) {
-
+  } catch{
     res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
       success: false,
       message: COMMON_MESSAGES.SOMETHING_WENT_WRONG
     });
-
   }
-
 };
 
 export const getProductById = async (req, res) => {
@@ -82,70 +72,42 @@ export const getProductById = async (req, res) => {
   }
 };
 
-
-
-
 export const createProduct = async (req, res) => {
-
   try {
-
-    const product = await createProductService(
-      req.body,
-      req.files
-    );
+    const product = await createProductService(req.body, req.files);
 
     res.status(HTTP_STATUS.CREATED).json({
       success: true,
       data: product
     });
-
   } catch (error) {
-
     res.status(HTTP_STATUS.BAD_REQUEST).json({
       success: false,
       message: error.message
     });
-
   }
-
 };
 
-
-
 export const updateProduct = async (req, res) => {
-
   try {
-
     const { productId } = req.params;
 
-    const updated = await updateProductService(
-      productId,
-      req.body,
-      req.files
-    );
+    const updated = await updateProductService(productId, req.body, req.files);
 
     res.status(HTTP_STATUS.OK).json({
       success: true,
       data: updated
     });
-
   } catch (error) {
-
     res.status(HTTP_STATUS.BAD_REQUEST).json({
       success: false,
       message: error.message
     });
-
   }
-
 };
 
-
-
 export const deleteProduct = async (req, res) => {
-
   try {
-
     const { productId } = req.params;
 
     await deleteProductService(productId);
@@ -153,24 +115,16 @@ export const deleteProduct = async (req, res) => {
     res.status(HTTP_STATUS.OK).json({
       success: true
     });
-
   } catch (error) {
-
     res.status(HTTP_STATUS.BAD_REQUEST).json({
       success: false,
       message: error.message
     });
-
   }
-
 };
 
-
-
 export const toggleProductStatus = async (req, res) => {
-
   try {
-
     const { productId } = req.params;
 
     const result = await toggleProductStatusService(productId);
@@ -179,14 +133,10 @@ export const toggleProductStatus = async (req, res) => {
       success: true,
       data: result
     });
-
   } catch (error) {
-
     res.status(HTTP_STATUS.BAD_REQUEST).json({
       success: false,
       message: error.message
     });
-
   }
-
 };

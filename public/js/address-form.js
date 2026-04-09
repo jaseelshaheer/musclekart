@@ -10,18 +10,17 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   const addressId = form.dataset.addressId;
 
-
   const fields = {
     name: document.getElementById("name"),
     phone: document.getElementById("phone"),
     house: document.getElementById("house"),
-    country: document.getElementById("country") ,
+    country: document.getElementById("country"),
     district: document.getElementById("district"),
     state: document.getElementById("state"),
     pincode: document.getElementById("pincode"),
     landmark: document.getElementById("landmark"),
     addressType: document.getElementById("addressType"),
-    isDefault: document.getElementById("isDefault"),
+    isDefault: document.getElementById("isDefault")
   };
 
   // prefill address edit screen
@@ -29,14 +28,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     try {
       const res = await fetch("/user/address", {
         headers: {
-          Authorization: `Bearer ${token}`,
-        },
+          Authorization: `Bearer ${token}`
+        }
       });
 
       const data = await res.json();
       if (!data.success) throw new Error();
 
-      const address = data.data.find(a => a._id === addressId);
+      const address = data.data.find((a) => a._id === addressId);
       if (!address) return;
 
       fields.name.value = address.name || "";
@@ -49,12 +48,10 @@ document.addEventListener("DOMContentLoaded", async () => {
       fields.landmark.value = address.landmark || "";
       fields.addressType.value = address.addressType || "home";
       fields.isDefault.checked = address.isDefault || false;
-
     } catch {
       console.error("Failed to preload address");
     }
   }
-
 
   // field error
   function showFieldError(input, message) {
@@ -75,11 +72,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   function clearErrors() {
-    Object.values(fields).forEach(input => {
+    Object.values(fields).forEach((input) => {
       if (input) removeFieldError(input);
     });
   }
-
 
   function showFormError(message) {
     let box = document.getElementById("formError");
@@ -93,7 +89,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     box.textContent = message;
   }
-
 
   // validation
   function validate() {
@@ -141,7 +136,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     return valid;
   }
-// submit
+  // submit
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
     if (!validate()) return;
@@ -156,12 +151,10 @@ document.addEventListener("DOMContentLoaded", async () => {
       pincode: fields.pincode.value.trim(),
       landmark: fields.landmark.value.trim(),
       addressType: fields.addressType.value,
-      isDefault: fields.isDefault.checked,
+      isDefault: fields.isDefault.checked
     };
 
-    const url = addressId
-      ? `/user/address/${addressId}`
-      : `/user/address`;
+    const url = addressId ? `/user/address/${addressId}` : `/user/address`;
 
     const method = addressId ? "PATCH" : "POST";
 
@@ -170,9 +163,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         method,
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${token}`
         },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(payload)
       });
 
       const result = await res.json();
@@ -184,19 +177,14 @@ document.addEventListener("DOMContentLoaded", async () => {
       sessionStorage.setItem(
         "toast",
         JSON.stringify({
-          message: isEdit
-            ? "Address updated successfully."
-            : "Address added successfully.",
-          type: "success",
+          message: isEdit ? "Address updated successfully." : "Address added successfully.",
+          type: "success"
         })
       );
 
       window.location.href = "/addresses";
-
     } catch (err) {
       showFormError(err.message);
     }
   });
 });
-
-

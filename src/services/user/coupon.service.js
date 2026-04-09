@@ -4,15 +4,11 @@ import Order from "../../models/order.model.js";
 import { getCartService } from "./cart.service.js";
 import User from "../../models/user.model.js";
 
-
 const REFERRAL_WELCOME_COUPON_CODE = "REFWELCOME100";
 
 function isReferralWelcomeCoupon(coupon) {
-  return (
-    String(coupon?.coupon_code || "").toUpperCase() === REFERRAL_WELCOME_COUPON_CODE
-  );
+  return String(coupon?.coupon_code || "").toUpperCase() === REFERRAL_WELCOME_COUPON_CODE;
 }
-
 
 function getComputedCouponStatus(coupon) {
   const now = new Date();
@@ -56,7 +52,6 @@ async function validateCouponForUser(userId, coupon, subtotal) {
     throw new Error("Coupon usage limit reached");
   }
 
-
   if (isReferralWelcomeCoupon(coupon)) {
     const user = await User.findById(userId).lean();
 
@@ -66,7 +61,7 @@ async function validateCouponForUser(userId, coupon, subtotal) {
 
     const successfulOrdersCount = await Order.countDocuments({
       user_id: userId,
-      order_status: { $nin: ["cancelled"] },
+      order_status: { $nin: ["cancelled"] }
     });
 
     if (successfulOrdersCount > 0) {
@@ -74,13 +69,11 @@ async function validateCouponForUser(userId, coupon, subtotal) {
     }
   }
 
-
   const userUsageCount = await Order.countDocuments({
     user_id: userId,
     coupon_id: coupon._id,
-    order_status: { $nin: ["cancelled"] },
+    order_status: { $nin: ["cancelled"] }
   });
-
 
   if (userUsageCount >= coupon.usage_per_user) {
     throw new Error("You have already used this coupon maximum allowed times");
@@ -91,9 +84,7 @@ export const getAvailableCouponsService = async (userId) => {
   const cartData = await getCartService(userId);
   const subtotal = cartData.subtotal;
 
-  const coupons = await Coupon.find({})
-    .sort({ created_at: -1 })
-    .lean();
+  const coupons = await Coupon.find({}).sort({ created_at: -1 }).lean();
 
   const availableCoupons = [];
 
@@ -101,7 +92,7 @@ export const getAvailableCouponsService = async (userId) => {
 
   const successfulOrdersCount = await Order.countDocuments({
     user_id: userId,
-    order_status: { $nin: ["cancelled"] },
+    order_status: { $nin: ["cancelled"] }
   });
 
   for (const coupon of coupons) {
@@ -119,9 +110,8 @@ export const getAvailableCouponsService = async (userId) => {
     const userUsageCount = await Order.countDocuments({
       user_id: userId,
       coupon_id: coupon._id,
-      order_status: { $nin: ["cancelled"] },
+      order_status: { $nin: ["cancelled"] }
     });
-
 
     if (userUsageCount >= coupon.usage_per_user) continue;
 

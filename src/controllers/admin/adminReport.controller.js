@@ -6,7 +6,6 @@ import {
 import { generateSalesReportPdf } from "../../utils/generateSalesReportPdf.js";
 import { generateSalesReportExcel } from "../../utils/generateSalesReportExcel.js";
 
-
 function validateAdminDownloadToken(req) {
   const token = req.query.token;
   if (!token) throw new Error("Authorization token missing");
@@ -17,11 +16,10 @@ function validateAdminDownloadToken(req) {
   }
 }
 
-
-function formatDate(value) {
-  if (!value) return "";
-  return new Date(value).toLocaleDateString("en-IN");
-}
+// function formatDate(value) {
+//   if (!value) return "";
+//   return new Date(value).toLocaleDateString("en-IN");
+// }
 
 export const getReportsPage = (req, res) => {
   res.render("admin/reports", {
@@ -52,7 +50,6 @@ export const downloadReportsExcel = async (req, res, next) => {
     next(error);
   }
 };
-
 
 export const downloadReportsPdf = async (req, res, next) => {
   try {

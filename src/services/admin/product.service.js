@@ -4,7 +4,6 @@ import Variant from "../../models/variant.model.js";
 import cloudinary from "../../config/cloudinary.js";
 import { PRODUCT_MESSAGES } from "../../constants/messages.js";
 
-
 function parseBooleanFlag(value) {
   return value === true || value === "true";
 }
@@ -15,7 +14,7 @@ function validateProductOfferFields(payload) {
     offer_discount_value,
     offer_start_date,
     offer_expiry_date,
-    offer_min_final_price,
+    offer_min_final_price
   } = payload;
 
   const offerIsActive = parseBooleanFlag(payload.offer_is_active);
@@ -32,10 +31,7 @@ function validateProductOfferFields(payload) {
     throw new Error("Product offer discount value must be greater than 0");
   }
 
-  if (
-    offer_discount_type === "percentage" &&
-    Number(offer_discount_value) > 100
-  ) {
+  if (offer_discount_type === "percentage" && Number(offer_discount_value) > 100) {
     throw new Error("Product percentage offer cannot exceed 100");
   }
 
@@ -52,34 +48,21 @@ function validateProductOfferFields(payload) {
   }
 }
 
-
-
 function uploadImage(buffer) {
-
   return new Promise((resolve, reject) => {
-
     const stream = cloudinary.uploader.upload_stream(
       { folder: "musclekart/products" },
       (error, result) => {
-
         if (error) return reject(error);
         resolve(result.secure_url);
-
       }
     );
 
     stream.end(buffer);
-
   });
-
 }
 
-export const getProductsService = async ({
-  page = 1,
-  limit = 10,
-  search = ""
- }) => {
-
+export const getProductsService = async ({ page = 1, limit = 10, search = "" }) => {
   const pageNumber = parseInt(page) || 1;
   const limitNumber = parseInt(limit) || 10;
   const skip = (pageNumber - 1) * limitNumber;
@@ -90,23 +73,22 @@ export const getProductsService = async ({
   };
 
   const products = await Product.aggregate([
-
     { $match: matchStage },
 
     {
-        $lookup: {
-            from: "variants",
-            let: { productId: "$_id" },
-            pipeline: [
-            {
-                $match: {
-                $expr: { $eq: ["$product_id", "$$productId"] },
-                isDeleted: false
-                }
+      $lookup: {
+        from: "variants",
+        let: { productId: "$_id" },
+        pipeline: [
+          {
+            $match: {
+              $expr: { $eq: ["$product_id", "$$productId"] },
+              isDeleted: false
             }
-            ],
-            as: "variants"
-        }
+          }
+        ],
+        as: "variants"
+      }
     },
 
     {
@@ -129,7 +111,6 @@ export const getProductsService = async ({
 
     {
       $addFields: {
-
         category: { $arrayElemAt: ["$category", 0] },
         brand: { $arrayElemAt: ["$brand", 0] },
 
@@ -140,7 +121,6 @@ export const getProductsService = async ({
         total_stock: { $sum: "$variants.stock_qty" },
 
         main_image: { $arrayElemAt: ["$variants.main_image", 0] }
-
       }
     },
 
@@ -163,7 +143,6 @@ export const getProductsService = async ({
     { $skip: skip },
 
     { $limit: limitNumber }
-
   ]);
 
   const totalProducts = await Product.countDocuments(matchStage);
@@ -174,7 +153,6 @@ export const getProductsService = async ({
     currentPage: Number(pageNumber),
     totalPages: Math.ceil(totalProducts / limitNumber)
   };
-
 };
 
 export const getProductByIdService = async (productId) => {
@@ -200,16 +178,8 @@ export const getProductByIdService = async (productId) => {
   };
 };
 
-
 export const createProductService = async (data, files) => {
-
-  const {
-    product_name,
-    description,
-    specifications,
-    category_id,
-    brand_id,
-  } = data;
+  const { product_name, description, specifications, category_id, brand_id } = data;
 
   const parsedVariants = JSON.parse(data.variants);
 
@@ -244,9 +214,8 @@ export const createProductService = async (data, files) => {
     offer_start_date: data.offer_start_date || null,
     offer_expiry_date: data.offer_expiry_date || null,
     offer_is_active: offerIsActive,
-    offer_min_final_price: Number(data.offer_min_final_price || 0),
+    offer_min_final_price: Number(data.offer_min_final_price || 0)
   });
-
 
   const mainImages = files.main_images || [];
   const galleryImages = files.gallery_images || [];
@@ -255,9 +224,7 @@ export const createProductService = async (data, files) => {
   let galleryIndex = 0;
 
   const variantDocs = await Promise.all(
-
     parsedVariants.map(async (v) => {
-
       let mainImageUrl = v.existing_main_image || null;
 
       if (v.has_new_main_image && mainImages[mainIndex]) {
@@ -265,23 +232,16 @@ export const createProductService = async (data, files) => {
         mainIndex++;
       }
 
-
       const galleryUrls = [];
 
       for (let i = 0; i < v.new_gallery_count; i++) {
-
         if (galleryImages[galleryIndex]) {
-
-          const url = await uploadImage(
-            galleryImages[galleryIndex].buffer
-          );
+          const url = await uploadImage(galleryImages[galleryIndex].buffer);
 
           galleryUrls.push(url);
 
           galleryIndex++;
-
         }
-
       }
 
       const totalImages = (mainImageUrl ? 1 : 0) + galleryUrls.length;
@@ -289,7 +249,6 @@ export const createProductService = async (data, files) => {
       if (totalImages < 3) {
         throw new Error(PRODUCT_MESSAGES.MIN_VARIANT_IMAGES);
       }
-
 
       return {
         product_id: product._id,
@@ -299,34 +258,22 @@ export const createProductService = async (data, files) => {
         gallery_images: galleryUrls,
         attributes: v.attributes
       };
-
     })
-
   );
 
   await Variant.insertMany(variantDocs);
 
   return product;
-
 };
 
-
 export const updateProductService = async (productId, data, files) => {
-  const {
-    product_name,
-    description,
-    specifications,
-    category_id,
-    brand_id,
-    isActive
-  } = data;
+  const { product_name, description, specifications, category_id, brand_id, isActive } = data;
 
   const parsedVariants = JSON.parse(data.variants);
 
   if (!Array.isArray(parsedVariants) || !parsedVariants.length) {
     throw new Error(PRODUCT_MESSAGES.AT_LEAST_ONE_VARIANT);
   }
-
 
   const existingProduct = await Product.findOne({
     product_name: { $regex: `^${product_name}$`, $options: "i" },
@@ -350,7 +297,6 @@ export const updateProductService = async (productId, data, files) => {
     throw new Error(PRODUCT_MESSAGES.BRAND_REQUIRED);
   }
 
-
   validateProductOfferFields(data);
 
   const offerIsActive = parseBooleanFlag(data.offer_is_active);
@@ -369,9 +315,9 @@ export const updateProductService = async (productId, data, files) => {
       offer_start_date: data.offer_start_date || null,
       offer_expiry_date: data.offer_expiry_date || null,
       offer_is_active: offerIsActive,
-      offer_min_final_price: Number(data.offer_min_final_price || 0),
+      offer_min_final_price: Number(data.offer_min_final_price || 0)
     },
-    { new: true },
+    { new: true }
   );
 
   if (!product) {
@@ -391,7 +337,6 @@ export const updateProductService = async (productId, data, files) => {
 
   const keptVariantIds = new Set();
 
-
   for (const v of parsedVariants) {
     let mainImageUrl = v.existing_main_image || null;
 
@@ -399,7 +344,6 @@ export const updateProductService = async (productId, data, files) => {
       mainImageUrl = await uploadImage(mainImages[mainIndex].buffer);
       mainIndex++;
     }
-
 
     const galleryUrls = [...(v.existing_gallery_images || [])];
 
@@ -437,7 +381,6 @@ export const updateProductService = async (productId, data, files) => {
       }
     }
 
-
     const newVariant = await Variant.create({
       product_id: productId,
       price: v.price,
@@ -458,14 +401,10 @@ export const updateProductService = async (productId, data, files) => {
     }
   }
 
-
   return product;
 };
 
-
-
 export const deleteProductService = async (productId) => {
-
   const product = await Product.findByIdAndUpdate(
     productId,
     {
@@ -486,13 +425,11 @@ export const deleteProductService = async (productId) => {
   return product;
 };
 
-
 export const toggleProductStatusService = async (productId) => {
-
   const product = await Product.findOne({
     _id: productId,
     isDeleted: false
-    });
+  });
 
   if (!product) {
     throw new Error(PRODUCT_MESSAGES.NOT_FOUND);

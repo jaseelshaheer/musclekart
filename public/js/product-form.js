@@ -16,7 +16,6 @@ const description = document.getElementById("description");
 const specifications = document.getElementById("specifications");
 const cancelProductBtn = document.getElementById("cancelProductBtn");
 
-
 const addVariantBtn = document.getElementById("addVariantBtn");
 const variantForm = document.getElementById("variantFormWrapper");
 
@@ -29,7 +28,6 @@ const addAttributeBtn = document.getElementById("addAttributeBtn");
 
 const cancelVariantBtn = document.getElementById("cancelVariantBtn");
 const variantFormWrapper = document.getElementById("variantFormWrapper");
-
 
 // image upload
 const mainImageUpload = document.getElementById("mainImageUpload");
@@ -45,7 +43,6 @@ const galleryPreview = document.getElementById("galleryPreview");
 const productIdInput = document.getElementById("productId");
 const saveProductBtn = document.getElementById("saveProductBtn");
 
-
 const productNameCount = document.getElementById("productNameCount");
 const descriptionCount = document.getElementById("descriptionCount");
 const specificationsCount = document.getElementById("specificationsCount");
@@ -58,9 +55,6 @@ const productOfferDiscountValue = document.getElementById("productOfferDiscountV
 const productOfferStartDate = document.getElementById("productOfferStartDate");
 const productOfferExpiryDate = document.getElementById("productOfferExpiryDate");
 const productOfferMinFinalPrice = document.getElementById("productOfferMinFinalPrice");
-
-
-
 
 function updateProductCounts() {
   if (productNameCount) {
@@ -76,7 +70,6 @@ function updateProductCounts() {
   }
 }
 
-
 productName.addEventListener("input", () => {
   clearFieldError(productName, document.getElementById("productNameError"));
   updateProductCounts();
@@ -84,9 +77,6 @@ productName.addEventListener("input", () => {
 
 description.addEventListener("input", updateProductCounts);
 specifications.addEventListener("input", updateProductCounts);
-
-
-
 
 function clearFieldError(inputEl, errorEl) {
   if (inputEl) inputEl.classList.remove("input-error");
@@ -114,7 +104,6 @@ function clearVariantErrors() {
   document.getElementById("variantGalleryError").textContent = "";
 }
 
-
 categorySelect.addEventListener("change", () => {
   clearFieldError(categorySelect, document.getElementById("categoryError"));
 });
@@ -123,7 +112,6 @@ brandSelect.addEventListener("change", () => {
   clearFieldError(brandSelect, document.getElementById("brandError"));
 });
 
-
 priceInput.addEventListener("input", () => {
   clearFieldError(priceInput, document.getElementById("variantPriceError"));
 });
@@ -131,8 +119,6 @@ priceInput.addEventListener("input", () => {
 stockInput.addEventListener("input", () => {
   clearFieldError(stockInput, document.getElementById("variantStockError"));
 });
-
-
 
 productOfferDiscountType?.addEventListener("change", () => {
   productOfferDiscountType.classList.remove("input-error");
@@ -159,9 +145,7 @@ productOfferMinFinalPrice?.addEventListener("input", () => {
   document.getElementById("productOfferMinFinalPriceError").textContent = "";
 });
 
-
-function showConfirm(message, onConfirm){
-
+function showConfirm(message, onConfirm) {
   const modal = document.getElementById("confirmModal");
   const msg = document.getElementById("confirmMessage");
   const okBtn = document.getElementById("confirmOk");
@@ -179,9 +163,7 @@ function showConfirm(message, onConfirm){
   cancelBtn.onclick = () => {
     modal.classList.add("hidden");
   };
-
 }
-
 
 mainImageUpload.onclick = () => {
   mainImageInput.click();
@@ -195,7 +177,6 @@ let cropper;
 let currentImageType = null;
 
 mainImageInput.addEventListener("change", (e) => {
-
   const file = e.target.files[0];
   if (!file) return;
 
@@ -209,16 +190,12 @@ mainImageInput.addEventListener("change", (e) => {
 
   // reset input so same file can be selected again
   e.target.value = "";
-
 });
 
-
-
 galleryInput.addEventListener("change", (e) => {
-
   const files = Array.from(e.target.files);
 
-  if(!files.length) return;
+  if (!files.length) return;
 
   files.forEach((file) => {
     const ok = /\.(jpg|jpeg|png)$/i.test(file.name);
@@ -232,40 +209,32 @@ galleryInput.addEventListener("change", (e) => {
 
   // reset input
   e.target.value = "";
-
 });
 
-
-
-function openCropModal(file, type){
-
+function openCropModal(file, type) {
   currentImageType = type;
 
   const reader = new FileReader();
 
-  reader.onload = function(event){
-
+  reader.onload = function (event) {
     const image = document.getElementById("cropImage");
 
     image.src = event.target.result;
 
     document.getElementById("cropModal").classList.remove("hidden");
 
-    if(cropper){
+    if (cropper) {
       cropper.destroy();
     }
 
-    cropper = new Cropper(image,{
-      aspectRatio:1,
-      viewMode:1
+    cropper = new Cropper(image, {
+      aspectRatio: 1,
+      viewMode: 1
     });
-
   };
 
   reader.readAsDataURL(file);
-
 }
-
 
 document.getElementById("cropConfirmBtn").onclick = async function () {
   const canvas = cropper.getCroppedCanvas({
@@ -273,17 +242,11 @@ document.getElementById("cropConfirmBtn").onclick = async function () {
     height: 1000
   });
 
-  const blob = await new Promise((resolve) =>
-    canvas.toBlob(resolve, "image/jpeg", 0.9)
-  );
+  const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/jpeg", 0.9));
 
   if (!blob) return;
 
-  const file = new File(
-    [blob],
-    `cropped-${Date.now()}.jpg`,
-    { type: "image/jpeg" }
-  );
+  const file = new File([blob], `cropped-${Date.now()}.jpg`, { type: "image/jpeg" });
 
   const previewUrl = URL.createObjectURL(blob);
 
@@ -316,10 +279,7 @@ removeMainImage.onclick = function () {
   mainImageUpload.classList.remove("hidden");
 };
 
-
-
-function renderGallery(){
-
+function renderGallery() {
   galleryPreview.innerHTML = "";
 
   const initialSlots = 3;
@@ -330,12 +290,10 @@ function renderGallery(){
     ? Math.max(initialSlots, galleryImages.length + 1)
     : galleryImages.length;
 
-  for(let i=0;i<totalSlots;i++){
-
+  for (let i = 0; i < totalSlots; i++) {
     const div = document.createElement("div");
 
-    if(galleryImages[i]){
-
+    if (galleryImages[i]) {
       div.className = "gallery-item";
 
       div.innerHTML = `
@@ -347,11 +305,8 @@ function renderGallery(){
         galleryImages.splice(i, 1);
         galleryFiles.splice(i, 1);
         renderGallery();
-      }
-
-    }
-    else if(showUpload){
-
+      };
+    } else if (showUpload) {
       // use the same upload style
       div.className = "image-upload-box";
 
@@ -359,36 +314,26 @@ function renderGallery(){
         <span>Upload</span>
       `;
 
-      div.onclick = function(){
+      div.onclick = function () {
         galleryInput.click();
       };
-
     }
 
     galleryPreview.appendChild(div);
-
   }
-
 }
 
-
-
-document.getElementById("cropCancelBtn").onclick = function(){
-
+document.getElementById("cropCancelBtn").onclick = function () {
   cropper.destroy();
 
   document.getElementById("cropModal").classList.add("hidden");
-
 };
-
-
 
 /* -----------------------------
    ADD ATTRIBUTE ROW
 ----------------------------- */
 
 addAttributeBtn.onclick = () => {
-
   const row = document.createElement("div");
   row.className = "attribute-row";
   row.style = "display:flex;gap:10px;margin-bottom:8px;";
@@ -402,29 +347,22 @@ addAttributeBtn.onclick = () => {
   `;
 
   attributesContainer.appendChild(row);
-
 };
-
 
 /* -----------------------------
    REMOVE ATTRIBUTE ROW
 ----------------------------- */
 
 attributesContainer.addEventListener("click", (e) => {
-
   if (e.target.classList.contains("attr-remove")) {
-
     const row = e.target.closest(".attribute-row");
     row.remove();
-
   }
-
 });
 
 /* -----------------------------
    TEMP STORAGE
 ----------------------------- */
-
 
 let isProductSubmitting = false;
 
@@ -435,8 +373,6 @@ let galleryFiles = [];
 let currentMainImageFile = null;
 let currentMainImagePreview = "";
 const MAX_GALLERY_IMAGES = 6;
-
-
 
 function normalizeVariantForEdit(variant) {
   return {
@@ -451,14 +387,11 @@ function normalizeVariantForEdit(variant) {
   };
 }
 
-
-
 /* -----------------------------
    LOAD CATEGORIES
 ----------------------------- */
 
 async function loadCategories() {
-
   const res = await fetch("/admin/categories?page=1&limit=100", {
     headers: { Authorization: `Bearer ${token}` }
   });
@@ -469,25 +402,20 @@ async function loadCategories() {
 
   categorySelect.innerHTML = `<option value="">Select Category</option>`;
 
-  data.data.categories.forEach(cat => {
-
+  data.data.categories.forEach((cat) => {
     const option = document.createElement("option");
     option.value = cat._id;
     option.textContent = cat.name;
 
     categorySelect.appendChild(option);
-
   });
-
 }
-
 
 /* -----------------------------
    LOAD BRANDS
 ----------------------------- */
 
 async function loadBrands() {
-
   const res = await fetch("/admin/brands?page=1&limit=100", {
     headers: { Authorization: `Bearer ${token}` }
   });
@@ -498,18 +426,14 @@ async function loadBrands() {
 
   brandSelect.innerHTML = `<option value="">Select Brand</option>`;
 
-  data.data.brands.forEach(brand => {
-
+  data.data.brands.forEach((brand) => {
     const option = document.createElement("option");
     option.value = brand._id;
     option.textContent = brand.name;
 
     brandSelect.appendChild(option);
-
   });
-
 }
-
 
 function isProductOfferConfigured() {
   return (
@@ -534,7 +458,6 @@ function setProductOfferExpanded(expanded) {
   }
 }
 
-
 function clearProductOfferFields() {
   productOfferDiscountType.value = "";
   productOfferDiscountValue.value = "";
@@ -554,7 +477,6 @@ clearProductOfferBtn?.addEventListener("click", () => {
     setProductOfferExpanded(false);
   });
 });
-
 
 function formatDateTimeLocal(value) {
   if (!value) return "";
@@ -597,7 +519,6 @@ function showProductOfferFieldError(input, errorId, message) {
   }
 }
 
-
 async function loadProductForEdit() {
   const productId = productIdInput.value;
 
@@ -605,8 +526,8 @@ async function loadProductForEdit() {
 
   const res = await fetch(`/admin/products/${productId}`, {
     headers: {
-      Authorization: `Bearer ${token}`,
-    },
+      Authorization: `Bearer ${token}`
+    }
   });
 
   const data = await res.json();
@@ -641,11 +562,9 @@ async function loadProductForEdit() {
   renderVariants();
 }
 
-
 cancelProductBtn.onclick = () => {
   window.location.href = "/admin/products-list";
 };
-
 
 /* -----------------------------
    VARIANT FORM SHOW
@@ -658,8 +577,6 @@ addVariantBtn.onclick = () => {
   variantFormWrapper.classList.remove("hidden");
   addVariantBtn.style.display = "none";
 };
-
-
 
 /* -----------------------------
    SAVE VARIANT
@@ -682,18 +599,12 @@ document.getElementById("saveVariantBtn").onclick = () => {
     }
   });
 
-  const variantKey = attributes
-    .map(a => `${a.type}:${a.value}`)
-    .join("|");
+  const variantKey = attributes.map((a) => `${a.type}:${a.value}`).join("|");
 
   const duplicate = variants.some((v, i) => {
-
-    const key = v.attributes
-      .map(a => `${a.type}:${a.value}`)
-      .join("|");
+    const key = v.attributes.map((a) => `${a.type}:${a.value}`).join("|");
 
     return key === variantKey && i !== editIndex;
-
   });
 
   clearVariantErrors();
@@ -701,8 +612,7 @@ document.getElementById("saveVariantBtn").onclick = () => {
   let isValid = true;
 
   if (!attributes.length) {
-    document.getElementById("variantAttributesError").textContent =
-      "Add at least one attribute";
+    document.getElementById("variantAttributesError").textContent = "Add at least one attribute";
     isValid = false;
   }
 
@@ -724,9 +634,7 @@ document.getElementById("saveVariantBtn").onclick = () => {
     isValid = false;
   }
 
-  const invalidAttribute = attributes.some(
-    (attr) => !attr.type?.trim() || !attr.value?.trim()
-  );
+  const invalidAttribute = attributes.some((attr) => !attr.type?.trim() || !attr.value?.trim());
 
   if (invalidAttribute) {
     document.getElementById("variantAttributesError").textContent =
@@ -740,10 +648,8 @@ document.getElementById("saveVariantBtn").onclick = () => {
     isValid = false;
   }
 
-
   const totalImages =
-    (currentMainImagePreview || currentMainImageFile ? 1 : 0) +
-    galleryImages.length;
+    (currentMainImagePreview || currentMainImageFile ? 1 : 0) + galleryImages.length;
 
   if (totalImages < 3) {
     document.getElementById("variantGalleryError").textContent =
@@ -751,9 +657,7 @@ document.getElementById("saveVariantBtn").onclick = () => {
     isValid = false;
   }
 
-
   if (!isValid) return;
-
 
   const variant = {
     _id: editIndex !== null ? variants[editIndex]?._id || null : null,
@@ -765,7 +669,6 @@ document.getElementById("saveVariantBtn").onclick = () => {
     gallery_images: [...galleryImages],
     gallery_files: [...galleryFiles]
   };
-
 
   if (editIndex !== null) {
     variants[editIndex] = variant;
@@ -784,24 +687,19 @@ document.getElementById("saveVariantBtn").onclick = () => {
   addVariantBtn.style.display = "inline-block";
 };
 
-
-
 /* -----------------------------
    RENDER VARIANT TABLE
 ----------------------------- */
 
 function renderVariants() {
-
   variantTable.innerHTML = "";
 
   variants.forEach((v, index) => {
-
     const tr = document.createElement("tr");
 
     const imageSrc =
       v.main_image_preview ||
       (v.gallery_images && v.gallery_images.length ? v.gallery_images[0] : null);
-
 
     tr.innerHTML = `
       <td>
@@ -812,7 +710,7 @@ function renderVariants() {
         }
       </td>
 
-      <td>${v.attributes.map(a => a.value).join(" / ")}</td>
+      <td>${v.attributes.map((a) => a.value).join(" / ")}</td>
 
       <td>₹${v.price}</td>
 
@@ -830,12 +728,8 @@ function renderVariants() {
     `;
 
     variantTable.appendChild(tr);
-
   });
-
 }
-
-
 
 /* -----------------------------
    EDIT VARIANT
@@ -857,12 +751,10 @@ window.editVariant = function (index) {
       <button type="button" class="attr-remove">Remove</button>
     `;
 
-
     attributesContainer.appendChild(row);
   });
   priceInput.value = v.price;
   stockInput.value = v.stock;
-
 
   if (v.main_image_preview) {
     currentMainImageFile = v.main_image_file || null;
@@ -890,43 +782,34 @@ window.editVariant = function (index) {
   addVariantBtn.style.display = "none";
 };
 
-
 /* -----------------------------
    DELETE VARIANT
 ----------------------------- */
 
-window.deleteVariant = function(index) {
-
+window.deleteVariant = function (index) {
   showConfirm("Delete this variant?", () => {
-
     variants.splice(index, 1);
 
     renderVariants();
-
   });
-
 };
-
-
 
 /* -----------------------------
    CLEAR VARIANT FORM
 ----------------------------- */
 
-function clearVariantForm(){
-
+function clearVariantForm() {
   editIndex = null;
 
   /* reset attributes */
 
- attributesContainer.innerHTML = `
+  attributesContainer.innerHTML = `
   <div class="attribute-row">
     <input type="text" class="attr-type form-control small" maxlength="30" placeholder="Attribute">
     <input type="text" class="attr-value form-control small" maxlength="50" placeholder="Value">
     <button type="button" class="attr-remove">Remove</button>
   </div>
  `;
-
 
   /* reset inputs */
 
@@ -947,10 +830,7 @@ function clearVariantForm(){
   galleryImages = [];
   galleryFiles = [];
   renderGallery();
-
-
 }
-
 
 function setProductSubmittingState(isSubmitting, isEditMode) {
   if (!saveProductBtn) return;
@@ -958,11 +838,13 @@ function setProductSubmittingState(isSubmitting, isEditMode) {
   saveProductBtn.disabled = isSubmitting;
   saveProductBtn.style.pointerEvents = isSubmitting ? "none" : "auto";
   saveProductBtn.textContent = isSubmitting
-    ? (isEditMode ? "Updating..." : "Saving...")
-    : (isEditMode ? "Update Product" : "Save Product");
+    ? isEditMode
+      ? "Updating..."
+      : "Saving..."
+    : isEditMode
+      ? "Update Product"
+      : "Save Product";
 }
-
-
 
 /* -----------------------------
    SAVE PRODUCT
@@ -991,11 +873,10 @@ saveProductBtn.onclick = async () => {
     setFieldError(
       productName,
       document.getElementById("productNameError"),
-      "Product name must be 120 characters or fewer",
+      "Product name must be 120 characters or fewer"
     );
     isValid = false;
   }
-
 
   if (!categorySelect.value) {
     setFieldError(
@@ -1007,24 +888,19 @@ saveProductBtn.onclick = async () => {
   }
 
   if (!brandSelect.value) {
-    setFieldError(
-      brandSelect,
-      document.getElementById("brandError"),
-      "Please select a brand"
-    );
+    setFieldError(brandSelect, document.getElementById("brandError"), "Please select a brand");
     isValid = false;
   }
 
   const hasProductOffer =
-   !productOfferFields.classList.contains("hidden") || isProductOfferConfigured();
+    !productOfferFields.classList.contains("hidden") || isProductOfferConfigured();
 
   if (hasProductOffer) {
-
     if (!["flat", "percentage"].includes(productOfferDiscountType.value)) {
       showProductOfferFieldError(
         productOfferDiscountType,
         "productOfferDiscountTypeError",
-        "Select a valid offer type",
+        "Select a valid offer type"
       );
       isValid = false;
     }
@@ -1033,7 +909,7 @@ saveProductBtn.onclick = async () => {
       showProductOfferFieldError(
         productOfferDiscountValue,
         "productOfferDiscountValueError",
-        "Offer value must be greater than 0",
+        "Offer value must be greater than 0"
       );
       isValid = false;
     }
@@ -1045,7 +921,7 @@ saveProductBtn.onclick = async () => {
       showProductOfferFieldError(
         productOfferDiscountValue,
         "productOfferDiscountValueError",
-        "Percentage offer cannot exceed 100",
+        "Percentage offer cannot exceed 100"
       );
       isValid = false;
     }
@@ -1054,7 +930,7 @@ saveProductBtn.onclick = async () => {
       showProductOfferFieldError(
         productOfferStartDate,
         "productOfferStartDateError",
-        "Offer start date is required",
+        "Offer start date is required"
       );
       isValid = false;
     }
@@ -1063,7 +939,7 @@ saveProductBtn.onclick = async () => {
       showProductOfferFieldError(
         productOfferExpiryDate,
         "productOfferExpiryDateError",
-        "Offer expiry date is required",
+        "Offer expiry date is required"
       );
       isValid = false;
     }
@@ -1071,13 +947,12 @@ saveProductBtn.onclick = async () => {
     if (
       productOfferStartDate.value &&
       productOfferExpiryDate.value &&
-      new Date(productOfferExpiryDate.value) <=
-        new Date(productOfferStartDate.value)
+      new Date(productOfferExpiryDate.value) <= new Date(productOfferStartDate.value)
     ) {
       showProductOfferFieldError(
         productOfferExpiryDate,
         "productOfferExpiryDateError",
-        "Expiry date must be after start date",
+        "Expiry date must be after start date"
       );
       isValid = false;
     }
@@ -1086,17 +961,14 @@ saveProductBtn.onclick = async () => {
       showProductOfferFieldError(
         productOfferMinFinalPrice,
         "productOfferMinFinalPriceError",
-        "Minimum final price cannot be negative",
+        "Minimum final price cannot be negative"
       );
       isValid = false;
     }
   }
 
-
-
   if (!variants.length) {
-    document.getElementById("variantsError").textContent =
-      "Add at least one variant";
+    document.getElementById("variantsError").textContent = "Add at least one variant";
     isValid = false;
   }
 
@@ -1106,7 +978,6 @@ saveProductBtn.onclick = async () => {
   setProductSubmittingState(true, isEditMode);
 
   const formData = new FormData();
-
 
   formData.append("product_name", productName.value);
   formData.append("description", description.value);
@@ -1136,11 +1007,7 @@ saveProductBtn.onclick = async () => {
     "offer_expiry_date",
     shouldActivateProductOffer ? productOfferExpiryDate.value : ""
   );
-  formData.append(
-    "offer_min_final_price",
-    productOfferMinFinalPrice.value || "0",
-  );
-
+  formData.append("offer_min_final_price", productOfferMinFinalPrice.value || "0");
 
   if (isEditMode) {
     formData.append("isActive", "true");
@@ -1149,9 +1016,7 @@ saveProductBtn.onclick = async () => {
   const variantMeta = [];
 
   variants.forEach((v, index) => {
-    const existingGalleryImages = v.gallery_images.filter(
-      (img, i) => img && !v.gallery_files[i]
-    );
+    const existingGalleryImages = v.gallery_images.filter((img, i) => img && !v.gallery_files[i]);
 
     const newGalleryFiles = v.gallery_files.filter(Boolean);
 
@@ -1160,34 +1025,24 @@ saveProductBtn.onclick = async () => {
       attributes: v.attributes,
       price: v.price,
       stock: v.stock,
-      existing_main_image: v.main_image_file ? null : (v.main_image_preview || null),
+      existing_main_image: v.main_image_file ? null : v.main_image_preview || null,
       has_new_main_image: Boolean(v.main_image_file),
       existing_gallery_images: existingGalleryImages,
       new_gallery_count: newGalleryFiles.length
     });
 
     if (v.main_image_file) {
-      formData.append(
-        "main_images",
-        v.main_image_file,
-        `main_${index}.jpg`
-      );
+      formData.append("main_images", v.main_image_file, `main_${index}.jpg`);
     }
 
     newGalleryFiles.forEach((file, i) => {
-      formData.append(
-        "gallery_images",
-        file,
-        `gallery_${index}_${i}.jpg`
-      );
+      formData.append("gallery_images", file, `gallery_${index}_${i}.jpg`);
     });
   });
 
   formData.append("variants", JSON.stringify(variantMeta));
 
-  const url = isEditMode
-    ? `/admin/products/${productId}`
-    : "/admin/products";
+  const url = isEditMode ? `/admin/products/${productId}` : "/admin/products";
 
   const method = isEditMode ? "PATCH" : "POST";
 
@@ -1195,9 +1050,9 @@ saveProductBtn.onclick = async () => {
     const res = await fetch(url, {
       method,
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${token}`
       },
-      body: formData,
+      body: formData
     });
 
     const data = await res.json();
@@ -1210,27 +1065,21 @@ saveProductBtn.onclick = async () => {
     sessionStorage.setItem(
       "toast",
       JSON.stringify({
-        message: isEditMode
-          ? "Product updated successfully."
-          : "Product created successfully.",
-        type: "success",
-      }),
+        message: isEditMode ? "Product updated successfully." : "Product created successfully.",
+        type: "success"
+      })
     );
 
     window.location.href = "/admin/products-list";
   } catch (error) {
     showAlertModal("Failed to save product");
-  }finally {
+  } finally {
     isProductSubmitting = false;
     setProductSubmittingState(false, isEditMode);
   }
-
 };
 
-
-
-
-cancelVariantBtn.onclick = function(){
+cancelVariantBtn.onclick = function () {
   addVariantBtn.style.display = "inline-block";
   variantFormWrapper.classList.add("hidden");
 
@@ -1245,13 +1094,11 @@ cancelVariantBtn.onclick = function(){
   </div>
   `;
 
-
   /* clear main image */
 
   mainImagePreview.src = "";
   mainImagePreviewWrapper.classList.add("hidden");
   mainImageUpload.classList.remove("hidden");
-
 
   /* clear gallery images */
 
@@ -1261,11 +1108,7 @@ cancelVariantBtn.onclick = function(){
   galleryImages = [];
   galleryFiles = [];
   renderGallery();
-
 };
-
-
-
 
 /* -----------------------------
    INIT

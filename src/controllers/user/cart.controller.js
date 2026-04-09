@@ -20,7 +20,6 @@ export const getCartPage = async (req, res) => {
   });
 };
 
-
 export const getCartData = async (req, res) => {
   try {
     const result = await getCartService(req.user.id);

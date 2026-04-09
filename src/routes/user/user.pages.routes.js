@@ -3,8 +3,6 @@ import express from "express";
 
 const router = express.Router();
 
-
-
 router.get("/signup", (req, res) => {
   res.render("user/signup", { layout: "layouts/user" });
 });
@@ -31,12 +29,12 @@ router.get("/profile", (req, res) => {
 
 router.get("/profile/edit", (req, res) => {
   res.render("user/profile/profile-edit", {
-    layout: "layouts/user", activePage: "profile",
-    user: res.locals.user,
+    layout: "layouts/user",
+    activePage: "profile",
+    user: res.locals.user
   });
 });
 router.get("/profile/change-password", (req, res) => {
-
   if (req.user?.authProvider === "google") {
     return res.redirect("/profile");
   }
@@ -45,20 +43,20 @@ router.get("/profile/change-password", (req, res) => {
     layout: "layouts/user",
     activePage: "change-password"
   });
-
 });
 
 router.get("/addresses", (req, res) => {
   res.render("user/address/address-list", {
-    layout: "layouts/user", activePage: "addresses",
-    user: req.user || null,
-   });
+    layout: "layouts/user",
+    activePage: "addresses",
+    user: req.user || null
+  });
 });
-
 
 router.get("/addresses/new", (req, res) => {
   res.render("user/address/address-form", {
-    layout: "layouts/user", activePage: "addresses",
+    layout: "layouts/user",
+    activePage: "addresses",
     user: req.user || null,
     address: null
   });
@@ -66,12 +64,12 @@ router.get("/addresses/new", (req, res) => {
 
 router.get("/addresses/:id/edit", (req, res) => {
   res.render("user/address/address-form", {
-    layout: "layouts/user", activePage: "addresses",
+    layout: "layouts/user",
+    activePage: "addresses",
     user: req.user || null,
     address: { _id: req.params.id }
   });
 });
-
 
 router.get("/payment/success", (req, res) => {
   res.render("user/payment/payment-success", {
@@ -85,6 +83,5 @@ router.get("/payment/failure", (req, res) => {
     layout: "layouts/user"
   });
 });
-
 
 export default router;

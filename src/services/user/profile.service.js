@@ -1,13 +1,11 @@
 import { generateOTPService, verifyOTPService } from "../otp.service.js";
 import User from "../../models/user.model.js";
-import Address from '../../models/address.model.js';
+import Address from "../../models/address.model.js";
 import bcrypt from "bcrypt";
 import { ADDRESS_MESSAGES } from "../../constants/messages.js";
 
 export const getProfileService = async (userId) => {
-  const user = await User.findById(userId).select(
-    "-password -otp -otpExpiresAt"
-  );
+  const user = await User.findById(userId).select("-password -otp -otpExpiresAt");
 
   if (!user) {
     throw new Error("User not found");
@@ -16,22 +14,19 @@ export const getProfileService = async (userId) => {
   return user;
 };
 
-
 export const updateProfileService = async (userId, updateData) => {
   const allowedFields = ["firstName", "lastName", "phone", "profileImage"];
 
   const filteredData = {};
-  for (let key of allowedFields) {
+  for (const key of allowedFields) {
     if (updateData[key] !== undefined) {
       filteredData[key] = updateData[key];
     }
   }
 
-  const updatedUser = await User.findByIdAndUpdate(
-    userId,
-    filteredData,
-    { new: true }
-  ).select("-password -otp -otpExpiresAt");
+  const updatedUser = await User.findByIdAndUpdate(userId, filteredData, { new: true }).select(
+    "-password -otp -otpExpiresAt"
+  );
 
   if (!updatedUser) {
     throw new Error("User not found");
@@ -39,7 +34,6 @@ export const updateProfileService = async (userId, updateData) => {
 
   return updatedUser;
 };
-
 
 export const requestEmailChangeService = async (userId, newEmail) => {
   const user = await User.findById(userId);
@@ -66,8 +60,6 @@ export const requestEmailChangeService = async (userId, newEmail) => {
   return { otp };
 };
 
-
-
 export const verifyEmailChangeService = async (userId, otp) => {
   const user = await User.findById(userId).select("+otp +otpExpiresAt");
 
@@ -89,9 +81,7 @@ export const verifyEmailChangeService = async (userId, otp) => {
   return true;
 };
 
-
 export const changePasswordService = async (user, currentPassword, newPassword) => {
-
   if (!user) {
     throw new Error("User not found");
   }
@@ -99,8 +89,7 @@ export const changePasswordService = async (user, currentPassword, newPassword) 
   currentPassword = currentPassword.trim();
   newPassword = newPassword.trim();
 
-  const strongPasswordRegex =
-    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/;
+  const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/;
 
   if (!strongPasswordRegex.test(newPassword)) {
     throw new Error(
@@ -125,26 +114,19 @@ export const changePasswordService = async (user, currentPassword, newPassword) 
   return true;
 };
 
-
 export const addAddressService = async (userId, addressData) => {
   const address = await Address.create({
     ...addressData,
-    user: userId,
+    user: userId
   });
 
   return address;
 };
 
-
-
-export const updateAddressService = async (
-  userId,
-  addressId,
-  updateData
-) => {
+export const updateAddressService = async (userId, addressId, updateData) => {
   const address = await Address.findOne({
     _id: addressId,
-    user: userId,
+    user: userId
   });
 
   if (!address) {
@@ -157,11 +139,10 @@ export const updateAddressService = async (
   return address;
 };
 
-
 export const deleteAddressService = async (userId, addressId) => {
   const address = await Address.findOne({
     _id: addressId,
-    user: userId,
+    user: userId
   });
 
   if (!address) {
@@ -171,20 +152,16 @@ export const deleteAddressService = async (userId, addressId) => {
   await address.deleteOne();
 };
 
-
 export const getAddressesService = async (userId) => {
   const addresses = await Address.find({ user: userId }).sort({
-    createdAt: -1,
+    createdAt: -1
   });
 
   return addresses;
 };
 
 export const setDefaultAddressService = async (userId, addressId) => {
-  await Address.updateMany(
-    { user: userId, isDefault: true },
-    { $set: { isDefault: false } }
-  );
+  await Address.updateMany({ user: userId, isDefault: true }, { $set: { isDefault: false } });
 
   const address = await Address.findOneAndUpdate(
     { _id: addressId, user: userId },

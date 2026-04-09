@@ -6,12 +6,8 @@ function parseBooleanFlag(value) {
 }
 
 function validateCategoryOfferFields(payload) {
-  const {
-    offer_discount_type,
-    offer_discount_value,
-    offer_start_date,
-    offer_expiry_date,
-  } = payload;
+  const { offer_discount_type, offer_discount_value, offer_start_date, offer_expiry_date } =
+    payload;
 
   const offerIsActive = parseBooleanFlag(payload.offer_is_active);
 
@@ -27,10 +23,7 @@ function validateCategoryOfferFields(payload) {
     throw new Error("Category offer discount value must be greater than 0");
   }
 
-  if (
-    offer_discount_type === "percentage" &&
-    Number(offer_discount_value) > 100
-  ) {
+  if (offer_discount_type === "percentage" && Number(offer_discount_value) > 100) {
     throw new Error("Category percentage offer cannot exceed 100");
   }
 
@@ -43,81 +36,70 @@ function validateCategoryOfferFields(payload) {
   }
 }
 
-
 export const createCategoryService = async (data) => {
+  const { name, description } = data;
 
-    const { name, description } = data;
+  if (!data.name || !data.name.trim()) {
+    throw new Error(CATEGORY_MESSAGES.NAME_REQUIRED);
+  }
 
-    if (!data.name || !data.name.trim()) {
-      throw new Error(CATEGORY_MESSAGES.NAME_REQUIRED);
-    }
+  if (data.name.trim().length > 50) {
+    throw new Error("Category name must be 50 characters or fewer");
+  }
 
-    if (data.name.trim().length > 50) {
-      throw new Error("Category name must be 50 characters or fewer");
-    }
+  if (data.description && data.description.trim().length > 200) {
+    throw new Error("Category description must be 200 characters or fewer");
+  }
 
-    if (data.description && data.description.trim().length > 200) {
-      throw new Error("Category description must be 200 characters or fewer");
-    }
+  const existingCategory = await Category.findOne({
+    name: { $regex: `^${name}$`, $options: "i" },
+    isDeleted: false
+  });
 
-    const existingCategory = await Category.findOne({
-        name: { $regex: `^${name}$`, $options: "i" },
-        isDeleted: false
-    });
+  if (existingCategory) {
+    throw new Error(CATEGORY_MESSAGES.NAME_EXISTS);
+  }
 
-    if (existingCategory) {
-        throw new Error(CATEGORY_MESSAGES.NAME_EXISTS);
-    }
+  validateCategoryOfferFields(data);
 
-    validateCategoryOfferFields(data);
+  const offerIsActive = parseBooleanFlag(data.offer_is_active);
 
-    const offerIsActive = parseBooleanFlag(data.offer_is_active);
+  const category = await Category.create({
+    name,
+    description,
+    offer_discount_type: data.offer_discount_type || null,
+    offer_discount_value: Number(data.offer_discount_value || 0),
+    offer_start_date: data.offer_start_date || null,
+    offer_expiry_date: data.offer_expiry_date || null,
+    offer_is_active: offerIsActive
+  });
 
-    const category = await Category.create({
-      name,
-      description,
-      offer_discount_type: data.offer_discount_type || null,
-      offer_discount_value: Number(data.offer_discount_value || 0),
-      offer_start_date: data.offer_start_date || null,
-      offer_expiry_date: data.offer_expiry_date || null,
-      offer_is_active: offerIsActive,
-    });
-
-
-    return category;
+  return category;
 };
-
-
 
 export const getCategoriesService = async (query) => {
+  const page = parseInt(query.page) || 1;
+  const limit = 10;
+  const skip = (page - 1) * limit;
 
-    const page = parseInt(query.page) || 1;
-    const limit = 10;
-    const skip = (page - 1) * limit;
+  const search = query.search || "";
 
-    const search = query.search || "";
+  const filter = {
+    isDeleted: false,
+    name: { $regex: search, $options: "i" }
+  };
 
-    const filter = {
-        isDeleted: false,
-        name: { $regex: search, $options: "i" }
-    };
+  const categories = await Category.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit);
 
-    const categories = await Category.find(filter)
-        .sort({ createdAt: -1 })
-        .skip(skip)
-        .limit(limit);
+  const total = await Category.countDocuments(filter);
 
-    const total = await Category.countDocuments(filter);
-
-    return {
-        categories,
-        totalCategories: total,
-        currentPage: page,
-        totalPages: Math.ceil(total / limit)
-    };
+  return {
+    categories,
+    totalCategories: total,
+    currentPage: page,
+    totalPages: Math.ceil(total / limit)
+  };
 };
-
-
 
 export const updateCategoryService = async (id, data) => {
   const { name, description, isActive } = data;
@@ -137,7 +119,7 @@ export const updateCategoryService = async (id, data) => {
   const existingCategory = await Category.findOne({
     name: { $regex: `^${name}$`, $options: "i" },
     _id: { $ne: id },
-    isDeleted: false,
+    isDeleted: false
   });
 
   if (existingCategory) {
@@ -158,54 +140,37 @@ export const updateCategoryService = async (id, data) => {
       offer_discount_value: Number(data.offer_discount_value || 0),
       offer_start_date: data.offer_start_date || null,
       offer_expiry_date: data.offer_expiry_date || null,
-      offer_is_active: offerIsActive,
+      offer_is_active: offerIsActive
     },
-    { new: true },
+    { new: true }
   );
 
   return category;
 };
 
-
-
 export const deleteCategoryService = async (id) => {
+  const category = await Category.findByIdAndUpdate(
+    id,
+    {
+      isDeleted: true,
+      deletedAt: new Date()
+    },
+    { new: true }
+  );
 
-    const category = await Category.findByIdAndUpdate(
-        id,
-        {
-            isDeleted: true,
-            deletedAt: new Date()
-        },
-        { new: true }
-    );
-
-    return category;
+  return category;
 };
-
-
 
 export const toggleCategoryStatusService = async (id) => {
+  const category = await Category.findById(id);
 
-    const category = await Category.findById(id);
+  if (!category) {
+    throw new Error(CATEGORY_MESSAGES.NOT_FOUND);
+  }
 
-    if (!category) {
-        throw new Error(CATEGORY_MESSAGES.NOT_FOUND);
-    }
+  category.isActive = !category.isActive;
 
-    category.isActive = !category.isActive;
+  await category.save();
 
-    await category.save();
-
-    return category;
+  return category;
 };
-
-
-
-
-
-
-
-
-
-
-

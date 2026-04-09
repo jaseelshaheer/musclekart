@@ -6,54 +6,51 @@ if (!token) {
   window.location.href = "/login";
 }
 
-function formatAddress(address) {
-  if (!address) return "";
+// function formatAddress(address) {
+//   if (!address) return "";
 
-  return [
-    address.name,
-    address.phone,
-    address.house,
-    address.landmark || "",
-    address.district,
-    address.state,
-    address.pincode,
-    address.country
-  ]
-    .filter(Boolean)
-    .join(", ");
-}
+//   return [
+//     address.name,
+//     address.phone,
+//     address.house,
+//     address.landmark || "",
+//     address.district,
+//     address.state,
+//     address.pincode,
+//     address.country
+//   ]
+//     .filter(Boolean)
+//     .join(", ");
+// }
 
 function renderCheckout(data) {
   if (!checkoutContent) return;
 
   const {
-  items,
-  addresses,
-  defaultAddress,
-  subtotal,
-  shipping,
-  tax,
-  discount,
-  itemOfferSavings,
-  totalSavings,
-  finalTotal,
-  appliedCoupon,
-  walletBalance,
-  canCheckout,
-  hasUnavailableItems,
-} = data;
-
+    items,
+    addresses,
+    defaultAddress,
+    subtotal,
+    shipping,
+    tax,
+    discount,
+    itemOfferSavings,
+    totalSavings,
+    finalTotal,
+    appliedCoupon,
+    walletBalance,
+    canCheckout,
+    hasUnavailableItems
+  } = data;
 
   if (appliedCoupon) {
     selectedCoupon = null;
   }
 
-
   if (!items.length) {
     window.location.replace("/cart");
     return;
   }
-
 
   checkoutContent.innerHTML = `
     <div class="checkout-layout checkout-layout-expanded">
@@ -80,8 +77,7 @@ function renderCheckout(data) {
                         (address) => `
                         <label
                             class="checkout-address-card ${
-                              defaultAddress &&
-                              String(defaultAddress._id) === String(address._id)
+                              defaultAddress && String(defaultAddress._id) === String(address._id)
                                 ? "selected"
                                 : ""
                             }"
@@ -90,8 +86,7 @@ function renderCheckout(data) {
 
                             <div class="checkout-address-radio">
                             <span class="checkout-radio-dot ${
-                              defaultAddress &&
-                              String(defaultAddress._id) === String(address._id)
+                              defaultAddress && String(defaultAddress._id) === String(address._id)
                                 ? "active"
                                 : ""
                             }"></span>
@@ -113,7 +108,7 @@ function renderCheckout(data) {
                             ${address.landmark ? `<p>Landmark: ${address.landmark}</p>` : ""}
                             </div>
                         </label>
-                        `,
+                        `
                       )
                       .join("")}
                 </div>
@@ -181,11 +176,7 @@ function renderCheckout(data) {
                     <span>Wallet</span>
                     <small>
                     Balance: Rs. ${Number(walletBalance || 0).toFixed(2)}
-                    ${
-                        walletBalance < finalTotal
-                        ? " • Insufficient balance"
-                        : ""
-                    }
+                    ${walletBalance < finalTotal ? " • Insufficient balance" : ""}
                     </small>
                 </label>
 
@@ -212,9 +203,7 @@ function renderCheckout(data) {
               .map(
                 (item) => `
                     <article class="checkout-summary-item ${
-                      item.isAvailable && item.stock_qty > 0
-                        ? ""
-                        : "checkout-item-disabled"
+                      item.isAvailable && item.stock_qty > 0 ? "" : "checkout-item-disabled"
                     }">
                     <div class="checkout-summary-item-image">
                         <img
@@ -256,7 +245,7 @@ function renderCheckout(data) {
                     </div>
 
                     </article>
-                `,
+                `
               )
               .join("")}
             </div>
@@ -273,14 +262,14 @@ function renderCheckout(data) {
                 </div>
 
                 ${
-                    discount > 0
-                        ? `
+                  discount > 0
+                    ? `
                         <div class="checkout-summary-row">
                             <span>Discount</span>
                             <strong>- Rs. ${discount}</strong>
                         </div>
                         `
-                        : ""
+                    : ""
                 }
 
 
@@ -314,14 +303,14 @@ function renderCheckout(data) {
                   ${appliedCoupon ? "disabled" : ""}
               >
                   ${
-                      appliedCoupon
-                          ? appliedCoupon.coupon_code
-                          : selectedCoupon?.coupon_code || "Show Coupons"
+                    appliedCoupon
+                      ? appliedCoupon.coupon_code
+                      : selectedCoupon?.coupon_code || "Show Coupons"
                   }
               </button>
 
                 ${
-                    appliedCoupon
+                  appliedCoupon
                     ? `<button type="button" class="checkout-coupon-primary" id="removeCouponBtn">
                         Remove Coupon
                         </button>`
@@ -331,15 +320,15 @@ function renderCheckout(data) {
                 }
 
                 ${
-                    appliedCoupon
-                        ? `<p class="checkout-selected-coupon-note">
+                  appliedCoupon
+                    ? `<p class="checkout-selected-coupon-note">
                             Applied coupon: <strong>${appliedCoupon.coupon_code}</strong>
                         </p>`
-                        : selectedCoupon
-                        ? `<p class="checkout-selected-coupon-note">
+                    : selectedCoupon
+                      ? `<p class="checkout-selected-coupon-note">
                             Selected coupon: <strong>${selectedCoupon.coupon_code}</strong>
                             </p>`
-                        : ""
+                      : ""
                 }
 
             </div>
@@ -358,11 +347,11 @@ function renderCheckout(data) {
             }
 
             ${
-                selectedPaymentMethod === "wallet" && walletBalance < finalTotal
-                    ? `<p class="checkout-wallet-warning">
+              selectedPaymentMethod === "wallet" && walletBalance < finalTotal
+                ? `<p class="checkout-wallet-warning">
                         Wallet balance is lower than the payable amount.
                     </p>`
-                    : ""
+                : ""
             }
 
             <button
@@ -477,9 +466,7 @@ function renderCheckout(data) {
   `;
 
   bindCheckoutAddressFieldValidation();
-
 }
-
 
 function openAddressModal() {
   const modal = document.getElementById("checkoutAddressModal");
@@ -546,7 +533,6 @@ function clearCheckoutFieldErrors() {
   });
 }
 
-
 function getCheckoutAddressPayload() {
   return {
     name: document.getElementById("checkoutAddressName")?.value.trim() || "",
@@ -606,7 +592,6 @@ function validateCheckoutAddressFields() {
   return valid;
 }
 
-
 async function saveCheckoutAddress() {
   const payload = getCheckoutAddressPayload();
   const errorBox = document.getElementById("checkoutAddressFormError");
@@ -621,7 +606,6 @@ async function saveCheckoutAddress() {
   if (!validateCheckoutAddressFields()) {
     return;
   }
-
 
   const res = await fetch("/user/address", {
     method: "POST",
@@ -647,18 +631,13 @@ async function saveCheckoutAddress() {
   showToast(data.message || "Address added successfully", "success");
 }
 
-
-
 function bindCheckoutAddressFieldValidation() {
   const fields = getCheckoutAddressFields();
 
   Object.values(fields).forEach((input) => {
     if (!input) return;
 
-    const eventName =
-      input.tagName === "SELECT" || input.type === "checkbox"
-        ? "change"
-        : "input";
+    const eventName = input.tagName === "SELECT" || input.type === "checkbox" ? "change" : "input";
 
     input.addEventListener(eventName, () => {
       removeCheckoutFieldError(input);
@@ -671,7 +650,6 @@ function bindCheckoutAddressFieldValidation() {
     });
   });
 }
-
 
 let selectedCoupon = null;
 
@@ -789,7 +767,7 @@ async function applySelectedCoupon() {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`
     },
-    body: JSON.stringify({ code: selectedCoupon.coupon_code})
+    body: JSON.stringify({ code: selectedCoupon.coupon_code })
   });
 
   const data = await res.json();
@@ -824,7 +802,6 @@ async function removeCoupon() {
   showToast(data.message || "Coupon removed successfully", "success");
   await loadCheckout();
 }
-
 
 async function createRazorpayOrder(addressId) {
   const res = await fetch("/payments/razorpay/order", {
@@ -913,13 +890,11 @@ async function startRazorpayPayment(addressId) {
   razorpayInstance.open();
 }
 
-
 window.addEventListener("pageshow", async (event) => {
   if (event.persisted) {
     await loadCheckout();
   }
 });
-
 
 async function loadCheckout() {
   const res = await fetch("/checkout/data", {
@@ -940,7 +915,6 @@ async function loadCheckout() {
 
 if (checkoutContent) {
   checkoutContent.addEventListener("click", async (e) => {
-
     if (e.target.id === "openAddressModalBtn") {
       openAddressModal();
       return;
@@ -954,7 +928,6 @@ if (checkoutContent) {
       closeAddressModal();
       return;
     }
-
 
     if (e.target.id === "showCouponsBtn") {
       openCouponModal();
@@ -979,7 +952,6 @@ if (checkoutContent) {
       closeCouponModal();
       return;
     }
-
 
     if (e.target.id === "placeOrderBtn") {
       if (e.target.disabled) return;
@@ -1013,7 +985,6 @@ if (checkoutContent) {
         })
       });
 
-
       const data = await res.json();
 
       if (!data.success) {
@@ -1042,14 +1013,13 @@ if (checkoutContent) {
   });
 
   checkoutContent.addEventListener("change", async (e) => {
-
     if (e.target.name === "paymentMethod") {
       selectedPaymentMethod = e.target.value;
 
       const checkoutRes = await fetch("/checkout/data", {
         headers: {
-          Authorization: `Bearer ${token}`,
-        },
+          Authorization: `Bearer ${token}`
+        }
       });
 
       const checkoutData = await checkoutRes.json();
@@ -1064,46 +1034,41 @@ if (checkoutContent) {
     }
 
     if (e.target.classList.contains("checkout-coupon-radio")) {
-        selectedCoupon = {
+      selectedCoupon = {
         coupon_code: e.target.dataset.couponCode,
         description: e.target.dataset.description,
         min_purchase: Number(e.target.dataset.minPurchase || 0),
         discount_type: e.target.dataset.discountType,
         discount_value: Number(e.target.dataset.discountValue || 0)
-        };
+      };
 
-        closeCouponModal();
+      closeCouponModal();
 
-        const checkoutRes = await fetch("/checkout/data", {
+      const checkoutRes = await fetch("/checkout/data", {
         headers: {
-            Authorization: `Bearer ${token}`
+          Authorization: `Bearer ${token}`
         }
-        });
+      });
 
-        const checkoutData = await checkoutRes.json();
+      const checkoutData = await checkoutRes.json();
 
-        if (!checkoutData.success) {
+      if (!checkoutData.success) {
         showAlertModal(checkoutData.message || "Failed to refresh checkout");
         return;
-        }
+      }
 
-        renderCheckout(checkoutData.data);
+      renderCheckout(checkoutData.data);
     }
   });
 
-
-
   if (checkoutContent) {
     checkoutContent.addEventListener("submit", async (e) => {
-        if (e.target.id === "checkoutAddressForm") {
+      if (e.target.id === "checkoutAddressForm") {
         e.preventDefault();
         await saveCheckoutAddress();
-        }
+      }
     });
   }
-
 }
-
-
 
 loadCheckout();

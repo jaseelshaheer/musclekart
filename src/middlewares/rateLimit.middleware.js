@@ -20,7 +20,6 @@ export const loginAuthLimiter = rateLimit({
   }
 });
 
-
 export const emailOtpLimiter = rateLimit({
   windowMs: 30 * 1000,
   max: 1,

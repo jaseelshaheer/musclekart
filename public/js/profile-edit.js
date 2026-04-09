@@ -13,7 +13,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   const phoneInput = form.querySelector("input[name='phone']");
   const emailInput = document.getElementById("currentEmail");
 
-
   try {
     const res = await fetch("/user/profile", {
       headers: {
@@ -40,11 +39,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (user.profileImage) {
       previewImage.src = user.profileImage;
     }
-
   } catch {
     window.location.href = "/login";
   }
-
 
   form.profileImage?.addEventListener("change", (e) => {
     const file = e.target.files[0];
@@ -57,7 +54,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     reader.readAsDataURL(file);
   });
 
-  
   // submit of profile edit,
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -83,17 +79,13 @@ document.addEventListener("DOMContentLoaded", async () => {
         "toast",
         JSON.stringify({
           message: "Profile updated successfully.",
-          type: "success",
+          type: "success"
         })
       );
 
       window.location.href = "/profile";
-
     } catch (err) {
       showAlertModal(err.message || "Failed to update profile");
     }
   });
-
 });
-
-

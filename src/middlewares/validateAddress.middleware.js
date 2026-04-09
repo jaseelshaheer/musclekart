@@ -1,6 +1,5 @@
 import HTTP_STATUS from "../constants/httpStatus.js";
-import { ADDRESS_MESSAGES } from "../constants/messages.js";
-
+// import { ADDRESS_MESSAGES } from "../constants/messages.js";
 
 export const validateAddress = (req, res, next) => {
   let { name, phone, country, house, district, state, pincode } = req.body;

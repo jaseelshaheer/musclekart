@@ -5,7 +5,7 @@ function confirmAction(message) {
     const okBtn = document.getElementById("confirmOk");
     const cancelBtn = document.getElementById("confirmCancel");
 
-    if (!modal || !messageBox || !okBtn || !cancelBtn) return;
+    if (!modal || !messageEl || !okBtn || !cancelBtn) return;
 
     messageEl.textContent = message;
     modal.classList.remove("hidden");
@@ -30,9 +30,7 @@ function confirmAction(message) {
   });
 }
 
-
-function showConfirm(message, onConfirm){
-
+function showConfirm(message, onConfirm) {
   const modal = document.getElementById("confirmModal");
   const messageBox = document.getElementById("confirmMessage");
 
@@ -51,9 +49,7 @@ function showConfirm(message, onConfirm){
   cancelBtn.onclick = () => {
     modal.classList.add("hidden");
   };
-
 }
-
 
 function showAlertModal(message, title = "Notice") {
   const modal = document.getElementById("globalAlertModal");
@@ -78,20 +74,14 @@ function showAlertModal(message, title = "Notice") {
   };
 }
 
-
 // -------------------------------
 // GLOBAL FIELD ERROR RESET HANDLER
 // -------------------------------
 function attachFieldAutoReset() {
   document.addEventListener("input", function (e) {
-
     const input = e.target;
 
-    if (
-      input.tagName === "INPUT" ||
-      input.tagName === "TEXTAREA" ||
-      input.tagName === "SELECT"
-    ) {
+    if (input.tagName === "INPUT" || input.tagName === "TEXTAREA" || input.tagName === "SELECT") {
       // Remove red border
       input.classList.remove("input-error");
 

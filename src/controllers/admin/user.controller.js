@@ -10,22 +10,21 @@ export const getUsers = async (req, res) => {
     const result = await getUsersService({
       page,
       limit,
-      search,
+      search
     });
 
     res.status(HTTP_STATUS.OK).json({
       success: true,
       message: USER_MESSAGES.FETCH_SUCCESS,
-      data: result,
+      data: result
     });
-  } catch (error) {
+  } catch{
     res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
       success: false,
-      message: COMMON_MESSAGES.SOMETHING_WENT_WRONG,
+      message: COMMON_MESSAGES.SOMETHING_WENT_WRONG
     });
   }
 };
-
 
 export const updateUserStatus = async (req, res) => {
   try {
@@ -36,23 +35,17 @@ export const updateUserStatus = async (req, res) => {
       throw new Error("Invalid status value");
     }
 
-    const updatedUser = await updateUserStatusService(
-      userId,
-      isBlocked
-    );
+    const updatedUser = await updateUserStatusService(userId, isBlocked);
 
     res.status(HTTP_STATUS.OK).json({
       success: true,
-      message: isBlocked
-        ? USER_MESSAGES.BLOCKED
-        : USER_MESSAGES.UNBLOCKED,
-      data: updatedUser,
+      message: isBlocked ? USER_MESSAGES.BLOCKED : USER_MESSAGES.UNBLOCKED,
+      data: updatedUser
     });
   } catch (error) {
     res.status(HTTP_STATUS.BAD_REQUEST).json({
       success: false,
-      message: error.message,
+      message: error.message
     });
   }
 };
-

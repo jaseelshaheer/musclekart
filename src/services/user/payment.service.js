@@ -8,17 +8,14 @@ import Payment from "../../models/payment.model.js";
 import Variant from "../../models/variant.model.js";
 import { getCartService } from "./cart.service.js";
 
-
 import User from "../../models/user.model.js";
 import { creditWalletService } from "./wallet.service.js";
-
 
 function generateOrderId() {
   const timestamp = Date.now();
   const randomPart = Math.floor(1000 + Math.random() * 9000);
   return `MKORD-${timestamp}-${randomPart}`;
 }
-
 
 async function grantReferralRewardIfEligible(userId, order) {
   const user = await User.findById(userId);
@@ -49,7 +46,6 @@ async function grantReferralRewardIfEligible(userId, order) {
   user.referral_reward_granted = true;
   await user.save();
 }
-
 
 async function getCheckoutSnapshot(userId, addressId) {
   if (!addressId) {
@@ -115,13 +111,7 @@ async function getCheckoutSnapshot(userId, addressId) {
   };
 }
 
-async function finalizePaidOrder({
-  userId,
-  address,
-  checkoutData,
-  paymentMethod,
-  transactionId
-}) {
+async function finalizePaidOrder({ userId, address, checkoutData, paymentMethod, transactionId }) {
   const orderId = generateOrderId();
 
   const order = await Order.create({
@@ -234,12 +224,7 @@ export const createRazorpayOrderService = async (userId, payload) => {
 };
 
 export const verifyRazorpayPaymentService = async (userId, payload) => {
-  const {
-    addressId,
-    razorpay_order_id,
-    razorpay_payment_id,
-    razorpay_signature
-  } = payload;
+  const { addressId, razorpay_order_id, razorpay_payment_id, razorpay_signature } = payload;
 
   if (!addressId) {
     throw new Error("Address is required");

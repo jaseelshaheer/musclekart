@@ -3,7 +3,7 @@ const fromInput = document.getElementById("reportFrom");
 const toInput = document.getElementById("reportTo");
 
 const applyBtn = document.getElementById("reportApplyBtn");
-const downloadExcelBtn  = document.getElementById("reportDownloadExcelBtn");
+const downloadExcelBtn = document.getElementById("reportDownloadExcelBtn");
 const downloadPdfBtn = document.getElementById("reportDownloadPdfBtn");
 
 const tableBody = document.getElementById("reportTableBody");
@@ -47,7 +47,6 @@ function validateCustomRangeOrShowError() {
   return true;
 }
 
-
 function getQueryString() {
   const params = new URLSearchParams();
 
@@ -86,7 +85,9 @@ function renderRows(rows) {
     return;
   }
 
-  tableBody.innerHTML = rows.map((row) => `
+  tableBody.innerHTML = rows
+    .map(
+      (row) => `
     <tr>
       <td>${row.orderId}</td>
       <td>${formatDate(row.orderDate)}</td>
@@ -98,7 +99,9 @@ function renderRows(rows) {
       <td>${formatCurrency(row.totalDiscount)}</td>
       <td>${formatCurrency(row.grandTotal)}</td>
     </tr>
-  `).join("");
+  `
+    )
+    .join("");
 }
 
 async function loadReports() {

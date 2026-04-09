@@ -1,6 +1,17 @@
 import express from "express";
 import { protect } from "../../middlewares/auth.middleware.js";
-import { getOrderSuccessPage, getOrdersPage, getOrdersData, getOrderDetailPage, getOrderDetailData, cancelOrder, cancelOrderItem, returnOrder, returnOrderItem, downloadInvoice } from "../../controllers/user/order.controller.js";
+import {
+  getOrderSuccessPage,
+  getOrdersPage,
+  getOrdersData,
+  getOrderDetailPage,
+  getOrderDetailData,
+  cancelOrder,
+  cancelOrderItem,
+  returnOrder,
+  returnOrderItem,
+  downloadInvoice
+} from "../../controllers/user/order.controller.js";
 
 const router = express.Router();
 
@@ -15,7 +26,5 @@ router.patch("/orders/:orderId/items/:itemIndex/cancel", protect, cancelOrderIte
 router.patch("/orders/:orderId/return", protect, returnOrder);
 router.patch("/orders/:orderId/items/:itemIndex/return", protect, returnOrderItem);
 router.get("/orders/:orderId/invoice", protect, downloadInvoice);
-
-
 
 export default router;

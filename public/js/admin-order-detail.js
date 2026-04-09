@@ -5,7 +5,6 @@ if (!localStorage.getItem("adminToken")) {
 const adminOrderDetailContent = document.getElementById("adminOrderDetailContent");
 const adminToken = localStorage.getItem("adminToken");
 
-
 function getAdminStatusOptions(currentStatus) {
   const statusMap = {
     order_placed: ["pending", "confirmed", "cancelled"],
@@ -24,11 +23,9 @@ function getAdminStatusOptions(currentStatus) {
   return statusMap[currentStatus] || [];
 }
 
-
 function formatStatusLabel(status) {
   return status.replaceAll("_", " ").replace(/\b\w/g, (char) => char.toUpperCase());
 }
-
 
 function renderAdminOrderDetail(order) {
   if (!adminOrderDetailContent) return;
@@ -79,8 +76,8 @@ function renderAdminOrderDetail(order) {
     </div>
 
     ${
-        order.order_status === "return_requested"
-            ? `
+      order.order_status === "return_requested"
+        ? `
             <div class="admin-card" style="margin-bottom:20px;">
                 <div style="display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap;">
                 <div>
@@ -88,7 +85,7 @@ function renderAdminOrderDetail(order) {
                     <p style="margin:0; color:#b45309; font-weight:700;">Pending Admin Approval</p>
                     <p style="margin:8px 0 0; color:#475569;">
                     ${
-                        order.items
+                      order.items
                         .filter((item) => item.item_status === "return_requested")
                         .map((item) => item.return_reason)
                         .filter(Boolean)
@@ -108,7 +105,7 @@ function renderAdminOrderDetail(order) {
                 </div>
             </div>
             `
-            : ""
+        : ""
     }
 
     ${
@@ -159,7 +156,9 @@ function renderAdminOrderDetail(order) {
           </tr>
         </thead>
         <tbody>
-          ${order.items.map((item) => `
+          ${order.items
+            .map(
+              (item) => `
             <tr>
               <td>${item.product_name}</td>
               <td>${
@@ -173,7 +172,9 @@ function renderAdminOrderDetail(order) {
               <td>${formatStatusLabel(item.item_status)}</td>
               <td>${item.return_reason || "-"}</td>
             </tr>
-          `).join("")}
+          `
+            )
+            .join("")}
         </tbody>
       </table>
     </div>
@@ -240,7 +241,6 @@ function closeRejectReturnModal() {
   }
 }
 
-
 async function loadAdminOrderDetail() {
   const orderId = adminOrderDetailContent?.dataset.orderId;
   if (!orderId) return;
@@ -263,15 +263,14 @@ async function loadAdminOrderDetail() {
 
 if (adminOrderDetailContent) {
   adminOrderDetailContent.addEventListener("click", async (e) => {
-
     if (e.target.id === "approveReturnBtn") {
       const orderId = e.target.dataset.orderId;
 
       const res = await fetch(`/admin/orders/${orderId}/approve-return`, {
         method: "PATCH",
         headers: {
-          Authorization: `Bearer ${adminToken}`,
-        },
+          Authorization: `Bearer ${adminToken}`
+        }
       });
 
       const data = await res.json();
@@ -281,10 +280,7 @@ if (adminOrderDetailContent) {
         return;
       }
 
-      showToast(
-        data.message || "Return request approved successfully",
-        "success",
-      );
+      showToast(data.message || "Return request approved successfully", "success");
       await loadAdminOrderDetail();
       return;
     }
@@ -321,9 +317,9 @@ if (adminOrderDetailContent) {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${adminToken}`,
+          Authorization: `Bearer ${adminToken}`
         },
-        body: JSON.stringify({ reason }),
+        body: JSON.stringify({ reason })
       });
 
       const data = await res.json();
@@ -334,14 +330,10 @@ if (adminOrderDetailContent) {
       }
 
       closeRejectReturnModal();
-      showToast(
-        data.message || "Return request rejected successfully",
-        "success",
-      );
+      showToast(data.message || "Return request rejected successfully", "success");
       await loadAdminOrderDetail();
       return;
     }
-
 
     if (e.target.id === "updateStatusBtn") {
       const orderId = e.target.dataset.orderId;
@@ -376,4 +368,3 @@ if (adminOrderDetailContent) {
 }
 
 loadAdminOrderDetail();
-
