@@ -81,7 +81,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     return;
   }
 
-  const protectedUserPages = ["/profile", "/addresses", "/wishlist", "/cart"];
+  const protectedUserPages = ["/profile", "/addresses", "/wishlist", "/cart", "/shop"];
 
   if (!isUserAuthenticated && protectedUserPages.some((route) => path.startsWith(route))) {
     window.location.replace("/login");
