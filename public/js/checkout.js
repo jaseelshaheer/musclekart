@@ -803,14 +803,17 @@ async function removeCoupon() {
   await loadCheckout();
 }
 
-async function createRazorpayOrder(addressId) {
+async function createRazorpayOrder(addressId, orderId = "") {
   const res = await fetch("/payments/razorpay/order", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`
     },
-    body: JSON.stringify({ addressId })
+    body: JSON.stringify({
+      addressId,
+      orderId
+    })
   });
 
   const data = await res.json();
@@ -824,7 +827,7 @@ async function createRazorpayOrder(addressId) {
 }
 
 async function verifyRazorpayPayment({
-  addressId,
+  orderId,
   razorpay_order_id,
   razorpay_payment_id,
   razorpay_signature
@@ -836,7 +839,7 @@ async function verifyRazorpayPayment({
       Authorization: `Bearer ${token}`
     },
     body: JSON.stringify({
-      addressId,
+      orderId,
       razorpay_order_id,
       razorpay_payment_id,
       razorpay_signature
@@ -853,9 +856,31 @@ async function verifyRazorpayPayment({
   return data.data;
 }
 
+async function markRazorpayPaymentFailed(orderId) {
+  if (!orderId) return;
+
+  await fetch("/payments/razorpay/failure", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`
+    },
+    body: JSON.stringify({ orderId })
+  });
+}
+
 async function startRazorpayPayment(addressId) {
   const paymentData = await createRazorpayOrder(addressId);
   if (!paymentData) return;
+
+  let failureHandled = false;
+
+  const handleFailureAndRedirect = async () => {
+    if (failureHandled) return;
+    failureHandled = true;
+    await markRazorpayPaymentFailed(paymentData.orderId);
+    window.location.href = "/payment/failure";
+  };
 
   const options = {
     key: paymentData.key,
@@ -866,7 +891,7 @@ async function startRazorpayPayment(addressId) {
     order_id: paymentData.razorpayOrderId,
     handler: async function (response) {
       const verified = await verifyRazorpayPayment({
-        addressId,
+        orderId: paymentData.orderId,
         razorpay_order_id: response.razorpay_order_id,
         razorpay_payment_id: response.razorpay_payment_id,
         razorpay_signature: response.razorpay_signature
@@ -877,8 +902,8 @@ async function startRazorpayPayment(addressId) {
       window.location.href = `/payment/success?orderId=${encodeURIComponent(verified.orderId)}`;
     },
     modal: {
-      ondismiss: function () {
-        window.location.href = "/payment/failure";
+      ondismiss: async function () {
+        await handleFailureAndRedirect();
       }
     },
     theme: {
@@ -887,6 +912,9 @@ async function startRazorpayPayment(addressId) {
   };
 
   const razorpayInstance = new Razorpay(options);
+  razorpayInstance.on("payment.failed", async () => {
+    await handleFailureAndRedirect();
+  });
   razorpayInstance.open();
 }
 

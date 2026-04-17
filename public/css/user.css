@@ -3405,6 +3405,33 @@ input.error {
   color: #5f6f85;
 }
 
+
+
+
+.order-payment-status-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.order-retry-payment-btn {
+  border: 1px solid #1b7f79;
+  background: #e8f7f5;
+  color: #0f766e;
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.order-retry-payment-btn:hover {
+  background: #d8f1ee;
+}
+
+
 .return-reason-modal-card {
   max-width: 460px;
 }

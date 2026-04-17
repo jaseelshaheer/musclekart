@@ -1,7 +1,8 @@
 import HTTP_STATUS from "../../constants/httpStatus.js";
 import {
   createRazorpayOrderService,
-  verifyRazorpayPaymentService
+  verifyRazorpayPaymentService,
+  markRazorpayPaymentFailedService
 } from "../../services/user/payment.service.js";
 
 export const createRazorpayOrder = async (req, res) => {
@@ -33,6 +34,23 @@ export const verifyRazorpayPayment = async (req, res) => {
     res.status(HTTP_STATUS.BAD_REQUEST).json({
       success: false,
       message: error.message || "Failed to verify payment"
+    });
+  }
+};
+
+export const markRazorpayPaymentFailed = async (req, res) => {
+  try {
+    const result = await markRazorpayPaymentFailedService(req.user.id, req.body);
+
+    res.status(HTTP_STATUS.OK).json({
+      success: true,
+      message: "Payment marked as failed",
+      data: result
+    });
+  } catch (error) {
+    res.status(HTTP_STATUS.BAD_REQUEST).json({
+      success: false,
+      message: error.message || "Failed to mark payment status"
     });
   }
 };

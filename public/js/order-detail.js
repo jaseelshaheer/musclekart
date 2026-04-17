@@ -10,6 +10,10 @@ if (!token) {
 
 function renderOrderDetail(order) {
   if (!orderDetailContent) return;
+  const canRetryPayment =
+    order.payment_method === "card" &&
+    order.payment_status === "failed" &&
+    order.order_status === "pending";
 
   const itemOfferSavings = (order.items || []).reduce(
     (sum, item) => sum + Number((item.discount_amount || 0) * (item.quantity || 0)),
@@ -69,7 +73,14 @@ function renderOrderDetail(order) {
 
             <div class="order-detail-meta-box">
               <span>Payment Status</span>
-              <strong>${order.payment_status}</strong>
+              <div class="order-payment-status-row">
+                <strong>${order.payment_status}</strong>
+                ${
+                  canRetryPayment
+                    ? `<button type="button" class="order-retry-payment-btn" id="retryPaymentBtn">Retry Payment</button>`
+                    : ""
+                }
+              </div>
             </div>
 
             <div class="order-detail-meta-box">
@@ -243,6 +254,112 @@ function renderOrderDetail(order) {
       </aside>
     </div>
   `;
+}
+
+async function createRetryRazorpayOrder(orderId) {
+  const res = await fetch("/payments/razorpay/order", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`
+    },
+    body: JSON.stringify({ orderId })
+  });
+
+  const data = await res.json();
+
+  if (!res.ok || !data.success) {
+    showAlertModal(data.message || "Failed to initiate retry payment");
+    return null;
+  }
+
+  return data.data;
+}
+
+async function verifyRetryRazorpayPayment({ orderId, razorpay_order_id, razorpay_payment_id, razorpay_signature }) {
+  const res = await fetch("/payments/razorpay/verify", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`
+    },
+    body: JSON.stringify({
+      orderId,
+      razorpay_order_id,
+      razorpay_payment_id,
+      razorpay_signature
+    })
+  });
+
+  const data = await res.json();
+
+  if (!res.ok || !data.success) {
+    showAlertModal(data.message || "Payment verification failed");
+    return null;
+  }
+
+  return data.data;
+}
+
+async function markRetryPaymentFailed(orderId) {
+  await fetch("/payments/razorpay/failure", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`
+    },
+    body: JSON.stringify({ orderId })
+  });
+}
+
+async function startRetryPayment(orderId) {
+  const paymentData = await createRetryRazorpayOrder(orderId);
+  if (!paymentData) return;
+
+  let failureHandled = false;
+  const handleRetryFailure = async () => {
+    if (failureHandled) return;
+    failureHandled = true;
+    await markRetryPaymentFailed(orderId);
+    showAlertModal("Payment failed. You can retry again.");
+    await loadOrderDetail();
+  };
+
+  const options = {
+    key: paymentData.key,
+    amount: paymentData.amount,
+    currency: paymentData.currency,
+    name: "MuscleKart",
+    description: "Retry Order Payment",
+    order_id: paymentData.razorpayOrderId,
+    handler: async function (response) {
+      const verified = await verifyRetryRazorpayPayment({
+        orderId,
+        razorpay_order_id: response.razorpay_order_id,
+        razorpay_payment_id: response.razorpay_payment_id,
+        razorpay_signature: response.razorpay_signature
+      });
+
+      if (!verified) return;
+
+      showToast("Payment completed successfully", "success");
+      await loadOrderDetail();
+    },
+    modal: {
+      ondismiss: async function () {
+        await handleRetryFailure();
+      }
+    },
+    theme: {
+      color: "#1b7f79"
+    }
+  };
+
+  const razorpayInstance = new Razorpay(options);
+  razorpayInstance.on("payment.failed", async () => {
+    await handleRetryFailure();
+  });
+  razorpayInstance.open();
 }
 
 async function loadOrderDetail() {
@@ -471,6 +588,11 @@ if (orderDetailContent) {
       link.click();
       link.remove();
       window.URL.revokeObjectURL(url);
+      return;
+    }
+
+    if (e.target.id === "retryPaymentBtn") {
+      await startRetryPayment(orderId);
       return;
     }
   });

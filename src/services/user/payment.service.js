@@ -26,6 +26,7 @@ async function grantReferralRewardIfEligible(userId, order) {
 
   const completedOrdersCount = await Order.countDocuments({
     user_id: userId,
+    payment_status: "paid",
     order_status: { $ne: "cancelled" }
   });
 
@@ -111,16 +112,16 @@ async function getCheckoutSnapshot(userId, addressId) {
   };
 }
 
-async function finalizePaidOrder({ userId, address, checkoutData, paymentMethod, transactionId }) {
+async function createPendingOnlineOrderFromCheckout({ userId, address, checkoutData }) {
   const orderId = generateOrderId();
 
   const order = await Order.create({
     order_id: orderId,
     user_id: userId,
     order_date: new Date(),
-    order_status: "order_placed",
-    payment_method: paymentMethod,
-    payment_status: "paid",
+    order_status: "pending",
+    payment_method: "card",
+    payment_status: "pending",
     subtotal: checkoutData.cartData.subtotal,
     delivery_charge: checkoutData.shipping,
     discount: checkoutData.discount,
@@ -157,31 +158,64 @@ async function finalizePaidOrder({ userId, address, checkoutData, paymentMethod,
     })),
     status_history: [
       {
-        status: "order_placed",
+        status: "pending",
         changed_at: new Date(),
-        note: "Order has been placed successfully"
+        note: "Order created. Awaiting payment completion"
       }
     ]
   });
 
   await Payment.create({
     order_id: order._id,
-    method: paymentMethod,
-    status: "completed",
-    transaction_id: transactionId || "",
-    paid_at: new Date()
+    method: "card",
+    status: "pending",
+    transaction_id: "",
+    paid_at: null
   });
 
-  for (const item of checkoutData.cartData.items) {
+  return order;
+}
+
+async function finalizePendingOrderAfterPayment(order, razorpayPaymentId) {
+  if (order.payment_status === "paid") {
+    return order;
+  }
+
+  order.payment_status = "paid";
+  order.order_status = "order_placed";
+  order.status_history.push({
+    status: "order_placed",
+    changed_at: new Date(),
+    note: "Payment successful via Razorpay"
+  });
+  await order.save();
+
+  const payment = await Payment.findOne({ order_id: order._id });
+  if (payment) {
+    payment.status = "completed";
+    payment.transaction_id = razorpayPaymentId || "";
+    payment.paid_at = new Date();
+    await payment.save();
+  } else {
+    await Payment.create({
+      order_id: order._id,
+      method: "card",
+      status: "completed",
+      transaction_id: razorpayPaymentId || "",
+      paid_at: new Date()
+    });
+  }
+
+  for (const item of order.items) {
     const variant = await Variant.findById(item.variant_id);
     if (variant) {
-      variant.stock_qty -= item.quantity;
+      variant.stock_qty = Math.max(0, Number(variant.stock_qty || 0) - Number(item.quantity || 0));
       await variant.save();
     }
   }
 
   await Cart.findOneAndUpdate(
-    { user_id: userId },
+    { user_id: order.user_id },
     {
       $set: {
         cart_items: [],
@@ -191,8 +225,8 @@ async function finalizePaidOrder({ userId, address, checkoutData, paymentMethod,
     }
   );
 
-  if (checkoutData.cart?.applied_coupon_id) {
-    await Coupon.findByIdAndUpdate(checkoutData.cart.applied_coupon_id, {
+  if (order.coupon_id) {
+    await Coupon.findByIdAndUpdate(order.coupon_id, {
       $inc: { used_count: 1 }
     });
   }
@@ -201,33 +235,85 @@ async function finalizePaidOrder({ userId, address, checkoutData, paymentMethod,
 }
 
 export const createRazorpayOrderService = async (userId, payload) => {
-  const { addressId } = payload;
+  const { addressId, orderId } = payload || {};
+  let order;
 
-  const checkoutData = await getCheckoutSnapshot(userId, addressId);
+  if (orderId) {
+    order = await Order.findOne({
+      user_id: userId,
+      order_id: orderId
+    });
+
+    if (!order) {
+      throw new Error("Order not found");
+    }
+
+    if (order.payment_method !== "card") {
+      throw new Error("Retry is available only for online payments");
+    }
+
+    if (order.order_status === "cancelled") {
+      throw new Error("Cancelled order cannot be retried");
+    }
+
+    if (order.payment_status === "paid") {
+      throw new Error("Payment is already completed for this order");
+    }
+  } else {
+    const checkoutData = await getCheckoutSnapshot(userId, addressId);
+    order = await createPendingOnlineOrderFromCheckout({
+      userId,
+      address: checkoutData.address,
+      checkoutData
+    });
+  }
 
   const razorpayOrder = await razorpay.orders.create({
-    amount: Math.round(checkoutData.finalTotal * 100),
+    amount: Math.round(Number(order.grand_total || 0) * 100),
     currency: "INR",
     receipt: `rcpt_${Date.now()}`
   });
 
+  await Payment.findOneAndUpdate(
+    { order_id: order._id },
+    {
+      $set: {
+        method: "card",
+        status: "processing",
+        transaction_id: razorpayOrder.id,
+        paid_at: null
+      }
+    },
+    { upsert: true }
+  );
+
+  order.payment_status = "pending";
+  order.order_status = "pending";
+  order.status_history.push({
+    status: "pending",
+    changed_at: new Date(),
+    note: "Payment initiated via Razorpay"
+  });
+  await order.save();
+
   return {
+    orderId: order.order_id,
     razorpayOrderId: razorpayOrder.id,
     amount: razorpayOrder.amount,
     currency: razorpayOrder.currency,
     key: process.env.RAZORPAY_KEY_ID,
     checkout: {
-      addressId,
-      finalTotal: checkoutData.finalTotal
+      addressId: String(order.address_id || ""),
+      finalTotal: Number(order.grand_total || 0)
     }
   };
 };
 
 export const verifyRazorpayPaymentService = async (userId, payload) => {
-  const { addressId, razorpay_order_id, razorpay_payment_id, razorpay_signature } = payload;
+  const { orderId, razorpay_order_id, razorpay_payment_id, razorpay_signature } = payload;
 
-  if (!addressId) {
-    throw new Error("Address is required");
+  if (!orderId) {
+    throw new Error("Order ID is required");
   }
 
   if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
@@ -243,17 +329,72 @@ export const verifyRazorpayPaymentService = async (userId, payload) => {
     throw new Error("Payment signature verification failed");
   }
 
-  const checkoutData = await getCheckoutSnapshot(userId, addressId);
-
-  const order = await finalizePaidOrder({
-    userId,
-    address: checkoutData.address,
-    checkoutData,
-    paymentMethod: "card",
-    transactionId: razorpay_payment_id
+  const order = await Order.findOne({
+    user_id: userId,
+    order_id: orderId
   });
 
+  if (!order) {
+    throw new Error("Order not found");
+  }
+
+  if (order.payment_method !== "card") {
+    throw new Error("Invalid payment method for retry");
+  }
+
+  if (order.order_status === "cancelled") {
+    throw new Error("Cancelled order cannot be paid");
+  }
+
+  await finalizePendingOrderAfterPayment(order, razorpay_payment_id);
+
   await grantReferralRewardIfEligible(userId, order);
+
+  return {
+    orderId: order.order_id
+  };
+};
+
+export const markRazorpayPaymentFailedService = async (userId, payload) => {
+  const { orderId } = payload || {};
+
+  if (!orderId) {
+    throw new Error("Order ID is required");
+  }
+
+  const order = await Order.findOne({
+    user_id: userId,
+    order_id: orderId
+  });
+
+  if (!order) {
+    throw new Error("Order not found");
+  }
+
+  if (order.payment_status === "paid") {
+    return {
+      orderId: order.order_id
+    };
+  }
+
+  if (order.order_status === "cancelled") {
+    throw new Error("Cancelled order cannot be retried");
+  }
+
+  order.payment_status = "failed";
+  order.order_status = "pending";
+  order.status_history.push({
+    status: "pending",
+    changed_at: new Date(),
+    note: "Payment failed. Retry available."
+  });
+  await order.save();
+
+  const payment = await Payment.findOne({ order_id: order._id });
+  if (payment) {
+    payment.status = "failed";
+    await payment.save();
+  }
 
   return {
     orderId: order.order_id
