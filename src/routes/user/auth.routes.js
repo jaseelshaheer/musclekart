@@ -25,7 +25,11 @@ router.post("/reset-password", authLimiter, resetPassword);
 
 router.get("/referral/resolve", resolveReferralToken);
 
-router.get("/google", passport.authenticate("google", { scope: ["profile", "email"] }));
+router.get("/google",
+  passport.authenticate("google", {
+    scope: ["profile", "email"] ,
+  })
+);
 
 router.get("/google/callback", passport.authenticate("google", { session: false }), (req, res) => {
   const token = generateToken({
